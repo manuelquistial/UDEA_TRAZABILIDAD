@@ -12,5 +12,17 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('menu');
+});
+
+Route::get('/general', function () {
+    return view('general');
+});
+
+Route::get('/presolicitud', function () {
+    return view('preSolicitud');
+});
+
+Route::get('/confirmarpresolicitud', function () {
+    return view('confirmarPreSolicitud');
 });
