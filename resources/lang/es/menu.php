@@ -1,5 +1,0 @@
-<?php
-
-return [
-    'CuadroUno' => 'Investigacion'
-];

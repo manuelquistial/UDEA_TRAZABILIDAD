@@ -11,17 +11,13 @@
 |
 */
 
-Route::get('/', function () {
-    return view('menu');
-});
-
-Route::get('/general', function () {
-    return view('general');
-});
+Route::get('/', 'generalFormController@create');
 
 Route::get('/presolicitud', function () {
     return view('preSolicitud');
 });
+
+Route::get('/tramites', 'tramitesController@create');
 
 Route::get('/confirmarpresolicitud', function () {
     return view('confirmarPreSolicitud');
