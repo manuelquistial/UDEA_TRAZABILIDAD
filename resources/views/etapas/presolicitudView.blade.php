@@ -13,14 +13,14 @@
             <select class="form-control" name="proyecto_id">
             @if($etapas)
                 @foreach( $proyecto as $proyecto )
-                    <option value="{{ $proyecto->id }}">{{ $proyecto->proyecto }}</option>
+                    <option value="{{ $proyecto->id }}">{{ $proyecto->nombre }}</option>
                 @endforeach
             @else
                 @foreach( $proyecto as $proyecto )
                     @if( $proyecto->id == $data->proyecto_id )
-                        <option value="{{ $proyecto->id }}" selected>{{ $proyecto->proyecto }}</option>
+                        <option value="{{ $proyecto->id }}" selected>{{ $proyecto->nombre }}</option>
                     @else
-                        <option value="{{ $proyecto->id }}">{{ $proyecto->proyecto }}</option>
+                        <option value="{{ $proyecto->id }}">{{ $proyecto->nombre }}</option>
                     @endif
                 @endforeach
             @endif
