@@ -11,10 +11,6 @@ body {
     margin: 0px;
 }
 
-#sap-switch{
-    margin: 0px;
-}
-
 #label-sap{
     margin: 0px;
 }
@@ -29,6 +25,21 @@ body {
 
 #paginacion{
     display: none;
+}
+
+#sap-switch{
+    margin: 0px;
+}
+
+#title-etapa{
+    margin: 0px;
+}
+
+#title-etapa-right{
+    margin: 0px;
+    display: contents;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .fa-times{
@@ -101,7 +112,7 @@ body {
 }
 
 .lateral-inprogress{
-    border-left: 5px solid #c6c4c8!;
+    border-left: 5px solid #c6c4c8;
 }
 
 .lateral-done{
@@ -151,6 +162,15 @@ body {
 
 .tipo_transaccion_badge{
     padding: 0.25rem;
+}
+
+.status{
+    position: absolute;
+    transform: translate(100%, 0);
+    top: 0px;
+    display: block;
+    width: 35%;
+    text-align: center;
 }
 
 .switch {

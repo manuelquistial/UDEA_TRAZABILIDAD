@@ -59,5 +59,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'role' => \App\Http\Middleware\CheckRole::class,
         'etapa' => \App\Http\Middleware\HasEtapa::class,
+        'tipo_transaccion' => \App\Http\Middleware\HasTipoTransaccion::class,
     ];
 }

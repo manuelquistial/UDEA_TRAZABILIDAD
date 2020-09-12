@@ -22,8 +22,26 @@ class LegalizadoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($consecutivo)
     {
+        $etapas = true;
+        $etapa_id = $this->etapa_id;
+        $etapa_estado;
+
+        try {
+            $etapa_estado = DB::table('tr_etapas AS a')
+                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
+                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
+                        ->where('b.consecutivo', $consecutivo)
+                        ->orderBy('a.etapa_id', 'asc')
+                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
+                        ->get();
+            $queryStatus = "ok";
+        } catch(Exception $e) {
+            $queryStatus = "error";
+        }
+
+        return view('etapas/legalizadoView', compact('etapa_id','consecutivo','etapas','etapa_estado'));
     }
 
     /**

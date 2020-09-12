@@ -206,7 +206,7 @@ class UsuarioController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function change_estado(Request $request)
+    public function update_estado(Request $request)
     {
         $queryStatus;
         $columna;
@@ -214,9 +214,9 @@ class UsuarioController extends Controller
             $columna = 'estado_id';
         }
         try {
-            DB::table($this->tipoTransaccion)
+            DB::table($this->usuarios)
                 ->where('id', $request->id)
-                ->update([$columna => $request->value]);
+                ->update([$columna => $request->item]);
             $queryStatus = "ok";
         } catch(Exception $e) {
             $queryStatus = "error";

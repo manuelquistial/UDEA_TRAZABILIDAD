@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('tipoTransaccionView')
-    @if(!Auth::user()->hasEtapa(3)) 
+    @if($consulta)  
     <ul class="nav flex-column nav-pills" aria-orientation="vertical">
         @foreach ($tipoTransaccion as $transaccion)
         <li class="nav-item lateral-nav-item">
-            <a class="nav-link lateral-nav-link" href="transacciones/{{ $transaccion->id }}">{{ $transaccion->tipo_transaccion }}</a>
+            <a class="nav-link lateral-nav-link" href="{{ route('show_gestores',$transaccion->id) }}">{{ $transaccion->tipo_transaccion }}</a>
         </li>
         @endforeach
     </ul>

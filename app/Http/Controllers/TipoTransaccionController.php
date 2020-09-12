@@ -81,10 +81,10 @@ class TipoTransaccionController extends Controller
         }
         try {
             DB::table($this->tipoTransaccion)->insert(
-                [$this->columna => $request->value->item, 'etapa_id' => $sap]
+                [$this->columna => $request->item, 'etapa_id' => $sap]
             );
             $queryStatus = "ok";
-        } catch(Exception $e) {
+        } catch(Exceion $e) {
             $queryStatus = "error";
         }
         
@@ -172,7 +172,7 @@ class TipoTransaccionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function change_estado(Request $request)
+    public function update_estado(Request $request)
     {
         $queryStatus;
         $columna;

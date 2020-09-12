@@ -76,7 +76,7 @@ class Usuario extends Authenticatable
     * Check one role
     * @param string $role
     */
-    public function hasTipoTransaccion($tipo_transaccion){
-        return null !== $this->tiposTransaccion()->where('tipo_transaccion', $tipo_transaccion)->first();
+    public function hasTipoTransaccion(){
+        return null !== $this->tiposTransaccion()->first();
     }
 }

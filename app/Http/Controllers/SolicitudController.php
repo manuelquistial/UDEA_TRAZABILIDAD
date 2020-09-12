@@ -24,8 +24,34 @@ class SolicitudController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($consecutivo)
     {
+        $etapas = true;
+        $etapa_id = $this->etapa_id;
+        $etapa_estado;
+        $centro_costo;
+        
+        try {
+            $etapa_estado = DB::table('tr_etapas AS a')
+                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
+                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
+                        ->where('b.consecutivo', $consecutivo)
+                        ->orderBy('a.etapa_id', 'asc')
+                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
+                        ->get();
+            $queryStatus = "ok";
+        } catch(Exception $e) {
+            $queryStatus = "error";
+        }
+
+        try {
+            $centro_costo = DB::table('tr_centro_costos')->get();
+            $queryStatus = "ok";
+        } catch(Exception $e) {
+            $queryStatus = "error";
+        }
+        
+        return view('etapas/solicitudView', compact('etapa_id','etapas','etapa_estado','consecutivo','centro_costo'));
     }
 
     /**
@@ -128,8 +154,9 @@ class SolicitudController extends Controller
      */
     public function edit($consecutivo)
     {
-        $etapas = false;
+        $etapas = true;
         $etapa_id = $this->etapa_id;
+        $data;
         $etapa_estado;
         $centro_costo;
         
@@ -147,13 +174,20 @@ class SolicitudController extends Controller
         }
 
         try {
+            $data = DB::table('tr_solicitud')->where('consecutivo', $consecutivo)->first();
+            $queryStatus = "ok";
+        } catch(Exception $e) {
+            $queryStatus = "error";
+        }
+
+        try {
             $centro_costo = DB::table('tr_centro_costos')->get();
             $queryStatus = "ok";
         } catch(Exception $e) {
             $queryStatus = "error";
         }
         
-        return view('etapas/solicitudView', compact('etapa_id','etapas','consecutivo','etapa_estado','centro_costo'));
+        return view('etapas/solicitudView', compact('data','etapa_id','etapas','consecutivo','etapa_estado','centro_costo'));
     }
 
     /**

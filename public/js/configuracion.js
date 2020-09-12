@@ -131,7 +131,7 @@ document.getElementById('items_tabla').addEventListener('click', function(event)
         document.getElementById('item_value').value = value
         $('#modal').modal('show')
     }else if(event.target.type == "checkbox"){
-        let endpoint = window.location.href
+        let endpoint = window.location.href.split('#')[0]
         if(event.target.name == "sap"){
             let columna = event.target.name
             let id = event.target.value
@@ -166,12 +166,16 @@ document.getElementById('items_tabla').addEventListener('click', function(event)
 document.getElementById('modificar').addEventListener('click', function(event){
     let option = event.target.href.split("#")[1]
     let metodo = 0
-    let data = document.getElementById('item_value').value
+    let input = document.getElementById('item_value').value 
     if(option == 'agregar'){
         if(columna_tabla == "tipo_transaccion"){
             data = {
                 sap: document.getElementById('sap').checked,
-                item: document.getElementById('item_value').value
+                item: input
+            }
+        }else{
+            data = {
+                item: input
             }
         }
         metodo = 'POST'
@@ -184,7 +188,7 @@ document.getElementById('modificar').addEventListener('click', function(event){
     }else if(option == 'actualizar'){
         metodo = 'PUT'
         let id = document.getElementById('item_id').value
-        modificarConfiguracion(endpoint,metodo, data, id)
+        modificarConfiguracion(endpoint,metodo, input, id)
         .then((res) => res.json())
         .then((data) => {
             console.log(data)

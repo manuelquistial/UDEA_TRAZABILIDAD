@@ -1,8 +1,23 @@
 @extends('layouts.lateralMenu.etapasView')
 
 @section('content')
+@if(session('status') == "ok")
+<div class="status alert alert-success fade show" role="alert">
+{{ Lang::get('strings.etapas.presolicitud') }} {{ Lang::get('strings.general.ok') }}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+@elseif(session('status') == "error")
+<div class="status alert alert-danger fade show" role="alert">
+{{ Lang::get('strings.etapas.presolicitud') }} {{ Lang::get('strings.general.error') }}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+@endif
 <div class="card-body">
-    @if($etapas)
+    @if($etapa_id == 0)
         <form action="{{ route('save_presolicitud') }}" method="POST">
     @else
         <form action="{{ route('update_presolicitud', $data->consecutivo) }}" method="POST">
@@ -11,16 +26,16 @@
         <div class="form-group">
             <label for="proyecto_id">{{ Lang::get('strings.presolicitud.proyecto') }}</label>
             <select class="form-control" name="proyecto_id">
-            @if($etapas)
+            @if($etapa)
                 @foreach( $proyecto as $proyecto )
-                    <option value="{{ $proyecto->id }}">{{ $proyecto->nombre }}</option>
+                    <option value="{{ $proyecto->codigo }}">{{ $proyecto->nombre }}</option>
                 @endforeach
             @else
                 @foreach( $proyecto as $proyecto )
-                    @if( $proyecto->id == $data->proyecto_id )
-                        <option value="{{ $proyecto->id }}" selected>{{ $proyecto->nombre }}</option>
+                    @if( $proyecto->codigo == $data->proyecto_id )
+                        <option value="{{ $proyecto->codigo }}" selected>{{ $proyecto->nombre }}</option>
                     @else
-                        <option value="{{ $proyecto->id }}">{{ $proyecto->nombre }}</option>
+                        <option value="{{ $proyecto->codigo }}">{{ $proyecto->nombre }}</option>
                     @endif
                 @endforeach
             @endif
@@ -30,7 +45,7 @@
             <label for="transaccion_id">{{ Lang::get('strings.presolicitud.tipo_transaccion') }}</label>
             <div class="input-group mb-3">
                 <select class="form-control" name="transaccion_id" id="transaccion_id">
-                @if($etapas)
+                @if($etapa)
                     @foreach($tipoTransaccion as $transaccion )
                         <option value="{{ $transaccion->id }}">{{ $transaccion->tipo_transaccion }}</option>
                     @endforeach
@@ -44,8 +59,8 @@
                     @endforeach
                 @endif
                 </select>
-                @if(!$etapas)
-                    @if($etapa_estado[0]->estado_id == 0)
+                @if(!$etapa)
+                    @if($etapa_estado[0]->estado_id == 1)
                     <div class="input-group-prepend">
                         <a class="input-group-text" id="redirect" href="#">{{ Lang::get('strings.presolicitud.redireccionar') }}</a>
                     </div>
@@ -55,7 +70,7 @@
         </div>
         <div class="form-group">
             <label for="valor">{{ Lang::get('strings.general.valor') }}</label>
-            <input type="text" class="form-control" name="valor" {{ $etapas ? '' : 'value='.$data->valor }}> 
+            <input type="text" class="form-control" name="valor" value="{{ $etapa ? old('valor') : $data->valor}}"> 
             @if ($errors->has('valor'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('valor') }}</small></strong>
@@ -68,7 +83,7 @@
         <div class="form-row" style="margin: 1rem 0rem;">
             <div class="form-group col-md-6" style="margin: 0px;">
                 <label for="fecha_inicial">{{ Lang::get('strings.presolicitud.fecha_inicial') }}</label>
-                <input type="date" class="form-control" name="fecha_inicial" {{ $etapas ? '' : 'value='.$data->fecha_inicial }}>
+                <input type="date" class="form-control" name="fecha_inicial" value="{{ $etapa ? old('fecha_inicial') : $data->fecha_inicial}}">
                 @if ($errors->has('fecha_inicial'))
                     <span class="text-danger">
                         <strong><small>{{ $errors->first('fecha_inicial') }}</small></strong>
@@ -77,7 +92,7 @@
             </div>
             <div class="form-group col-md-6" style="margin: 0px;">
                 <label for="fecha_final">{{ Lang::get('strings.presolicitud.fecha_final') }}</label>
-                <input type="date" class="form-control" name="fecha_final" {{ $etapas ? '' : 'value='.$data->fecha_final }}>
+                <input type="date" class="form-control" name="fecha_final" value="{{ $etapa ? old('fecha_final') : $data->fecha_final}}">
                 @if ($errors->has('fecha_final'))
                     <span class="text-danger">
                         <strong><small>{{ $errors->first('fecha_final') }}</small></strong>
@@ -90,7 +105,7 @@
         </div>
         <div class="form-group">
             <label for="descripcion">{{ Lang::get('strings.presolicitud.descripcion') }}</label>
-            <textarea class="form-control" name="descripcion" rows="3">{{ $etapas ? '' : $data->descripcion }}</textarea>
+            <textarea class="form-control" name="descripcion" rows="3">{{ $etapa ? old('descripcion') : $data->descripcion}}</textarea>
             @if ($errors->has('descripcion'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('descripcion') }}</small></strong>
@@ -104,10 +119,10 @@
                 {!! Lang::get('strings.notes.presolicitud') !!}
             </small>
         </div>
-        @if ($etapas)
+        @if ($etapa_id == 0)
             <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.presolicitud.enviar') }}</button></div>
         @else
-            <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.presolicitud.tramitar') }}</button></div>
+            <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.confirmar') }}</button></div>
         @endif
     </form>
 </div>

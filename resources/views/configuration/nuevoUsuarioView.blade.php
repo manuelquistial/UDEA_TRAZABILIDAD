@@ -75,7 +75,7 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="etapa" id="ninguno" value="" selected>
+                    <input class="form-check-input" type="radio" name="etapa" id="ninguno" checked>
                     <label class="form-check-label" for="ninguno">{!! Lang::get('strings.usuario.etapas.ninguno') !!}</label>
                 </div>
                 @if($opcion == "perfil")

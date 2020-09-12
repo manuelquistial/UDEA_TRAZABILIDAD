@@ -76,7 +76,7 @@ class CentroCostosController extends Controller
         $queryStatus;
         try {
             DB::table($this->centro_costos)->insert(
-                [$this->columna => $request->value]
+                [$this->columna => $request->item]
             );
             $queryStatus = "ok";
         } catch(Exception $e) {
@@ -145,7 +145,7 @@ class CentroCostosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function change_estado(Request $request)
+    public function update_estado(Request $request)
     {
         $queryStatus;
         $columna;
@@ -153,7 +153,7 @@ class CentroCostosController extends Controller
             $columna = 'estado_id';
         }
         try {
-            DB::table($this->tipoTransaccion)
+            DB::table($this->centro_costos)
                 ->where('id', $request->id)
                 ->update([$columna => $request->value]);
             $queryStatus = "ok";

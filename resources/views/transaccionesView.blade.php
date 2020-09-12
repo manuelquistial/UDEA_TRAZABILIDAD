@@ -3,7 +3,18 @@
 @section('content')
 <div class="modal-header">
     <div class="col-6 conf-header">
-        <h5>{{ Lang::get('strings.menu_superior.transaccion') }}</h5>
+        @if($consulta) 
+            <h5>{{ Lang::get('strings.menu_superior.consulta_gestores') }}</h5>
+        @else
+            <h5>{{ Lang::get('strings.menu_superior.consulta_usuario') }}</h5>
+        @endif
+    </div>
+    <div class="col-6 text-right conf-header">
+        @if(!$consulta & Auth::user()->hasTipoTransaccion())
+            <a class="info-header" href="{{route('consulta_gestores')}}">{{ Lang::get('strings.menu_superior.consulta_gestores') }}</a>
+        @elseif($consulta)
+            <a class="info-header" href="{{route('consulta_usuario')}}">{{ Lang::get('strings.menu_superior.consulta_usuario') }}</a>
+        @endif
     </div>
 </div>
 <div class="card-body">
@@ -12,7 +23,9 @@
             <thead>
                 <tr>
                     <th>{{ Lang::get('strings.general.consecutivo') }}</th>
-                    <th>{{ Lang::get('strings.configuracion.tipo_transaccion') }}</th>
+                    @if(!$consulta)
+                        <th>{{ Lang::get('strings.configuracion.tipo_transaccion') }}</th>
+                    @endif
                     <th>{{ Lang::get('strings.configuracion.etapa') }}</th>
                     <th>{{ Lang::get('strings.correos.estado') }}</th>
                 </tr>
@@ -21,8 +34,15 @@
                 @foreach ($transacciones as $transaccion)
                 <tr>
                     <td>
-                    <a href="#">{{ $transaccion->consecutivo }}</a>
+                    @if($consulta)
+                        <a href="{{ route('show_'.$transaccion->endpoint, $transaccion->consecutivo) }}">{{ $transaccion->consecutivo }}</a>
+                    @else
+                        <a href="#">{{ $transaccion->consecutivo }}</a>
+                    @endif
                     </td>
+                    @if(!$consulta)
+                        <td>{{ $transaccion->tipo_transaccion }}</a></td>
+                    @endif
                     <td>{{ $transaccion->etapa }}</a></td>
                     <td>{{ $transaccion->estado }}</a></td>
                 </tr>

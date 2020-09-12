@@ -9,6 +9,8 @@ return [
             'cerrar_sesion' => 'Cerrar sesión'
         ],
         'transaccion' => 'Consulta de Tramites',
+        'consulta_usuario' => 'Consulta de Usuarios',
+        'consulta_gestores' => 'Consulta de Gestores',
         'correos' => 'Correos',
         'presolicitud' => 'Presolicitud'
     ],
@@ -30,7 +32,6 @@ return [
     'configuracion' => [
         'menu_lateral' => [
             ['centro_costos', 'Centros de Costos'],
-            ['proyectos', 'Proyectos'],
             ['tipos_transaccion', 'Tipos de Transacción'],
             ['usuarios', 'Usuarios']
         ],
@@ -39,9 +40,6 @@ return [
         'tipo_transaccion' => 'Tipo de Transacción',
         'escribir_transaccion' => 'Digite tipo de transacción',
         'nuevo_tipo_transaccion' => 'Nuevo tipo de transacción',
-        'proyectos' => 'Proyectos',
-        'proyecto' => 'Proyecto',
-        'nuevo_proyecto' => 'Nuevo proyecto',
         'centro_costos' => 'Centro de Costos',
         'centro_costo' => 'Centro de Costo',
         'nuevo_centro_costo' => 'Nuevo centro de costo',
@@ -57,12 +55,6 @@ return [
                 'placeholder' => 'Buscar tipo de transacción',
                 'escribir_item' => 'Digite tipo de transacción a guardar',
                 'deshabilitar' => "¿Deshabilitar los tipos de transacción seleccionados?"
-            ],
-            'proyectos' => [
-                'titulo' => 'Proyecto',
-                'placeholder' => 'Buscar proyecto',
-                'escribir_item' => 'Digite proyecto a guardar',
-                'deshabilitar' => "¿Deshabilitar los proyectos seleccionados?"
             ],
             'centro_costos' => [
                 'titulo' => 'Centro de Costos',
@@ -81,7 +73,7 @@ return [
         'valor' => 'Consulte <a href="#">aquí</a> los recursos disponibles de su proyecto',
         'fecha' => 'Para Viáticos y Tiquetes es Obligatorio',
         'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a href="#">aquí</a> Solicitud de Recursos <br> 2. Adjuntar carta de invitacion al evento',
-        'solicitud' => 'Adjuntar Análisis de conveniencia y/o Formato de Justificación CPSP',
+        'solicitud' => 'Adjuntar Análisis de Conveniencia y/o Formato de Justificación CPSP',
         'autorizado' => 'Describir alguna novedad',
         'usuario_etapa' => 'Seleccionar sólo si es el funcionario encargado.',
         'usuario_tipo_transaccion' => 'Seleccionar los tipos de transaccion al cual el funcionario esta encargado.',
@@ -99,7 +91,9 @@ return [
         'solicitud' => 'Solicitudes',
         'configuracion' => 'Configuración',
         'consecutivo' => 'Consecutivo',
-        'guardar' => 'Guardar'
+        'guardar' => 'Guardar',
+        'ok' => 'guardada',
+        'error' => 'no guardada'
     ],
     'presolicitud' => [
         'proyecto' => 'Programa, proyecto y líneas misionales',

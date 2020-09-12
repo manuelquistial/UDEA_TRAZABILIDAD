@@ -27,17 +27,8 @@ class Presolicitud extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'consecutivo', 'valor', 'descripcion_pendiente',
+        'id', 'usuario_id', 'consecutivo', 'valor', 'descripcion',
         'fecha_inicial', 'fecha_final', 'proyecto_id', 'transaccion_id',
         'etapa_id', 'fecha_estado'
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'user_id'
     ];
 }

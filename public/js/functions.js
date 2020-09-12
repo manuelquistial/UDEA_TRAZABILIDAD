@@ -60,9 +60,8 @@ async function modificarConfiguracion(endpoint, metodo, value, id){
   let url = `${path}/${endpoint}`
   if(metodo == "PUT"){
     url = url + '/update/' + id
-    value = {value}
   }
-
+  console.log(value)
   const response = await fetch(url, {
     method: metodo, // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify(value),
@@ -76,8 +75,6 @@ async function modificarConfiguracion(endpoint, metodo, value, id){
 
 async function actualizarEstado(endpoint, value, columna, id){
   let url = `${endpoint}/estado`
-  console.log(value)
-  console.log(columna)
   const response = await fetch(url, {
     method: 'PUT', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({

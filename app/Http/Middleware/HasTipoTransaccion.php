@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 
-class HasTipoTransaccionMiddleware
+class HasTipoTransaccion
 {
     /**
      * Handle an incoming request.
@@ -14,8 +14,8 @@ class HasTipoTransaccionMiddleware
      * @return mixed
      */
     public function handle($request, Closure $next){
-        if(!$request->user()->tiposTransaccion($tipo_transaccion)) {
-            return redirect('/');
+        if(!$request->user()->hasTipoTransaccion()) {
+            return redirect('/transacciones/usuario');
         }
         return $next($request);
     }

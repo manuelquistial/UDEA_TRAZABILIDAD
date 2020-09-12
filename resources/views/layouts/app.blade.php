@@ -32,7 +32,7 @@
                     <a class="nav-link" href="{{ route('presolicitud') }}">{{ Lang::get('strings.menu_superior.presolicitud') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('transacciones') }}">{{ Lang::get('strings.menu_superior.transaccion') }}</a>
+                    <a class="nav-link" href="{{ route('consulta_usuario') }}">{{ Lang::get('strings.menu_superior.transaccion') }}</a>
                 </li>
                 @if(Auth::user()->hasEtapa(3))
                 <li class="nav-item">
