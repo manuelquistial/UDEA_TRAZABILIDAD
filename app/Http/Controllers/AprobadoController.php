@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Aprobado;
-use App\ConsecutivoEtapaEstado;
 use Auth;
 
 class AprobadoController extends Controller

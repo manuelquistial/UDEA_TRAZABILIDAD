@@ -8,7 +8,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use App\Solicitud;
-use App\ConsecutivoEtapaEstado;
 use App\CentroCostos;
 use Auth;
 
