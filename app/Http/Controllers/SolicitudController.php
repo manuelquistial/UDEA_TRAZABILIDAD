@@ -4,21 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
 use App\Solicitud;
+use App\ConsecutivoEtapaEstado;
+use App\CentroCostos;
 use Auth;
 
 class SolicitudController extends Controller
 {
     public $etapa_id = 2;
     public $estado_id = 1;
-    public $next_etapa_id = 3;
-    public $next_estado_id = 2;
 
     public function __construct()
     {
         $this->middleware('auth');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -26,32 +29,19 @@ class SolicitudController extends Controller
      */
     public function index($consecutivo)
     {
+        $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
-        $centro_costo;
+        $centro_costos;
         
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $centro_costo = DB::table('tr_centro_costos')->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-        
-        return view('etapas/solicitudView', compact('etapa_id','etapas','etapa_estado','consecutivo','centro_costo'));
+        $centro_costos = CentroCostos::get();
+
+        return view('etapas/solicitudView', compact('route','etapa_id','etapas','etapa_estado','consecutivo','centro_costos'));
     }
 
     /**
@@ -63,13 +53,13 @@ class SolicitudController extends Controller
     public function create(array $data)
     {
         $solicitud = Solicitud::create([
-            'user_id' => Auth::user()->cedula,
+            'encargado_id' => Auth::user()->cedula,
             'consecutivo' => $data['consecutivo'],
             'centro_costos_id' => $data['centro_costos_id'],
             'codigo_sigep_id' => $data['codigo_sigep_id'],
             'fecha_conveniencia' => $data['fecha_conveniencia'],
-            'concepto' => $data['conceptp'],
-            'etapa_id' => $this->etapa_id,
+            'concepto' => $data['concepto'],
+            'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -100,50 +90,39 @@ class SolicitudController extends Controller
      */
     public function store(Request $request)
     {
-        $queryStatus;
-
         $this->validator($request->all())->validate();
 
-        try {
-            $solicitud = $this->create($request->all());
-            $solicitud->save();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        try {
-            DB::table('tr_consecutivo_etapa_estado')
-              ->where('consecutivo', $consecutivo)
-              ->where('etapa_id', $this->etapa_id)
-              ->update(['estado_id' => $this->next_estado_id],['fecha_estado', date("Y-m-d H:i:s")]) ;
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        try {
-            DB::table('tr_consecutivo_etapa_estado')
-              ->where('consecutivo', $consecutivo)
-              ->where('etapa_id', $this->next_etapa_id)
-              ->update(['estado_id' => $this->estado_id]);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        return response()->json(['data'=>$queryStatus]);
+        $solicitud = $this->create($request->all());
+        $solicitud->save();
+    
+        return redirect()->route('edit_solicitud', $request->consecutivo)->with('status', true);
+        //return response()->json(['data'=>$queryStatus]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $consecutivo
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($consecutivo)
     {
-        //
+        $route = "show";
+        $etapas = false;
+        $etapa_id = $this->etapa_id;
+        $data;
+        $centro_costo;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        $data = Solicitud::where('consecutivo', $consecutivo)->first();
+
+        $centro_costos = CentroCostos::get();
+        
+        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos'));
     }
 
     /**
@@ -154,40 +133,22 @@ class SolicitudController extends Controller
      */
     public function edit($consecutivo)
     {
-        $etapas = true;
+        $route = "edit";
+        $etapas = false;
         $etapa_id = $this->etapa_id;
         $data;
-        $etapa_estado;
         $centro_costo;
         
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $data = DB::table('tr_solicitud')->where('consecutivo', $consecutivo)->first();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $data = Solicitud::where('consecutivo', $consecutivo)->first();
 
-        try {
-            $centro_costo = DB::table('tr_centro_costos')->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $centro_costos = CentroCostos::get();
         
-        return view('etapas/solicitudView', compact('data','etapa_id','etapas','consecutivo','etapa_estado','centro_costo'));
+        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos'));
     }
 
     /**
@@ -197,25 +158,33 @@ class SolicitudController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $consecutivo)
+    public function update(Request $request)
     {
-        $queryStatus;
-
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
         $data['etapa_id'] = $this->next_etapa_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 
-        try {
-            Solicitud::where('consecutivo', $consecutivo)
-                        ->update($data);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        Solicitud::where('consecutivo', $request->consecutivo)
+                ->update($data);
 
-        return response()->json(['data'=>$data]);
+        return redirect()->route('edit_solicitud', $request->consecutivo)->with('status', true);
+    }
+
+    /**
+     * Get estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEstado(Request $request)
+    {
+        $estado = Solicitud::where('consecutivo', $request->consecutivo)
+                ->select('estado_id')
+                ->first();
+            
+        return response()->json(['data'=>$estado]);
     }
 
     /**

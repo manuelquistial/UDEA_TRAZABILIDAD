@@ -19,10 +19,10 @@ class CreateAutorizadoTable extends Migration
             $table->integer('encargado_id')->unsigned();
             $table->foreign('encargado_id')->references('cedula')->on('tr_usuarios');
             $table->integer('codigo_sigep')->nullable();
-            $table->boolean('pendiente_codigo_sigep');
+            $table->boolean('pendiente_codigo_sigep')->nullable();
             $table->string('descripcion_pendiente')->nullable();
-            $table->integer('etapa_id')->unsigned();
-            $table->foreign('etapa_id')->references('etapa_id')->on('tr_etapas');
+            $table->integer('estado_id')->unsigned();
+            $table->foreign('estado_id')->references('estado_id')->on('tr_estados');
             $table->dateTime('fecha_estado')->nullable();
         });
     }

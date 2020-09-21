@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'cambio_estado' => [
+        'titulo' => 'Seleccionar etapa por confirmar',
+        'confirmar' => 'Confirmar',
+        'declinar' => 'Declinar'
+    ],
     'menu_superior' => [
         'titulo' => 'Solicitudes de trámites administrativos y financieros',
         'opciones' => [
@@ -70,9 +75,9 @@ return [
         ]
     ],
     'notes' => [
-        'valor' => 'Consulte <a href="#">aquí</a> los recursos disponibles de su proyecto',
+        'valor' => 'Consulte <a >aquí</a> los recursos disponibles de su proyecto',
         'fecha' => 'Para Viáticos y Tiquetes es Obligatorio',
-        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a href="#">aquí</a> Solicitud de Recursos <br> 2. Adjuntar carta de invitacion al evento',
+        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a >aquí</a> Solicitud de Recursos <br> 2. Adjuntar carta de invitacion al evento',
         'solicitud' => 'Adjuntar Análisis de Conveniencia y/o Formato de Justificación CPSP',
         'autorizado' => 'Describir alguna novedad',
         'usuario_etapa' => 'Seleccionar sólo si es el funcionario encargado.',
@@ -81,7 +86,7 @@ return [
     ],
     'general' => [
         'valor' => 'Valor',
-        'confirmar' => 'Confirmar',
+        'gaurdar' => 'Confirmar',
         'crp' => 'No. del CRP o Pedido',
         'fechaSolicitud' => 'Fecha de Solicitud',
         'anexos' => 'Anexos',
@@ -93,7 +98,7 @@ return [
         'consecutivo' => 'Consecutivo',
         'guardar' => 'Guardar',
         'ok' => 'guardada',
-        'error' => 'no guardada'
+        'actualizar' => "Actualizar"
     ],
     'presolicitud' => [
         'proyecto' => 'Programa, proyecto y líneas misionales',
@@ -113,11 +118,11 @@ return [
         'concepto' => 'Concepto'
     ],
     'tramite' => [
-        'consecutivo_sap' => 'Consecutivo Transacción SAP y Portal',
+        'consecutivo_sap' => 'Consecutivo transacción SAP y Portal',
         'fecha_sap' => 'Fecha de Solicitud SAP'
     ],
     'autorizado' => [
-        'codigoRegistroSigep' => 'Código registro SIGEP',
+        'codigo_sigep' => 'Código registro SIGEP',
         'pendiente' => 'Pendiente',
         'confirmacionEnvio' => 'Confirmación de Envío al Ordenador del Gastos',  
         'fechaEnvio' => 'Fecha de Envío',
@@ -133,7 +138,7 @@ return [
         'fecha_envio_presupuestos' => 'Fecha de Envío - Presupuestos',
         'solpe' => 'Solpe',
         'fecha_crp_pedido' => 'Fecha del CRP o Pedido',
-        'valor_final_crp' => 'Valor Final del CRP',
+        'valor_final_crp' => 'Valor final del CRP',
         'nombre_tercero' => 'Nombre del Tercero',
         'identificacion_tercero' => 'No. De Identificación del tercero'
     ],
@@ -143,11 +148,11 @@ return [
         'fecha_cancelacion' => 'Fecha de solicitud a presupuestos, la cancelación de la reserva o su remanente'
     ],
     'pago' => [
-        'valor_egreso' => 'Valor del Egreso'
+        'valor_egreso' => 'Valor del egreso'
     ],
     'legalizado' => [
-        'crp' => 'No. de CRP o No. de Comprobante',
-        'valor' => 'Valor del Egreso',
+        'crp' => 'No. de CRP o No. de comprobante',
+        'valor' => 'Valor del egreso',
         'reintegro' => 'Reintegro'
     ],
     'etapas' => [

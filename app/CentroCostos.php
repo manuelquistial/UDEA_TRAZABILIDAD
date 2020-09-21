@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Reserva extends Model
+class CentroCostos extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'tr_reserva';
+    protected $table = 'tr_centro_costos';
 
     /**
      * Indicates if the model should be timestamped.
@@ -26,7 +26,6 @@ class Reserva extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'encargado_id', 'consecutivo_id', 'num_oficio', 'fecha_cancelacion',
-        'estado_id', 'fecha_estado'
+        'id', 'centro_costo', 'estado_id',
     ];
 }

@@ -6,14 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Aprobado;
+use App\ConsecutivoEtapaEstado;
 use Auth;
 
 class AprobadoController extends Controller
 {
     public $etapa_id = 6;
     public $estado_id = 1;
-    public $next_etapa_id = 7;
-    public $next_estado_id = 2;
 
     public function __construct()
     {
@@ -25,19 +24,29 @@ class AprobadoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($consecutivo)
     {
+        $route = "index";
+        $etapas = true;
+        $etapa_id = $this->etapa_id;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        return view('etapas/aprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
     }
 
     /**
      * Create a new user instance after a valid registration.
      *
      * @param  array  $data
-     * @return \App\Reserva
+     * @return \App\Aprobado
      */
     public function create(array $data)
     {
-        $reserva = Reserva::create([
+        $aprobado = Aprobado::create([
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
             'crp' => $data['crp'],
@@ -45,11 +54,11 @@ class AprobadoController extends Controller
             'valor_final_crp' => $data['valor_final_crp'],
             'nombre_tercero' => $data['nombre_tercero'],
             'identificacion_tercero' => $data['identificacion_tercero'],
-            'etapa_id' => $this->etapa_id,
+            'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
-        return $reserva;
+        return $aprobado;
     }
 
     /**
@@ -61,9 +70,15 @@ class AprobadoController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'crp' => 'required|string',
+            'fecha_envio_documento' => 'date',
+            'fecha_envio_decanatura' => 'date',
+            'fecha_envio_presupuestos' => 'date',
+            'solpe' => 'integer',
+            'crp' => 'required|integer',
             'fecha_crp_pedido' => 'required|date',
-            'valor_final_crp' => 'required|integer'
+            'valor_final_crp' => 'required|integer',
+            'nombre_tercero' => 'string|nullable',
+            'identificacion_tercero'  => 'integer|nullable'
         ]);
     }
 
@@ -77,12 +92,10 @@ class AprobadoController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $reserva = $this->create($request->all());
-        $reserva->save();
-        $status = DB::table('tr_status')
-                        ->where('consecutivo_id', $request->consecutivo)
-                        ->update(['reserva' => True]);
-        return response()->json([''=>$status]);
+        $aprobado = $this->create($request->all());
+        $aprobado->save();
+
+        return redirect()->route('edit_aprobado', $request->consecutivo)->with('status', true);
     }
 
     /**
@@ -93,7 +106,18 @@ class AprobadoController extends Controller
      */
     public function show($id)
     {
-        //
+        $route = "show";
+        $etapas = false;
+        $etapa_id = $this->etapa_id;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;;
+
+        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
     }
 
     /**
@@ -104,23 +128,18 @@ class AprobadoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-        return view('etapas/aprobadoView', compact('etapa_id','etapas','consecutivo','etapa_estado'));
+        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
     }
 
     /**
@@ -130,25 +149,50 @@ class AprobadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $queryStatus;
-
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
         $data['etapa_id'] = $this->next_etapa_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 
-        try {
-            Aprobado::where('consecutivo', $consecutivo)
-                        ->update($data);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        Aprobado::where('consecutivo', $request->consecutivo)
+                    ->update($data);
 
-        return response()->json(['data'=>$data]);
+        return redirect()->route('edit_aprobado', $request->consecutivo)->with('status', true);
+    }
+
+    /**
+     * Update the specified item in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update_items(Request $request)
+    {
+        $this->validator($request->all())->validate();   
+        $data = $request->except('_token'); 
+
+        Aprobado::where('consecutivo', $request->consecutivo)
+                    ->update($data);
+
+    }
+
+    /**
+     * Get estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEstado(Request $request)
+    {
+        $estado = Aprobado::where('consecutivo', $request->consecutivo)
+                ->select('estado_id')
+                ->first();
+            
+        return response()->json(['data'=>$estado]);
     }
 
     /**

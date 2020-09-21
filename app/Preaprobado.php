@@ -11,7 +11,7 @@ class Preaprobado extends Model
      *
      * @var string
      */
-    protected $table = 'tr_aprobado';
+    protected $table = 'tr_preaprobado';
 
     /**
      * Indicates if the model should be timestamped.
@@ -26,7 +26,7 @@ class Preaprobado extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'encargado_id', 'consecutivo_id', 'fecha_cdp', 'cdp',
-        'etapa_id', 'fecha_estado'
+        'id', 'encargado_id', 'consecutivo', 'fecha_cdp', 'cdp',
+        'estado_id', 'fecha_estado'
     ];
 }

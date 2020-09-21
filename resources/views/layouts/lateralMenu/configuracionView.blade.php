@@ -49,7 +49,7 @@
                     @endif
                 </div>
                 <div class="modal-footer">
-                    <a type="button" class="btn btn-primary" id="modificar" href="#"></a>
+                    <a type="button" class="btn btn-primary" id="modificar" ></a>
                 </div>
             </div>
         </div>

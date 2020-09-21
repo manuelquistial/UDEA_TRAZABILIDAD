@@ -11,12 +11,22 @@
         <p></p>
     </div>
 
-    <form action="{{ route('save_reserva') }}" method="post">
-        {!! csrf_field() !!}    
+    @switch($route)
+        @case("index")
+            <form action="{{ route('save_reserva') }}" method="post"> 
+            {!! csrf_field() !!}
+            @break
+        @case("edit")
+            <form action="{{ route('update_reserva') }}" method="post"> 
+            {!! csrf_field() !!}
+            @break
+        @default
+            @break
+    @endswitch  
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="num_oficio">{{ Lang::get('strings.reserva.num_oficio') }}</label>
-            <input type="text" class="form-control" name="num_oficio">
+            <input type="text" class="form-control" name="num_oficio" value="{{ $etapas ? old('num_oficio') : $data->num_oficio}}">
             @if ($errors->has('num_oficio'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('num_oficio') }}</small></strong>
@@ -25,14 +35,23 @@
         </div>
         <div class="form-group">
             <label for="fecha_cancelacion">{{ Lang::get('strings.reserva.fecha_cancelacion') }}</label>
-            <input type="date" class="form-control" name="fecha_cancelacion">
+            <input type="date" class="form-control" name="fecha_cancelacion" value="{{ $etapas ? old('fecha_cancelacion') : $data->fecha_cancelacion}}">
             @if ($errors->has('fecha_cancelacion'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('fecha_cancelacion') }}</small></strong>
                 </span>
             @endif
         </div>
-        <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.confirmar') }}</button></div>
+        @switch($route)
+            @case("index")
+                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                @break
+            @case("edit")
+                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                @break
+            @default
+                @break
+        @endswitch
     </form>
 </div>
 @stop

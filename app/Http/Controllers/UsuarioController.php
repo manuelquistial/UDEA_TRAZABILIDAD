@@ -17,7 +17,7 @@ class UsuarioController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        //$this->middleware('auth');
     }
 
     /**
@@ -95,7 +95,7 @@ class UsuarioController extends Controller
                 ->attach($data['tipos_transaccion']);
         }
 
-        if(!is_null($data['etapa'])){
+        if($data['etapa'] !== 'on'){
             $usuario
                 ->etapa()
                 ->attach($data['etapa']);
@@ -140,7 +140,7 @@ class UsuarioController extends Controller
         $usuario->save();
         $request->session()->flash('status', 'status');
         return redirect()->route('nuevo_usuario');
-        //return response()->json([''=>$request->all()]);
+        //return response()->json([''=>$request['etapa']]);
     }
 
     /**
@@ -206,7 +206,7 @@ class UsuarioController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update_estado(Request $request)
+    public function updateEstado(Request $request)
     {
         $queryStatus;
         $columna;

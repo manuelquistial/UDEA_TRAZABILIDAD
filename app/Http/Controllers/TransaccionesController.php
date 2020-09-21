@@ -20,7 +20,7 @@ class TransaccionesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show_consulta_usuario()
+    public function showConsultaUsuario()
     {
         $consulta = false;
         $transacciones;
@@ -51,7 +51,7 @@ class TransaccionesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show_consulta_gestores()
+    public function showConsultaGestores()
     {
         $tipoTransaccion;
         $transacciones;

@@ -2,18 +2,27 @@
 
 @section('content')
 <div class="card-body">
-    <form action="{{ route('save_autorizado') }}" method="post">
-        {!! csrf_field() !!} 
+    @switch($route)
+        @case("index")
+            <form action="{{ route('save_autorizado') }}" method="post"> 
+            {!! csrf_field() !!}
+            @break
+        @case("edit")
+            <form action="{{ route('update_autorizado') }}" method="post"> 
+            {!! csrf_field() !!}
+            @break
+        @default
+            @break
+    @endswitch 
+        <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
-            <label for="exampleControlInput1">{{ Lang::get('strings.autorizado.codigoRegistroSigep') }}</label>
+            <label for="codigo_sigep">{{ Lang::get('strings.autorizado.codigo_sigep') }}</label>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" name="codigo_sigep">
-                @if(!$etapas)
-                    @if($etapa_estado[3]->estado_id == 0)
-                    <div class="input-group-prepend">
-                        <a class="input-group-text" id="redirect" href="#">{{ Lang::get('strings.autorizado.pendiente') }}</a>
-                    </div>
-                    @endif
+                <input type="text" class="form-control" name="codigo_sigep" value="{{ $etapas ? old('codigo_sigep') : $data->codigo_sigep }}">
+                @if($route !== "show")
+                <div class="input-group-prepend">
+                    <a class="input-group-text" id="redirect" >{{ Lang::get('strings.autorizado.pendiente') }}</a>
+                </div>
                 @endif
             </div>
             @if ($errors->has('codigo_sigep'))
@@ -22,8 +31,19 @@
                 </span>
             @endif
         </div>
-        <div class="form-group">
-            <label for="exampleControlTextarea1">{{ Lang::get('strings.autorizado.descripcion') }}</label>
+        @switch($route)
+            @case("index")
+                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                @break
+            @case("edit")
+                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                @break
+            @default
+                @break
+        @endswitch
+    </form>
+    <div class="form-group">
+            <label for="descripcion">{{ Lang::get('strings.autorizado.descripcion') }}</label>
             <textarea class="form-control" rows="3" name="descripcion"></textarea>
             @if ($errors->has('descripcion'))
                 <span class="text-danger">
@@ -34,7 +54,5 @@
                 {!! Lang::get('strings.notes.autorizado') !!}
             </small>
         </div>
-        <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.confirmar') }}</button></div>
-    </form>
 </div>
 @stop

@@ -35,11 +35,12 @@ body {
     margin: 0px;
 }
 
-#title-etapa-right{
+#consecutivo-cambio-estado{
     margin: 0px;
     display: contents;
     font-size: 12px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .fa-times{
@@ -141,6 +142,11 @@ body {
 
 .nav-item{
     list-style: none;
+}
+
+.table{
+    text-align: center;
+    margin: 0px;
 }
 
 .table thead th {

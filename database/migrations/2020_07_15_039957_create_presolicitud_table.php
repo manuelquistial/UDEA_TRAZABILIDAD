@@ -26,8 +26,8 @@ class CreatePresolicitudTable extends Migration
             $table->date('fecha_final')->nullable();
             $table->integer('valor');
             $table->string('descripcion');
-            $table->integer('etapa_id')->unsigned();
-            $table->foreign('etapa_id')->references('etapa_id')->on('tr_etapas');
+            $table->integer('estado_id')->unsigned();
+            $table->foreign('estado_id')->references('estado_id')->on('tr_estados');
             $table->dateTime('fecha_estado')->nullable();
         });
     }

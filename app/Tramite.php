@@ -26,7 +26,7 @@ class Tramite extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'encargado_id', 'consecutivo_id', 'fecha_sap', 'consecutivo_sap',
-        'etapa_id', 'fecha_estado'
+        'id', 'encargado_id', 'consecutivo', 'fecha_sap', 'consecutivo_sap',
+        'estado_id', 'fecha_estado'
     ];
 }

@@ -11,18 +11,38 @@
             <h6>{{ Lang::get('strings.legalizado.valor') }}</h6>
             <p></p>
         </div>
-        <form action="{{ route('save_legalizado') }}" method="post">
-            {!! csrf_field() !!} 
+        @switch($route)
+            @case("index")
+                <form action="{{ route('save_legalizado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @case("edit")
+                <form action="{{ route('update_legalizado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @default
+                @break
+        @endswitch 
+            <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
             <div class="form-group">
                 <label for="reintegro">{{ Lang::get('strings.legalizado.reintegro') }}</label>
-                <input type="text" class="form-control" name="reintegro">
+                <input type="text" class="form-control" name="reintegro" value="{{ $etapas ? old('reintegro') : $data->reintegro}}">
                 @if ($errors->has('reintegro'))
                     <span class="text-danger">
                         <strong><small>{{ $errors->first('reintegro') }}</small></strong>
                     </span>
                 @endif
             </div>
-            <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.confirmar') }}</button></div>
+            @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                    @break
+                @case("edit")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                    @break
+                @default
+                    @break
+            @endswitch
         </form>
     </div>
 </div>

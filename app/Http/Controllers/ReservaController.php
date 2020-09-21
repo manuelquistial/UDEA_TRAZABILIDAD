@@ -6,14 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Reserva;
+use App\Aprobado;
 use Auth;
 
 class ReservaController extends Controller
 {
     public $etapa_id = 7;
     public $estado_id = 1;
-    public $next_etapa_id = 8;
-    public $next_estado_id = 2;
 
     public function __construct()
     {
@@ -27,23 +26,16 @@ class ReservaController extends Controller
      */
     public function index($consecutivo)
     {
+        $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-        return view('etapas/reservaView', compact('etapa_id','etapas','consecutivo','etapa_estado'));
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado'));
     }
 
     /**
@@ -55,12 +47,12 @@ class ReservaController extends Controller
     public function create(array $data)
     {
         $reserva = Reserva::create([
-            'consecutivo_id' => $data['consecutivo'],
-            'encargado_id' => 1113533874,
+            'consecutivo' => $data['consecutivo'],
+            'encargado_id' => Auth::user()->cedula,
             'num_oficio' => $data['num_oficio'],
             'fecha_cancelacion' => $data['fecha_cancelacion'],
-            'created_at' => date("Y-m-d H:i:s"),
-            'updated_at' => NULL
+            'estado_id' => $this->estado_id,
+            'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
         return $reserva;
@@ -92,10 +84,8 @@ class ReservaController extends Controller
 
         $reserva = $this->create($request->all());
         $reserva->save();
-        $status = DB::table('tr_status')
-                        ->where('consecutivo_id', $request->consecutivo)
-                        ->update(['reserva' => True]);
-        return response()->json([''=>$status]);
+
+        return redirect()->route('edit_reserva', $request->consecutivo)->with('status', true);
     }
 
     /**
@@ -104,9 +94,24 @@ class ReservaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($consecutivo)
     {
-        //
+        $route = "show";
+        $etapas = false;
+        $etapa_id = $this->etapa_id;
+
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        $crp_pedido = Aprobado::where('consecutivo', $consecutivo)
+                    ->select('crp')
+                    ->get();
+
+        $data = Reserva::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
     }
 
     /**
@@ -117,23 +122,18 @@ class ReservaController extends Controller
      */
     public function edit($consecutivo)
     {
+        $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-        return view('etapas/reservaView', compact('etapa_id','etapas','consecutivo','etapa_estado'));
+        $data = Reserva::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
     }
 
     /**
@@ -143,25 +143,33 @@ class ReservaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $queryStatus;
-
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
         $data['etapa_id'] = $this->next_etapa_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 
-        try {
-            Reserva::where('consecutivo', $consecutivo)
-                        ->update($data);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        Reserva::where('consecutivo', $request->consecutivo)
+                    ->update($data);
 
-        return response()->json(['data'=>$data]);
+        return redirect()->route('edit_reserva', $request->consecutivo)->with('status', true);
+    }
+
+    /**
+     * Get estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEstado(Request $request)
+    {
+        $estado = Reserva::where('consecutivo', $request->consecutivo)
+                ->select('estado_id')
+                ->first();
+            
+        return response()->json(['data'=>$estado]);
     }
 
     /**

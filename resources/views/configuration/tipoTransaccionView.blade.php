@@ -12,7 +12,7 @@
         <h5>{{ Lang::get('strings.configuracion.tipos_transaccion') }}</h5>
     </div>
     <div class="col-6 text-right conf-header">
-        <a class="info-header" href="#" id="nuevo_item">{{ Lang::get('strings.configuracion.nuevo_tipo_transaccion') }}</a>
+        <a class="info-header"  id="nuevo_item">{{ Lang::get('strings.configuracion.nuevo_tipo_transaccion') }}</a>
     </div>
 </div>
 <div class="card-body">

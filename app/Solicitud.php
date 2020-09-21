@@ -26,16 +26,7 @@ class Solicitud extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'consecutivo', 'encarcado_id', 'centro_costos_id',
-        'codigo_sigep', 'fecha_conveniencia', 'etapa_id', 'fecha_estado', 'concepto'
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'encargado_id'
+        'id', 'consecutivo', 'encargado_id', 'centro_costos_id',
+        'codigo_sigep_id', 'fecha_conveniencia', 'estado_id', 'fecha_estado', 'concepto'
     ];
 }

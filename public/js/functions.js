@@ -1,7 +1,8 @@
-var path = 'http://localhost/udea_trazabilidad/public/index.php'
+var path = 'http://localhost/udea_trazabilidad/public/index.php' //Windows
+var path = 'http://localhost:8080/UDEA_TRAZABILIDAD/public/index.php' //Mac
 var token = document.getElementsByTagName('meta')['csrf-token'].getAttribute("content");
 
-async function redirect(url, transaccion_id){
+async function redirect(rurl, transaccion_id){
   const response = await fetch(url, {
     method: 'PUT', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
@@ -16,13 +17,13 @@ async function redirect(url, transaccion_id){
 }
 
 async function getItems(endpoint, page, data){
-  let url = `${path}/${endpoint}`
+  let route = `${path}/${endpoint}`
   if(page != null){
-    url = url+'/paginacion?page='+page
+    route = route+'/paginacion?page='+page
   }else{
-    url = url+'/search/'+data
+    route = route+'/search/'+data
   }
-  const response = await fetch(url, {
+  const response = await fetch(route, {
     method: 'GET', 
     headers: {
       'Content-Type': 'application/json',
@@ -33,8 +34,8 @@ async function getItems(endpoint, page, data){
 }
 
 async function getUsuarios(){
-  let url = `${path}/usuarios/all`
-  const response = await fetch(url, {
+  let route = `${path}/usuarios/all`
+  const response = await fetch(route, {
     method: 'GET', // *GET, POST, PUT, DELETE, etc.
     headers: {
       'Content-Type': 'application/json',
@@ -45,8 +46,8 @@ async function getUsuarios(){
 }
 
 async function getTiposTransaccion(){
-  let url = `${path}/tipostransaccion/all`
-  const response = await fetch(url, {
+  let route = `${path}/tipostransaccion/all`
+  const response = await fetch(route, {
     method: 'GET', // *GET, POST, PUT, DELETE, etc.
     headers: {
       'Content-Type': 'application/json',
@@ -57,12 +58,11 @@ async function getTiposTransaccion(){
 }
 
 async function modificarConfiguracion(endpoint, metodo, value, id){
-  let url = `${path}/${endpoint}`
+  let route = `${path}/${endpoint}`
   if(metodo == "PUT"){
-    url = url + '/update/' + id
+    route = route + '/update/' + id
   }
-  console.log(value)
-  const response = await fetch(url, {
+  const response = await fetch(route, {
     method: metodo, // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify(value),
     headers: {
@@ -73,14 +73,41 @@ async function modificarConfiguracion(endpoint, metodo, value, id){
   return response
 }
 
-async function actualizarEstado(endpoint, value, columna, id){
-  let url = `${endpoint}/estado`
-  const response = await fetch(url, {
+async function actualizarEstado(url, value, columna, id){
+  let route = `${url}/estado`
+  const response = await fetch(route, {
     method: 'PUT', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
         id: id,
         value: value,
         columna: columna
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
+}
+
+async function getEtapas(url){
+  let route = `${url}/etapas`
+  const response = await fetch(route, {
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
+}
+
+async function getEstados(url,endpoint,consecutivo){
+  let route = `${url}/${endpoint}`
+  const response = await fetch(route, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    body: JSON.stringify({
+      consecutivo:consecutivo
     }),
     headers: {
       'Content-Type': 'application/json',
@@ -104,5 +131,7 @@ export{
   tildesEspacios,
   modificarConfiguracion,
   actualizarEstado,
-  redirect
+  redirect,
+  getEtapas,
+  getEstados
 }

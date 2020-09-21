@@ -6,14 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Autorizado;
+use App\ConsecutivoEtapaEstado;
 use Auth;
 
 class AutorizadoController extends Controller
 {
     public $etapa_id = 4;
     public $estado_id = 1;
-    public $next_etapa_id = 5;
-    public $next_estado_id = 2;
 
     public function __construct()
     {
@@ -25,8 +24,18 @@ class AutorizadoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($consecutivo)
     {
+        $route = "index";
+        $etapas = true;
+        $etapa_id = $this->etapa_id;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
     }
 
     /**
@@ -41,9 +50,9 @@ class AutorizadoController extends Controller
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
             'codigo_sigep' => $data['codigo_sigep'],
-            'pendiente_codigo_sigep' => $data['pendiente_codigo_sigep'],
-            'descripcion_pendiente' => $data['descripcion_pendiente'],
-            'etapa_id' => $this->etapa_id,
+            'pendiente_codigo_sigep' => NULL,
+            'descripcion_pendiente' => NULL,
+            'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -72,39 +81,13 @@ class AutorizadoController extends Controller
      */
     public function store(Request $request)
     {
-        $queryStatus;
-
         $this->validator($request->all())->validate();
 
-        try {
-            $autorizado = $this->create($request->all());
-            $autorizado->save();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-        
-        try {
-            DB::table('tr_consecutivo_etapa_estado')
-              ->where('consecutivo', $consecutivo)
-              ->where('etapa_id', $this->etapa_id)
-              ->update(['estado_id' => $this->next_estado_id],['fecha_estado', date("Y-m-d H:i:s")]) ;
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $autorizado = $this->create($request->all());
+        $autorizado->save();
 
-        try {
-            DB::table('tr_consecutivo_etapa_estado')
-              ->where('consecutivo', $consecutivo)
-              ->where('etapa_id', $this->next_etapa_id)
-              ->update(['estado_id' => $this->estado_id]);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
 
-        return response()->json(['data'=>$queryStatus]);
+        return redirect()->route('edit_autorizado', $request->consecutivo)->with('status', true);
     }
 
     /**
@@ -113,9 +96,20 @@ class AutorizadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($consecutivo)
     {
-        //
+        $route = "show";
+        $etapas = false;
+        $etapa_id = $this->etapa_id;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        $data = Autorizado::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
 
     /**
@@ -126,24 +120,18 @@ class AutorizadoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $data = Autorizado::where('consecutivo', $consecutivo)->first();
 
-        return view('etapas/autorizadoView', compact('etapa_id','consecutivo','etapas','etapa_estado'));
+        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
 
     /**
@@ -153,25 +141,33 @@ class AutorizadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $queryStatus;
-
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
         $data['etapa_id'] = $this->next_etapa_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 
-        try {
-            Autorizado::where('consecutivo', $consecutivo)
-                        ->update($data);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        Autorizado::where('consecutivo', $request->consecutivo)
+                ->update($data);
 
-        return response()->json(['data'=>$data]);
+        return redirect()->route('edit_autorizado', $request->consecutivo)->with('status', true);
+    }
+
+    /**
+     * Get estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEstado(Request $request)
+    {
+        $estado = Autorizado::where('consecutivo', $request->consecutivo)
+                ->select('estado_id')
+                ->first();
+            
+        return response()->json(['data'=>$estado]);
     }
 
     /**

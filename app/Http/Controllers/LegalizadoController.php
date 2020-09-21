@@ -10,7 +10,7 @@ use App\Legalizado;
 class LegalizadoController extends Controller
 {
     public $etapa_id = 9;
-    public $estado_id = 2;
+    public $estado_id = 1;
 
     public function __construct()
     {
@@ -24,24 +24,16 @@ class LegalizadoController extends Controller
      */
     public function index($consecutivo)
     {
+        $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        return view('etapas/legalizadoView', compact('etapa_id','consecutivo','etapas','etapa_estado'));
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
     }
 
     /**
@@ -56,7 +48,7 @@ class LegalizadoController extends Controller
             'consecutivo_id' => $data['consecutivo'],
             'encargado_id' => 1113533874,
             'reintegro' => $data['reintegro'],
-            'etapa_id' => $this->etapa_id,
+            'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -88,10 +80,8 @@ class LegalizadoController extends Controller
 
         $legalizado = $this->create($request->all());
         $legalizado->save();
-        $status = DB::table('tr_status')
-                        ->where('consecutivo_id', $request->consecutivo)
-                        ->update(['Legalizado' => True]);
-        return response()->json([''=>$status]);
+
+        return redirect()->route('edit_legalizado', $request->consecutivo)->with('status', true);
     }
 
     /**
@@ -102,7 +92,18 @@ class LegalizadoController extends Controller
      */
     public function show($id)
     {
-        //
+        $route = "show";
+        $etapas = false;
+        $etapa_id = $this->etapa_id;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        $data = Legalizado::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
 
     /**
@@ -113,24 +114,18 @@ class LegalizadoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $data = Legalizado::where('consecutivo', $consecutivo)->first();
 
-        return view('etapas/legalizadoView', compact('etapa_id','consecutivo','etapas','etapa_estado'));
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
 
     /**
@@ -143,6 +138,21 @@ class LegalizadoController extends Controller
     public function update(Request $request, $id)
     {
         //
+    }
+
+    /**
+     * Get estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEstado(Request $request)
+    {
+        $estado = Legalizado::where('consecutivo', $request->consecutivo)
+                ->select('estado_id')
+                ->first();
+            
+        return response()->json(['data'=>$estado]);
     }
 
     /**

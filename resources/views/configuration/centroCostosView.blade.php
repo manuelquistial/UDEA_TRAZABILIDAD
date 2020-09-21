@@ -12,7 +12,7 @@
         <h5>{{ Lang::get('strings.configuracion.centro_costos') }}</h5>
     </div>
     <div class="col-6 text-right conf-header">
-        <a class="info-header" href="#" id="nuevo_item">{{ Lang::get('strings.configuracion.nuevo_centro_costo') }}</a>
+        <a class="info-header"  id="nuevo_item">{{ Lang::get('strings.configuracion.nuevo_centro_costo') }}</a>
     </div>
 </div>
 <div class="card-body">

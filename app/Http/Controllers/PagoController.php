@@ -11,8 +11,6 @@ class PagoController extends Controller
 {
     public $etapa_id = 8;
     public $estado_id = 1;
-    public $next_etapa_id = 9;
-    public $next_estado_id = 2;
 
     public function __construct()
     {
@@ -26,24 +24,14 @@ class PagoController extends Controller
      */
     public function index($consecutivo)
     {
-        $etapas = true;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
+        
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapas','etapa_estado'));
+        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado'));
     }
 
     /**
@@ -82,9 +70,18 @@ class PagoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($consecutivo)
     {
+        $etapa_id = $this->etapa_id;
         
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        $data = Pago::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado','data'));
     }
 
     /**
@@ -95,24 +92,7 @@ class PagoController extends Controller
      */
     public function edit($consecutivo)
     {
-        $etapas = false;
-        $etapa_id = $this->etapa_id;
-        $etapa_estado;
-
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapas','etapa_estado'));
+        
     }
 
     /**
@@ -125,6 +105,21 @@ class PagoController extends Controller
     public function update(Request $request, $id)
     {
         //
+    }
+
+    /**
+     * Get estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEstado(Request $request)
+    {
+        $estado = Pago::where('consecutivo', $request->consecutivo)
+                ->select('estado_id')
+                ->first();
+            
+        return response()->json(['data'=>$estado]);
     }
 
     /**

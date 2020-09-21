@@ -7,7 +7,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ Lang::get('strings.menu_superior.titulo') }}</title>
-
+        <base href="http://localhost:8080/UDEA_TRAZABILIDAD/public/index.php/" target="_self">
         <!-- Styles -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{{ asset('css/style.css') }}" rel="stylesheet">
@@ -20,7 +20,7 @@
     </head>
     <body>
         <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" >
                 <img src="{{ asset('img/logo_udea.svg') }}" width="200" height="50" alt="">
             </a>
             <div class="collapse navbar-collapse" id="navbarText">
@@ -40,10 +40,10 @@
                 </li>
                 @endif
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="far fa-bell"></i></a>
+                    <a class="nav-link"><i class="far fa-bell"></i></a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{ Auth::user()->nombre }} {{ Auth::user()->apellidos }}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -68,9 +68,9 @@
             <footer class="my-4 pt-2 text-muted text-center text-small border-top">
                 <p class="mb-1">© 2017-2018 Company Name</p>
                 <ul class="list-inline">
-                <li class="list-inline-item"><a href="#">Privacy</a></li>
-                <li class="list-inline-item"><a href="#">Terms</a></li>
-                <li class="list-inline-item"><a href="#">Support</a></li>
+                <li class="list-inline-item"><a >Privacy</a></li>
+                <li class="list-inline-item"><a >Terms</a></li>
+                <li class="list-inline-item"><a >Support</a></li>
                 </ul>
             </footer>
         </div>

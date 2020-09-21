@@ -37,7 +37,7 @@
                     @if($consulta)
                         <a href="{{ route('show_'.$transaccion->endpoint, $transaccion->consecutivo) }}">{{ $transaccion->consecutivo }}</a>
                     @else
-                        <a href="#">{{ $transaccion->consecutivo }}</a>
+                        <a >{{ $transaccion->consecutivo }}</a>
                     @endif
                     </td>
                     @if(!$consulta)

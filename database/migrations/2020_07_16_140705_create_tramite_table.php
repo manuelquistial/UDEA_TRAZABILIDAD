@@ -16,12 +16,13 @@ class CreateTramiteTable extends Migration
         Schema::create('tr_tramite', function (Blueprint $table) {
             $table->increments('id')->unsigned();
             $table->integer('consecutivo')->unsigned();
+            $table->foreign('consecutivo')->references('consecutivo')->on('tr_presolicitud');
             $table->integer('encargado_id')->unsigned();
             $table->foreign('encargado_id')->references('cedula')->on('tr_usuarios');
             $table->string('consecutivo_sap')->nullable();
             $table->date('fecha_sap')->nullable();
-            $table->integer('etapa_id')->unsigned();
-            $table->foreign('etapa_id')->references('etapa_id')->on('tr_etapas');
+            $table->integer('estado_id')->unsigned();
+            $table->foreign('estado_id')->references('estado_id')->on('tr_estados');
             $table->dateTime('fecha_estado')->nullable();
         });
     }

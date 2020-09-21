@@ -6,14 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Presolicitud;
+use App\ConsecutivoEtapaEstado;
+use App\TiposTransaccion;
+use App\Etapa;
 use Auth;
 
 class PresolicitudController extends Controller
 {
     public $etapa_id = 1;
     public $estado_id = 1;
-    public $next_etapa_id = 2;
-    public $next_estado_id = 2;
 
     public function __construct()
     {
@@ -26,16 +27,20 @@ class PresolicitudController extends Controller
      */
     public function index()
     {
-        $etapa = true;
+        $etapas = true;
+        $route = "index";
         $etapa_id = 0;
-        $tipoTransaccion = DB::table('tr_tipostransaccion')->get();
+
+        $tipoTransaccion = TiposTransaccion::get();
+
         $proyecto = DB::connection('mysql_sigep')
                     ->table('proyectos')
                     ->where('Estado', 1)
                     ->select('nombre', 'codigo')
                     ->orderBy('nombre', 'asc')
                     ->get();
-        return view('etapas/presolicitudView', compact('etapa_id','etapa','tipoTransaccion','proyecto'));
+
+        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','tipoTransaccion','proyecto'));
         //return response()->json([''=>$proyecto]);
     }
 
@@ -56,7 +61,7 @@ class PresolicitudController extends Controller
             'fecha_final' => $data['fecha_final'],
             'valor' => $data['valor'],
             'descripcion' => $data['descripcion'],
-            'etapa_id' => $this->etapa_id,
+            'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -87,49 +92,16 @@ class PresolicitudController extends Controller
      */
     public function store(Request $request)
     {
-        $queryStatus;
         $etapa_items;
         $consecutivo;
 
         $etapa_array = [];
         $this->validator($request->all())->validate();
 
-        try {
-            $presolicitud = $this->create($request->all());
-            $presolicitud->save();
-            $consecutivo = $presolicitud->id;
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-    
-        try {
-            $etapa_items = DB::table('tr_etapas')
-                        ->select('etapa_id')
-                        ->get();
+        $presolicitud = $this->create($request->all());
+        $presolicitud->save();
 
-            foreach ($etapa_items as &$value) {
-                if($value->etapa_id == $this->etapa_id){
-                    array_push($etapa_array, array('consecutivo'=>$consecutivo, 'etapa_id'=>$value->etapa_id, 'estado_id'=>$this->estado_id, 'fecha_estado'=>date("Y-m-d H:i:s")));
-                }else{
-                    array_push($etapa_array, array('consecutivo'=>$consecutivo, 'etapa_id'=>$value->etapa_id, 'estado_id'=>null, 'fecha_estado'=>null));
-                }
-            }
-            
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        try {
-            DB::table('tr_consecutivo_etapa_estado')
-                ->insert($etapa_array);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-        
-        return redirect('/')->with('status', $queryStatus);
+        return redirect('/')->with('status', true);
     }
 
     /**
@@ -140,54 +112,31 @@ class PresolicitudController extends Controller
      */
     public function show($consecutivo)
     {
-        $etapa = false;
+        $etapas = false;
+        $route = "show";
         $etapa_id = $this->etapa_id;
         $etapa_estado;
         $data;
         $tipoTransaccion;
         $proyecto;
-        $queryStatus;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $data = DB::table('tr_presolicitud')->where('consecutivo', $consecutivo)->first();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $data = Presolicitud::where('consecutivo', $consecutivo)->first();
 
-        try {
-            $tipoTransaccion = DB::table('tr_tipostransaccion')->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $tipoTransaccion = TiposTransaccion::get();
         
-        try {
-            $proyecto = DB::connection('mysql_sigep')
-                    ->table('proyectos')
-                    ->where('Estado', 1)
-                    ->select('nombre', 'codigo')
-                    ->orderBy('nombre', 'asc')
-                    ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }   
+        $proyecto = DB::connection('mysql_sigep')
+                ->table('proyectos')
+                ->where('Estado', 1)
+                ->select('nombre', 'codigo')
+                ->orderBy('nombre', 'asc')
+                ->get();
 
-        return view('etapas/presolicitudView', compact('etapa_id','etapa','consecutivo','data','etapa_estado','tipoTransaccion','proyecto'));
+        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto'));
     }
 
     /**
@@ -199,51 +148,28 @@ class PresolicitudController extends Controller
     public function edit($consecutivo)
     {
         $etapas = false;
+        $route = "edit";
         $etapa_id = $this->etapa_id;
         $etapa_estado;
         $data;
         $tipoTransaccion;
         $proyecto;
-        $queryStatus;
 
-        try {
-            $etapa_estado = DB::table('tr_etapas AS a')
-                        ->leftJoin('tr_consecutivo_etapa_estado AS b', 'b.etapa_id', '=', 'a.etapa_id')
-                        ->leftJoin('tr_estados AS c', 'c.estado_id', '=', 'b.estado_id')
-                        ->where('b.consecutivo', $consecutivo)
-                        ->orderBy('a.etapa_id', 'asc')
-                        ->select('a.etapa', 'c.estado_id', 'a.endpoint')
-                        ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $consultas = new ConsultasController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
 
-        try {
-            $data = DB::table('tr_presolicitud')->where('consecutivo', $consecutivo)->first();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $data = Presolicitud::where('consecutivo', $consecutivo)->first();
 
-        try {
-            $tipoTransaccion = DB::table('tr_tipostransaccion')->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $tipoTransaccion = TiposTransaccion::get();
         
-        try {
-            $proyecto = DB::connection('mysql_sigep')
-                    ->table('proyectos')
-                    ->where('Estado', 1)
-                    ->select('nombre', 'codigo')
-                    ->orderBy('nombre', 'asc')
-                    ->get();
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }   
+        $proyecto = DB::connection('mysql_sigep')
+                ->table('proyectos')
+                ->where('Estado', 1)
+                ->select('nombre', 'codigo')
+                ->orderBy('nombre', 'asc')
+                ->get(); 
 
         return view('etapas/presolicitudView', compact('etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto'));
     }
@@ -257,16 +183,8 @@ class PresolicitudController extends Controller
      */
     public function redirect(Request $request, $consecutivo)
     {
-        $queryStatus;
-
-        try {
-            DB::table('tr_presolicitud')
-              ->where('consecutivo', $consecutivo)
-              ->update(['transaccion_id' => $request->value]);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        Presolicitud::where('consecutivo', $consecutivo)
+                ->update(['transaccion_id' => $request->value]);
         
         return response()->json(['data'=>$queryStatus]);
     }
@@ -275,48 +193,35 @@ class PresolicitudController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $consecutivo)
+    public function update(Request $request)
     {
-        $queryStatus;
-
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
-        $data['etapa_id'] = $this->next_etapa_id;
+        $data['estado_id'] = $this->estado_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 
-        try {
-            Presolicitud::where('consecutivo', $consecutivo)
+        Presolicitud::where('consecutivo', $request->consecutivo)
                         ->update($data);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
 
-        try {
-            DB::table('tr_consecutivo_etapa_estado')
-              ->where('consecutivo', $consecutivo)
-              ->where('etapa_id', $this->etapa_id)
-              ->update(['estado_id' => $this->next_estado_id],['fecha_estado', date("Y-m-d H:i:s")]) ;
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        return redirect()->route('edit_presolicitud', $request->consecutivo)->with('status', true);
+    }
 
-        try {
-            DB::table('tr_consecutivo_etapa_estado')
-              ->where('consecutivo', $consecutivo)
-              ->where('etapa_id', $this->next_etapa_id)
-              ->update(['estado_id' => $this->estado_id]);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-
-        return response()->json(['data'=>$data]);
+    /**
+     * Get estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEstado(Request $request)
+    {
+        $estado = Presolicitud::where('consecutivo', $request->consecutivo)
+                ->select('estado_id')
+                ->first();
+            
+        return response()->json(['data'=>$estado]);
     }
 
     /**

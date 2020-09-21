@@ -26,7 +26,7 @@ class Autorizado extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'encargado_id', 'consecutivo', 'codigo_sigep', 'descripcion_pendiente',
-        'etapa_id', 'fecha_estado'
+        'id', 'encargado_id', 'consecutivo', 'codigo_sigep', 'pendiente_codigo_sigep', 'descripcion_pendiente',
+        'estado_id', 'fecha_estado'
     ];
 }

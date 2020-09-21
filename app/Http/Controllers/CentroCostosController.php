@@ -145,7 +145,7 @@ class CentroCostosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update_estado(Request $request)
+    public function updateEstado(Request $request)
     {
         $queryStatus;
         $columna;
