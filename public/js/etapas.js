@@ -1,14 +1,16 @@
 import {
   getEtapas,
-  getEstados
+  getEstados,
+  setEstados
 } from './functions.js'
 
 window.onload = function() {
   let url = document.getElementsByTagName('base')[0].href
   let redirect = document.getElementById('redirect')
   let etapas_menu = document.getElementById('etapas-menu')
-  let consecutivo_cambio_estado = document.getElementById('consecutivo-cambio-estado')
+  let consecutivo_cambio_estado = document.getElementById('cambio-estado')
   let etapas_confirmar_declinar = document.getElementById('etapas-confirmar-declinar')
+  let status = document.getElementById('status')
 
   if(redirect){
       redirect.addEventListener("click", function(event){
@@ -24,7 +26,6 @@ window.onload = function() {
   } 
 
   if(etapas_menu){
-    //let estados = {}
     let consecutivo = document.getElementsByName("consecutivo")[0].value
     getEtapas(url)
     .then((res) => res.json())
@@ -33,33 +34,38 @@ window.onload = function() {
         getEstados(url, element.endpoint, consecutivo)
         .then((res) => res.json())
         .then((value) => {
-            //estados[element.endpoint] = value.data.etapa_id
-            //if(Object.keys(estados).length == 2){
-            ////  data.data.forEach(el => {
-                let estado = ""
-                let href = ""
-                //switch(estados[el.endpoint]) {
-                switch(value.data.estado_id) {
-                  case 0:
-                    href = `${element.endpoint}/index/${consecutivo}`
-                    estado = ""
-                    break;
-                  case 1:
-                    href = `${element.endpoint}/edit/${consecutivo}`
-                    estado = "lateral-inprogress"
-                    break;
-                  case 2:
-                    href = `${element.endpoint}/show/${consecutivo}`
-                    estado = "lateral-done"
-                    break;
-                  default:
-                    href = `${element.endpoint}/show/${consecutivo}`
-                    estado = "lateral-cancel"
-                }
-                document.getElementById(element.endpoint).href = href
-                document.getElementById(element.endpoint).classList.add(estado)
-            //  })
-            //}
+          let estado = ""
+          let href = ""
+          let estado_id = value.data
+          if(estado_id == null){
+            estado_id = 0
+          }else{
+            estado_id = value.data.estado_id
+          }
+          switch(estado_id) {
+            case 0:
+              href = `${element.endpoint}/index/${consecutivo}`
+              estado = ''
+              break;
+            case 1:
+              href = `${element.endpoint}/edit/${consecutivo}`
+              if(element.endpoint == 'presolicitud'){
+                href = `${element.endpoint}/show/${consecutivo}`
+              }
+              estado = "lateral-inprogress"
+              break;
+            case 2:
+              href = `${element.endpoint}/show/${consecutivo}`
+              estado = "lateral-done"
+              break;
+            default:
+              href = `${element.endpoint}/show/${consecutivo}`
+              estado = "lateral-cancel"
+          }
+          document.getElementById(element.endpoint).href = href
+          if(estado != ''){
+            document.getElementById(element.endpoint).classList.add(estado)
+          }
         })
         .catch((error) => console.log(error))
       });
@@ -77,10 +83,18 @@ window.onload = function() {
           getEstados(url, element.endpoint, consecutivo)
           .then((res) => res.json())
           .then((value) => {
-            if(value.data.estado_id == 2){
+            let estado_id = value.data
+            if(estado_id == null){
+              estado_id = 0
+            }else{
+              estado_id = value.data.estado_id
+            }
+            if(estado_id == 1){
+              document.getElementById(element.endpoint+'_checkbox').checked = false
+            }else if(estado_id == 2){
               document.getElementById(element.endpoint+'_checkbox').checked = true
             }else{
-              document.getElementById(element.endpoint+'_checkbox').checked = false
+              document.getElementById(element.endpoint+'_checkbox').disabled = true
             }
           })
           .catch((error) => console.log(error))
@@ -96,20 +110,40 @@ window.onload = function() {
     etapas_confirmar_declinar.addEventListener("click", function(event){
       if(event.target.type == "checkbox"){
         let endpoint = event.target.id.split("_")[0]
+        let estado = 0;
         if(document.getElementById(event.target.id).checked){
-          if(document.getElementById(endpoint).classList.contains('lateral-inprogress')){
-            document.getElementById(endpoint).classList.remove("lateral-inprogress")
-          }
-          document.getElementById(endpoint).classList.add('lateral-done')
+          estado = 2;
+          setEstados(url, endpoint, consecutivo, estado)
+          .then((res) => res.json())
+          .then((value) => {
+            console.log(value)
+            if(document.getElementById(endpoint).classList.contains('lateral-inprogress')){
+              document.getElementById(endpoint).classList.remove('lateral-inprogress')
+            }
+            document.getElementById(endpoint).classList.add('lateral-done')
+          })
+          .catch((error) => console.log(error))
           
         }else{
-          if(document.getElementById(endpoint).classList.contains('lateral-inprogress')){
+          estado = 1;
+          setEstados(url, endpoint, consecutivo, estado)
+          .then((res) => res.json())
+          .then((value) => {
+            console.log(value)
+            if(document.getElementById(endpoint).classList.contains('lateral-done')){
+              document.getElementById(endpoint).classList.remove('lateral-done')
+            }
             document.getElementById(endpoint).classList.add('lateral-inprogress')
-          }
-          document.getElementById(endpoint).classList.remove("lateral-done")
-          
+          })
+          .catch((error) => console.log(error))
         }
       }
     })
+  }
+
+  if(status){
+    setTimeout(function(){ 
+      $("#status").alert('close')
+    }, 3000);
   }
 }

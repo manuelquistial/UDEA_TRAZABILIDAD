@@ -102,12 +102,28 @@ async function getEtapas(url){
   return response
 }
 
-async function getEstados(url,endpoint,consecutivo){
+async function getEstados(url, endpoint, consecutivo){
   let route = `${url}/${endpoint}`
   const response = await fetch(route, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
       consecutivo:consecutivo
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
+}
+
+async function setEstados(url, endpoint, consecutivo, estado){
+  let route = `${url}/${endpoint}/estado`
+  const response = await fetch(route, {
+    method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+    body: JSON.stringify({
+      consecutivo: consecutivo,
+      estado_id: estado
     }),
     headers: {
       'Content-Type': 'application/json',
@@ -133,5 +149,6 @@ export{
   actualizarEstado,
   redirect,
   getEtapas,
-  getEstados
+  getEstados,
+  setEstados
 }

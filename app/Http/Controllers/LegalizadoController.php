@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Legalizado;
+use App\ActualEtapaEstado;
+use Auth;
 
 class LegalizadoController extends Controller
 {
@@ -46,7 +48,7 @@ class LegalizadoController extends Controller
     {
         $legalizado = Legalizado::create([
             'consecutivo_id' => $data['consecutivo'],
-            'encargado_id' => 1113533874,
+            'encargado_id' => Auth::user()->cedula,
             'reintegro' => $data['reintegro'],
             'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
@@ -80,6 +82,12 @@ class LegalizadoController extends Controller
 
         $legalizado = $this->create($request->all());
         $legalizado->save();
+
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $this->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
 
         return redirect()->route('edit_legalizado', $request->consecutivo)->with('status', true);
     }

@@ -18,20 +18,28 @@
             <div class="modal-header">
                 @if($etapa_id > 0)
                     @if(session('status'))
-                        <div class="status alert alert-success fade show" role="alert">
-                        {{ $etapa_estado[$etapa_id-1]->etapa }} {{ Lang::get('strings.general.ok') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <div class="status alert alert-success fade show" id="status" role="alert">
+                            {{ $etapa_estado[$etapa_id-1]->etapa }} {{ Lang::get('strings.general.ok') }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
                     @endif
                 <div class="col-6 conf-header">
                     <h5 id="title-etapa">{{ $etapa_estado[$etapa_id-1]->etapa }}</h5>
                 </div>
                 <div class="col-6 text-right conf-header">
-                    <a id="consecutivo-cambio-estado">{{ Lang::get('strings.general.consecutivo') }}: {{ $consecutivo }}</a>
+                    <a class="actual-cambio-estado" id="cambio-estado">{{ Lang::get('strings.general.consecutivo') }}: {{ $consecutivo }}</a>
                 </div>
                 @else
+                    @if(session('status'))
+                        <div class="status alert alert-success fade show" id="status" role="alert">
+                            {{ Lang::get('strings.etapas.presolicitud') }} {{ Lang::get('strings.general.ok') }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
                 <div class="col-6 conf-header">
                     <h5>{{ Lang::get('strings.etapas.presolicitud') }}</h5>
                 </div>

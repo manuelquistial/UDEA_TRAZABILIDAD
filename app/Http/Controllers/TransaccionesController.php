@@ -24,26 +24,18 @@ class TransaccionesController extends Controller
     {
         $consulta = false;
         $transacciones;
-        $queryStatus;
 
-        try {
-            $transacciones = DB::table('tr_presolicitud AS a')
-                    ->join('tr_consecutivo_etapa_estado AS b', function($query){
-                        $query->on('b.consecutivo', '=', 'a.consecutivo')
-                                ->on('b.etapa_id', '=', 'a.etapa_id');  
-                    })
-                    ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
-                    ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
-                    ->join('tr_tipostransaccion AS e', 'e.id', '=', 'a.transaccion_id')
-                    ->where('a.usuario_id', Auth::user()->cedula)
-                    ->select('a.consecutivo', 'c.etapa', 'd.estado', 'e.tipo_transaccion')
-                    ->paginate($this->numeroDatos);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $transacciones = DB::table('tr_presolicitud AS a')
+                ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
+                ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
+                ->join('tr_tipostransaccion AS e', 'e.id', '=', 'a.transaccion_id')
+                ->where('a.usuario_id', Auth::user()->cedula)
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'e.tipo_transaccion')
+                ->paginate($this->numeroDatos);
         
         return view('transaccionesView', compact('consulta','transacciones'));
+        //return response()->json(['data'=>$transacciones]);
     }
 
     /**
@@ -55,30 +47,17 @@ class TransaccionesController extends Controller
     {
         $tipoTransaccion;
         $transacciones;
-        $queryStatus;
         $consulta = true;
-        try {
-            $tipoTransaccion = Auth::user()->tiposTransaccion;
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
 
-        try {
-            $transacciones = DB::table('tr_presolicitud AS a')
-                    ->join('tr_consecutivo_etapa_estado AS b', function($query){
-                        $query->on('b.consecutivo', '=', 'a.consecutivo')
-                                ->on('b.etapa_id', '=', 'a.etapa_id');
-                    })
-                    ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
-                    ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
-                    ->where('a.transaccion_id', $tipoTransaccion->first()->id)
-                    ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint')
-                    ->paginate($this->numeroDatos);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $tipoTransaccion = Auth::user()->tiposTransaccion;
+
+        $transacciones = DB::table('tr_presolicitud AS a')
+                ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
+                ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
+                ->where('a.transaccion_id', $tipoTransaccion->first()->id)
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint')
+                ->paginate($this->numeroDatos);
         
         return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
         //return response()->json(['data'=>$transacciones[0]->endpoint]);
@@ -116,29 +95,17 @@ class TransaccionesController extends Controller
         $consulta = true;
         $tipoTransaccion;
         $transacciones;
-        $queryStatus;
-        try {
-            $tipoTransaccion = Auth::user()->tiposTransaccion;
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
 
-        try {
-            $transacciones = DB::table('tr_presolicitud AS a')
-                    ->join('tr_consecutivo_etapa_estado AS b', function($query){
-                        $query->on('b.consecutivo', '=', 'a.consecutivo')
-                                ->on('b.etapa_id', '=', 'a.etapa_id');
-                    })
-                    ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
-                    ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
-                    ->where('a.transaccion_id', $id)
-                    ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint')
-                    ->paginate($this->numeroDatos);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
+        $tipoTransaccion = Auth::user()->tiposTransaccion;
+
+        $transacciones = DB::table('tr_presolicitud AS a')
+                ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
+                ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
+                ->where('a.transaccion_id', $id)
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint')
+                ->paginate($this->numeroDatos);
+
         return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
     }
 
@@ -183,6 +150,7 @@ class TransaccionesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function emails(){
-        return view('emailsView');
+        $consulta = false;
+        return view('emailsView', compact('consulta'));
     }
 }

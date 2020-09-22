@@ -57,5 +57,5 @@
 @stop
 
 @section('scripts')
-    <script type="module" src="{{ asset('js/tipoTransaccionScript.js') }}" crossorigin="anonymous"></script>
+    <script type="module" src="{{ asset('js/transacciones.js') }}" crossorigin="anonymous"></script>
 @stop

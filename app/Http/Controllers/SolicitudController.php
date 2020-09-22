@@ -8,6 +8,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use App\Solicitud;
+use App\ActualEtapaEstado;
 use App\CentroCostos;
 use Auth;
 
@@ -93,6 +94,12 @@ class SolicitudController extends Controller
 
         $solicitud = $this->create($request->all());
         $solicitud->save();
+
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $this->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
     
         return redirect()->route('edit_solicitud', $request->consecutivo)->with('status', true);
         //return response()->json(['data'=>$queryStatus]);

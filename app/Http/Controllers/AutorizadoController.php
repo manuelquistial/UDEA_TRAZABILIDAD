@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Autorizado;
+use App\ActualEtapaEstado;
 use Auth;
 
 class AutorizadoController extends Controller
@@ -85,6 +86,11 @@ class AutorizadoController extends Controller
         $autorizado = $this->create($request->all());
         $autorizado->save();
 
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $this->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
 
         return redirect()->route('edit_autorizado', $request->consecutivo)->with('status', true);
     }

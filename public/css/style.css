@@ -11,6 +11,10 @@ body {
     margin: 0px;
 }
 
+#cambio-estado{
+    cursor: pointer;
+}
+
 #label-sap{
     margin: 0px;
 }
@@ -24,7 +28,7 @@ body {
 }
 
 #paginacion{
-    display: none;
+    margin-top: 10px;
 }
 
 #sap-switch{
@@ -35,12 +39,11 @@ body {
     margin: 0px;
 }
 
-#consecutivo-cambio-estado{
+.actual-cambio-estado{
     margin: 0px;
     display: contents;
     font-size: 12px;
     font-weight: bold;
-    cursor: pointer;
 }
 
 .fa-times{
@@ -144,39 +147,14 @@ body {
     list-style: none;
 }
 
-.table{
-    text-align: center;
-    margin: 0px;
-}
-
-.table thead th {
-    vertical-align: baseline;
-}
-
-.titulo-h{
-    margin: 0px;
-}
-
-.tipo_transaccion{
-    margin: 0px;
-    padding: 0.55rem;
-}
-
-.tipo_transaccion_item{
-    margin: 0.25rem 0;
-}
-
-.tipo_transaccion_badge{
-    padding: 0.25rem;
-}
-
 .status{
     position: absolute;
-    transform: translate(100%, 0);
+    transform: translate(82%, 0);
     top: 0px;
     display: block;
     width: 35%;
     text-align: center;
+    z-index: 1;
 }
 
 .switch {
@@ -215,6 +193,32 @@ body {
     background-color: white;
     -webkit-transition: .4s;
     transition: .4s;
+}
+
+.table{
+    text-align: center;
+    margin: 0px;
+}
+
+.table thead th {
+    vertical-align: baseline;
+}
+
+.titulo-h{
+    margin: 0px;
+}
+
+.tipo_transaccion{
+    margin: 0px;
+    padding: 0.55rem;
+}
+
+.tipo_transaccion_item{
+    margin: 0.25rem 0;
+}
+
+.tipo_transaccion_badge{
+    padding: 0.25rem;
 }
 
 input:checked + .slider {

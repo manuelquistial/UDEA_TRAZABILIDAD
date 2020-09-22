@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Preaprobado;
+use App\ActualEtapaEstado;
 use Auth;
 
 class PreaprobadoController extends Controller
@@ -83,6 +84,12 @@ class PreaprobadoController extends Controller
 
         $preaprobado = $this->create($request->all());
         $preaprobado->save();
+        
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $this->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
 
         return redirect()->route('edit_preaprobado', $request->consecutivo)->with('status', true);
     }

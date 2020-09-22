@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use App\Tramite;
+use App\ActualEtapaEstado;
 use Auth;
 
 class TramiteController extends Controller
@@ -84,6 +85,12 @@ class TramiteController extends Controller
 
         $tramite = $this->create($request->all());
         $tramite->save();
+
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $this->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
 
         return redirect()->route('show_tramite', $request->consecutivo)->with('status', true);
     }

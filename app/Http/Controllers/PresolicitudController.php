@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Presolicitud;
+use App\ActualEtapaEstado;
 use App\TiposTransaccion;
 use App\Etapa;
 use Auth;
@@ -99,6 +100,16 @@ class PresolicitudController extends Controller
 
         $presolicitud = $this->create($request->all());
         $presolicitud->save();
+        $consecutivo = $presolicitud->id;
+
+        $actual_etapa_estado = ActualEtapaEstado::create([
+            'consecutivo' => $consecutivo,
+            'etapa_id' => $this->etapa_id,
+            'estado_id' => $this->estado_id,
+            'fecha_estado' => date("Y-m-d H:i:s")
+        ]);
+
+        $actual_etapa_estado->save();
 
         return redirect('/')->with('status', true);
     }
@@ -221,6 +232,28 @@ class PresolicitudController extends Controller
                 ->first();
             
         return response()->json(['data'=>$estado]);
+    }
+
+    /**
+     * Set estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function setEstado(Request $request)
+    {
+        Presolicitud::where('consecutivo', $request->consecutivo)
+                ->update(['estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+            
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+                        
+        return response()->json(['data'=>true]);
     }
 
     /**
