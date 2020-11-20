@@ -14,8 +14,13 @@ class CreatePagoTable extends Migration
     public function up()
     {
         Schema::create('tr_pago', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
+            $table->increments('id')->unsigned();
+            $table->integer('consecutivo')->unsigned();
+            $table->integer('encargado_id')->unsigned();
+            $table->foreign('encargado_id')->references('cedula')->on('tr_usuarios');
+            $table->integer('estado_id')->unsigned();
+            $table->foreign('estado_id')->references('estado_id')->on('tr_estados');
+            $table->dateTime('fecha_estado')->nullable();
         });
     }
 

@@ -17,7 +17,7 @@
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="consecutivo_sap">{{ Lang::get('strings.tramite.consecutivo_sap') }}</label>
-            <input type="text" class="form-control" name="consecutivo_sap" value="{{ $etapas ? old('consecutivo_sap') : $data->consecutivo_sap}}">
+            <input type="number" class="form-control" name="consecutivo_sap" value="{{ $etapas ? old('consecutivo_sap') : $data->consecutivo_sap}}">
             @if ($errors->has('consecutivo_sap'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('consecutivo_sap') }}</small></strong>
@@ -26,7 +26,7 @@
         </div>
         <div class="form-group">
             <label for="fecha_sap">{{ Lang::get('strings.tramite.fecha_sap') }}</label>
-            <input type="date" class="form-control" name="fecha_sap" value="{{ $etapas ? old('fecha_sap') : $data->fecha_sap}}">
+            <input type="date" class="form-control" name="fecha_sap" placeholder="yyyy-mm-dd" value="{{ $etapas ? old('fecha_sap') : $data->fecha_sap}}">
             @if ($errors->has('fecha_sap'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('fecha_sap') }}</small></strong>

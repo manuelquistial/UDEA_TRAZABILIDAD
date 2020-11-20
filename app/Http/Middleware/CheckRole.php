@@ -14,7 +14,7 @@ class CheckRole
      * @return mixed
      */
     public function handle($request, Closure $next, $role){
-        if(!$request->user()->hasRole($role)) {
+        if(!$request->user()->hasOneRole($role)) {
             return redirect('/');
         }
         return $next($request);

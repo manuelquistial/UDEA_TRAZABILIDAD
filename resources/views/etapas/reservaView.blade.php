@@ -43,9 +43,6 @@
             @endif
         </div>
         @switch($route)
-            @case("index")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
-                @break
             @case("edit")
                 <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
                 @break

@@ -7,7 +7,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ Lang::get('strings.menu_superior.titulo') }}</title>
-        <base href="http://localhost:8080/UDEA_TRAZABILIDAD/public/index.php/" target="_self">
+        <base href="http://localhost/UDEA_TRAZABILIDAD/public/index.php/" target="_self">
         <!-- Styles -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{{ asset('css/style.css') }}" rel="stylesheet">
@@ -25,7 +25,7 @@
             </a>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
-                    <h6 class="col titulo-h">{{ Lang::get('strings.menu_superior.titulo') }}</h6>
+                    <h6 class="col titulo-header">{{ Lang::get('strings.menu_superior.titulo') }}</h6>
                 </ul>
                 @auth
                 <li class="nav-item active">
@@ -34,7 +34,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('consulta_usuario') }}">{{ Lang::get('strings.menu_superior.transaccion') }}</a>
                 </li>
-                @if(Auth::user()->hasEtapa(3))
+                @if(Auth::user()->hasOneEtapa(3))
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('correos') }}">{{ Lang::get('strings.menu_superior.correos') }}</a>
                 </li>
@@ -47,8 +47,8 @@
                     {{ Auth::user()->nombre }} {{ Auth::user()->apellidos }}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ route('edit_usuario') }}">{{ Lang::get('strings.menu_superior.opciones.perfil') }}</a>
-                        @if(Auth::user()->hasRole("Administrador")) 
+                        <a class="dropdown-item" href="{{ route('show_usuario') }}">{{ Lang::get('strings.menu_superior.opciones.perfil') }}</a>
+                        @if(Auth::user()->hasOneRole("Administrador")) 
                         <a class="dropdown-item" href="{{ route('usuarios') }}">{{ Lang::get('strings.menu_superior.opciones.configuracion') }}</a>
                         @endif
                         <div class="dropdown-divider"></div>

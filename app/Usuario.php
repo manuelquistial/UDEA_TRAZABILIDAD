@@ -60,21 +60,29 @@ class Usuario extends Authenticatable
     * Check one role
     * @param string $role
     */
-    public function hasRole($role){
+    public function hasOneRole($role){
         return null !== $this->role()->where('role', $role)->first();
     }
 
     /**
-    * Check one role
-    * @param string $role
+    * Check one etapa
+    * @param string $etapas
     */
-    public function hasEtapa($etapa_id){
+    public function hasOneEtapa($etapa_id){
         return null !== $this->etapa()->where('tr_etapas.etapa_id', $etapa_id)->first();
     }
 
     /**
-    * Check one role
-    * @param string $role
+    * Check specific etipo transaccion
+    * @param string $transaccion
+    */
+    public function hasOneTipoTransaccion($transaccion_id){
+        return null !== $this->tiposTransaccion()->where('tipo_transaccion_id', $transaccion_id)->first();
+    }
+
+    /**
+    * Check one tipo de transaccion
+    * @param string $tipoTransaccion
     */
     public function hasTipoTransaccion(){
         return null !== $this->tiposTransaccion()->first();

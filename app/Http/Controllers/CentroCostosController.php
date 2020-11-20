@@ -10,6 +10,7 @@ class CentroCostosController extends Controller
     public $centro_costos = 'tr_centro_costos';
     public $columna = 'centro_costo';
     public $numeroDatos = 5;
+    public $estado_id = 4;
 
     public function __construct()
     {
@@ -76,7 +77,10 @@ class CentroCostosController extends Controller
         $queryStatus;
         try {
             DB::table($this->centro_costos)->insert(
-                [$this->columna => $request->item]
+                [
+                    $this->columna => $request->value['item'], 
+                    'estado_id' => $this->estado_id
+                ]
             );
             $queryStatus = "ok";
         } catch(Exception $e) {
@@ -124,12 +128,12 @@ class CentroCostosController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $queryStatus;
         try {
             DB::table($this->centro_costos)
-              ->where('id', $id)
+              ->where('id', $request->id)
               ->update([$this->columna => $request->value]);
             $queryStatus = "ok";
         } catch(Exception $e) {

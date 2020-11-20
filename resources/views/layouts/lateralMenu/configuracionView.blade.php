@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('configuracionView')
-    @if($opcion != "perfil")
-    <ul class="nav flex-column nav-pills" aria-orientation="vertical">
-        @foreach(Lang::get('strings.configuracion.menu_lateral') as $configuracion)
+    @if($opcion != "usuario")
+    <ul class="nav flex-column nav-pills" aria-orientation="vertical"> 
+        @foreach(Lang::get('strings.configuracion.menu_lateral') as $configuracion) 
         <li class="nav-item lateral-nav-item">
             <a class="nav-link lateral-nav-link" {{ $opcion == $configuracion[0] ? "id=active_opcion" : '' }} href="{{ route($configuracion[0]) }}">{{ $configuracion[1] }}</a>
         </li>
@@ -21,7 +21,7 @@
 @stop
 
 @section('modal')
-    @if($opcion != "perfil" && $opcion != "nuevo_usuario")
+    @if($opcion != "usuario" && $opcion != "nuevo_usuario" && $opcion != "administrador")
     <div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -39,17 +39,17 @@
                         </div>
                     </div>
                     @if($opcion == "tipos_transaccion")
-                    <div class="form-group" id="sap-switch">
-                        <label class="switch">
-                            <input type="checkbox" name="sap" id="sap">
-                            <span class="slider round"></span>
-                        </label>
-                        <label id="label-sap" for="sap">Requiere codigo de SAP</label>
-                    </div>
+                        <div class="form-group" id="sap-switch">
+                            <label class="switch">
+                                <input type="checkbox" name="sap" id="sap">
+                                <span class="slider round"></span>
+                            </label>
+                            <label id="label-sap" for="sap">Requiere codigo de SAP</label>
+                        </div>
                     @endif
                 </div>
                 <div class="modal-footer">
-                    <a type="button" class="btn btn-primary" id="modificar" ></a>
+                    <button type="button" class="btn btn-primary" id="modificar"></button>
                 </div>
             </div>
         </div>

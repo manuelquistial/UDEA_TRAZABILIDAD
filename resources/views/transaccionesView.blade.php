@@ -27,7 +27,7 @@
                         <th>{{ Lang::get('strings.configuracion.tipo_transaccion') }}</th>
                     @endif
                     <th>{{ Lang::get('strings.configuracion.etapa') }}</th>
-                    <th>{{ Lang::get('strings.correos.estado') }}</th>
+                    <th>{{ Lang::get('strings.general.estado') }}</th>
                 </tr>
             </thead>
             <tbody id="items_tabla">
@@ -35,9 +35,17 @@
                 <tr>
                     <td>
                     @if($consulta)
-                        <a href="{{ route('show_'.$transaccion->endpoint, $transaccion->consecutivo) }}">{{ $transaccion->consecutivo }}</a>
+                        @if($transaccion->estado_id == '1' && $transaccion->endpoint != 'presolicitud')
+                            <a href="{{ route('edit_'.$transaccion->endpoint, $transaccion->consecutivo) }}">{{ $transaccion->consecutivo }}</a>
+                        @else
+                            <a href="{{ route('show_'.$transaccion->endpoint, $transaccion->consecutivo) }}">{{ $transaccion->consecutivo }}</a>
+                        @endif
                     @else
-                        <a >{{ $transaccion->consecutivo }}</a>
+                        @if($transaccion->estado_id == '1')
+                            <a href="{{ route('edit_presolicitud', $transaccion->consecutivo) }}">{{ $transaccion->consecutivo }}</a>
+                        @else
+                            <p class="titulo-header">{{ $transaccion->consecutivo }}</p>
+                        @endif
                     @endif
                     </td>
                     @if(!$consulta)

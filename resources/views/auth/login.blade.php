@@ -4,7 +4,7 @@
 <div class="col-5">  
         <div class="info-body">
             <div class="modal-header">
-                <h5 class="titulo-h">{{ Lang::get('strings.login.iniciar_sesion') }}</h5>
+                <h5 class="titulo-header">{{ Lang::get('strings.login.iniciar_sesion') }}</h5>
             </div>
 
             <div class="card-body">
@@ -17,8 +17,8 @@
                         <input id="usuario" type="string" class="form-control" name="cedula" value="{{ old('cedula') }}" required autofocus>
 
                         @if ($errors->has('cedula'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('cedula') }}</strong>
+                            <span class="text-danger">
+                                <strong><small>{{ $errors->first('cedula') }}</small></strong>
                             </span>
                         @endif
                     </div>
@@ -29,8 +29,8 @@
                         <input id="password" type="password" class="form-control" name="password" required>
 
                         @if ($errors->has('password'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('password') }}</strong>
+                            <span class="text-danger">
+                                <strong><small>{ $errors->first('password') }}</small></strong>
                             </span>
                         @endif
                     </div>

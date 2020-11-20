@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use DateTime;
 use App\Aprobado;
 use App\ActualEtapaEstado;
 use Auth;
@@ -49,11 +50,11 @@ class AprobadoController extends Controller
         $aprobado = Aprobado::create([
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
-            'crp' => $data['crp'],
-            'fecha_crp_pedido' => $data['fecha_crp_pedido'],
-            'valor_final_crp' => $data['valor_final_crp'],
-            'nombre_tercero' => $data['nombre_tercero'],
-            'identificacion_tercero' => $data['identificacion_tercero'],
+            'crp' => $this->startEndSpaces($data['crp']),
+            'fecha_crp_pedido' => $this->returnNull($data['fecha_crp_pedido']),
+            'valor_final_crp' => $this->startEndSpaces($data['valor_final_crp']),
+            'nombre_tercero' => $this->startEndSpaces($data['nombre_tercero']),
+            'identificacion_tercero' => $this->startEndSpaces($data['identificacion_tercero']),
             'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
@@ -70,15 +71,11 @@ class AprobadoController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'fecha_envio_documento' => 'date',
-            'fecha_envio_decanatura' => 'date',
-            'fecha_envio_presupuestos' => 'date',
-            'solpe' => 'integer',
             'crp' => 'required|integer',
             'fecha_crp_pedido' => 'required|date',
             'valor_final_crp' => 'required|integer',
-            'nombre_tercero' => 'string|nullable',
-            'identificacion_tercero'  => 'integer|nullable'
+            'nombre_tercero' => 'required|string',
+            'identificacion_tercero'  => 'required|integer'
         ]);
     }
 
@@ -160,8 +157,6 @@ class AprobadoController extends Controller
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
-        $data['etapa_id'] = $this->next_etapa_id;
-        $data['fecha_estado'] = date("Y-m-d H:i:s");
 
         Aprobado::where('consecutivo', $request->consecutivo)
                     ->update($data);
@@ -178,12 +173,35 @@ class AprobadoController extends Controller
      */
     public function update_items(Request $request)
     {
-        $this->validator($request->all())->validate();   
-        $data = $request->except('_token'); 
+        $data = null;
+        
+        if($request->columna == 'solpe'){
+            $data = $request->data;
+        }else{
+            $data = $this->isValidDate($request->data);
+        }
 
-        Aprobado::where('consecutivo', $request->consecutivo)
-                    ->update($data);
+        if($data){
+            $aprobado = Aprobado::where('consecutivo', $request->consecutivo)->first();
 
+            if ($aprobado !== null) {
+                $aprobado->update(
+                    [$request->columna => $request->data]
+                );
+                
+            } else {
+                $aprobado = Aprobado::create([
+                    'encargado_id' => Auth::user()->cedula,
+                    'consecutivo' => $request->consecutivo,
+                    'estado_id' => $this->estado_id,
+                    'fecha_estado' => date("Y-m-d H:i:s"),
+                    $request->columna => $request->data,
+                ]);
+            }
+            return response()->json(['data'=>'ok']);
+        }else{
+            return response()->json(['data'=>$request->columna]);
+        }
     }
 
     /**
@@ -210,5 +228,29 @@ class AprobadoController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function isValidDate($date){
+        try {
+            $fTime = new DateTime($date);
+            $fTime->format('Y-m-d');
+            return true;
+        }catch (\Exception $ex) {
+            return false;
+        }
+        catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    public function returnNull($str){
+        if($str == ''){
+            return NULL;
+        }
+        return $str;
+    }
+
+    public function startEndSpaces($str){
+        return trim($str, $this->espacio);
     }
 }

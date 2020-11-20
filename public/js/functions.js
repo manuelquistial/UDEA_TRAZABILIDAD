@@ -1,11 +1,12 @@
-var path = 'http://localhost/udea_trazabilidad/public/index.php' //Windows
-var path = 'http://localhost:8080/UDEA_TRAZABILIDAD/public/index.php' //Mac
+var path = document.getElementsByTagName('base')[0].href
 var token = document.getElementsByTagName('meta')['csrf-token'].getAttribute("content");
 
-async function redirect(rurl, transaccion_id){
-  const response = await fetch(url, {
-    method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+async function redirectTransaccion(url, transaccion_id, consecutivo){
+  let route = `${url}/presolicitud/redirect`
+  const response = await fetch(route, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
+      consecutivo: consecutivo,
       value: transaccion_id
     }),
     headers: {
@@ -14,6 +15,21 @@ async function redirect(rurl, transaccion_id){
     }
   })
   return response // parses JSON response into native JavaScript objects
+}
+
+async function getCodigoSigep(url, proyecto){
+  let route = `${url}/solicitud/rubros`
+  const response = await fetch(route, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    body: JSON.stringify({
+        proyecto: proyecto
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
 }
 
 async function getItems(endpoint, page, data){
@@ -60,11 +76,14 @@ async function getTiposTransaccion(){
 async function modificarConfiguracion(endpoint, metodo, value, id){
   let route = `${path}/${endpoint}`
   if(metodo == "PUT"){
-    route = route + '/update/' + id
+    route = route + '/update'
   }
   const response = await fetch(route, {
     method: metodo, // *GET, POST, PUT, DELETE, etc.
-    body: JSON.stringify(value),
+    body: JSON.stringify({
+      value,
+      id
+    }),
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': token
@@ -90,6 +109,23 @@ async function actualizarEstado(url, value, columna, id){
   return response
 }
 
+async function setAprobadoVariables(url, consecutivo, columna, data){
+  let route = `${url}aprobado/elements`
+  const response = await fetch(route, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    body: JSON.stringify({
+        columna: columna,
+        consecutivo: consecutivo,
+        data: data
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
+}
+
 async function getEtapas(url){
   let route = `${url}/etapas`
   const response = await fetch(route, {
@@ -104,6 +140,7 @@ async function getEtapas(url){
 
 async function getEstados(url, endpoint, consecutivo){
   let route = `${url}/${endpoint}`
+  console.log(route)
   const response = await fetch(route, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
@@ -147,8 +184,10 @@ export{
   tildesEspacios,
   modificarConfiguracion,
   actualizarEstado,
-  redirect,
+  redirectTransaccion,
   getEtapas,
   getEstados,
-  setEstados
+  setEstados,
+  getCodigoSigep,
+  setAprobadoVariables
 }

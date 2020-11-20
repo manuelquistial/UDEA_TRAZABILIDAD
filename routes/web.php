@@ -12,11 +12,13 @@
 */
 
 // Usuarios
-Route::GET('usuarios/perfil', 'UsuarioController@edit')->name('edit_usuario');
-Route::POST('usuarios/perfil/update', 'UsuarioController@update')->name('update_usuario');
+Route::GET('usuarios/perfil', 'UsuarioController@show')->name('show_usuario');
+Route::GET('usuarios/edit/{id}', 'UsuarioController@edit')->name('edit_usuario');
+Route::POST('usuarios/update', 'UsuarioController@update')->name('update_usuario');
+Route::POST('usuarios/update/perfil', 'UsuarioController@updatePerfil')->name('update_usuario_perfil');
 
 Route::POST('usuarios/nuevo/usuario', 'UsuarioController@store')->name('agregar_nuevo_usuario');
-    Route::GET('usuarios/nuevo', 'UsuarioController@create')->name('nuevo_usuario');
+    Route::GET('usuarios/nuevo', 'UsuarioController@newUser')->name('nuevo_usuario');
 Route::middleware(['role:Administrador'])->group(function () {
     Route::GET('usuarios', 'UsuarioController@index')->name('usuarios');
     
@@ -42,7 +44,7 @@ Route::GET('centrocostos', 'CentroCostosController@index')->name('centro_costos'
 Route::GET('centrocostos/search/{data}', 'CentroCostosController@show');
 Route::GET('centrocostos/paginacion', 'CentroCostosController@pagination');
 Route::POST('centrocostos', 'CentroCostosController@store');
-Route::PUT('centrocostos/update/{data}', 'CentroCostosController@update');
+Route::PUT('centrocostos/update', 'CentroCostosController@update');
 Route::PUT('centrocostos/estado', 'CentroCostosController@updateEstado');
 
 
@@ -52,7 +54,7 @@ Route::PUT('presolicitud/estado', 'PresolicitudController@setEstado');
 Route::GET('presolicitud/show/{id}', 'PresolicitudController@show')->name('show_presolicitud');
 Route::GET('presolicitud/edit/{id}', 'PresolicitudController@edit')->name('edit_presolicitud');
 Route::POST('presolicitud/save', 'PresolicitudController@store')->name('save_presolicitud');
-Route::PUT('presolicitud/update', 'PresolicitudController@update')->name('update_presolicitud');
+Route::POST('presolicitud/update', 'PresolicitudController@update')->name('update_presolicitud');
 Route::POST('presolicitud/redirect', 'PresolicitudController@redirect');
 
 Route::POST('solicitud', 'SolicitudController@getEstado');
@@ -60,6 +62,7 @@ Route::GET('solicitud/index/{id}', 'SolicitudController@index')->name('solicitud
 Route::POST('solicitud/save', 'SolicitudController@store')->name('save_solicitud');
 Route::GET('solicitud/show/{id}', 'SolicitudController@show')->name('show_solicitud');
 Route::GET('solicitud/edit/{id}', 'SolicitudController@edit')->name('edit_solicitud');
+Route::POST('solicitud/rubros', 'SolicitudController@getRubros');
 Route::POST('solicitud/update', 'SolicitudController@update')->name('update_solicitud');
 
 Route::POST('tramite', 'TramiteController@getEstado');
@@ -86,6 +89,7 @@ Route::POST('preaprobado/update', 'PreaprobadoController@update')->name('update_
 Route::POST('aprobado', 'AprobadoController@getEstado');
 Route::GET('aprobado/index/{id}', 'AprobadoController@index')->name('aprobado');
 Route::POST('aprobado/save', 'AprobadoController@store')->name('save_aprobado');
+Route::POST('aprobado/elements', 'AprobadoController@update_items');
 Route::GET('aprobado/show/{id}', 'AprobadoController@show')->name('show_aprobado');
 Route::GET('aprobado/edit/{id}', 'AprobadoController@edit')->name('edit_aprobado');
 Route::POST('aprobado/update', 'AprobadoController@update')->name('update_aprobado');
@@ -112,6 +116,8 @@ Route::GET('legalizado/edit/{id}', 'LegalizadoController@edit')->name('edit_lega
 Route::POST('legalizado/update', 'LegalizadoController@update')->name('update_legalizado');
 
 Route::GET('transacciones/gestores/show/{id}', 'TransaccionesController@show')->name('show_gestores');
+Route::GET('transacciones/etapas/sap', 'TransaccionesController@showSap')->name('show_sap');
+Route::GET('transacciones/etapas/sigep', 'TransaccionesController@showSigep')->name('show_sigep');
 Route::GET('transacciones/usuario', 'TransaccionesController@showConsultaUsuario')->name('consulta_usuario');
 
 Route::middleware(['tipo_transaccion'])->group(function () {
@@ -120,7 +126,7 @@ Route::middleware(['tipo_transaccion'])->group(function () {
 });
 
 Route::middleware(['etapa:3'])->group(function () {
-    Route::GET('transacciones/correos', 'TransaccionesController@emails')->name('correos');
+    Route::GET('transacciones/correos', 'CorreosController@index')->name('correos');
 });
 
 Auth::routes();

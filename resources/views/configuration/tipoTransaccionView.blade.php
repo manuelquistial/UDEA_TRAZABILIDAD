@@ -12,7 +12,7 @@
         <h5>{{ Lang::get('strings.configuracion.tipos_transaccion') }}</h5>
     </div>
     <div class="col-6 text-right conf-header">
-        <a class="info-header"  id="nuevo_item">{{ Lang::get('strings.configuracion.nuevo_tipo_transaccion') }}</a>
+        <a class="info-header links"  id="nuevo_item">{{ Lang::get('strings.configuracion.nuevo_tipo_transaccion') }}</a>
     </div>
 </div>
 <div class="card-body">
@@ -31,16 +31,16 @@
             <tbody id="items_tabla">
                 @foreach($tiposTransaccion as $tipo_transaccion)
                 <tr>
-                    <td><a href="#{{ $tipo_transaccion->id }}">{{ $tipo_transaccion->tipo_transaccion }}</a></td>
+                    <td class="links" data-id="{{ $tipo_transaccion->id }}" data-sap="{{ $tipo_transaccion->etapa_id == '3' ? 'true' : ''}}">{{ $tipo_transaccion->tipo_transaccion }}</td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" name="sap" value="{{ $tipo_transaccion->id }}" >
+                            <input type="checkbox" name="sap" value="{{ $tipo_transaccion->id }}" {{ $tipo_transaccion->etapa_id == '3' ? 'checked' : ''}}>
                             <span class="slider round"></span>
                         </label>
                     </td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" name="habilitar" value="{{ $tipo_transaccion->id }}" >
+                            <input type="checkbox" name="habilitar" value="{{ $tipo_transaccion->id }}" {{ $tipo_transaccion->estado_id == '4' ? 'checked' : ''}}>
                             <span class="slider round"></span>
                         </label>
                     </td>
