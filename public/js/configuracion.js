@@ -52,7 +52,7 @@ var columna_tabla;
 function modalInformation(data){
     document.getElementById('titulo').innerHTML = configuracionModals(data).boton
     document.getElementById('modificar').innerText = configuracionModals(data).boton
-    document.getElementById('modificar').href = '#'+configuracionModals(data).href
+    document.getElementById('modificar').setAttribute('data-action', configuracionModals(data).href)
 }
 
 function busqueda(data){
@@ -76,7 +76,7 @@ function busqueda(data){
 
             items_tabla .innerHTML += `
             <tr>
-                <td><a href="#${obj.id}">${obj[columna_tabla]}</a></td>
+                <td class="links" data-id="${obj.id}">${obj[columna_tabla]}</td>
                 <td>
                     <label class="switch">
                         <input type="checkbox" name="sap" value="${obj.id}" ${sap}>
@@ -97,9 +97,9 @@ function busqueda(data){
             if(obj.estado_id == 4){
                 habilitado = 'selected'
             }
-            items_tabla .innerHTML += `
+            items_tabla.innerHTML += `
             <tr>
-                <td><a href="#${obj.id}">${obj[columna_tabla]}</a></td>
+                <td class="links" data-id="${obj.id}">${obj[columna_tabla]}</td>
                 <td>
                     <label class="switch">
                         <input type="checkbox" name="habilitar" value="${obj.id}" ${habilitado}>
@@ -115,20 +115,25 @@ function busqueda(data){
 document.getElementById('nuevo_item').addEventListener('click', function(event){
     data.opcion = 1
     modalInformation(data)
+    document.getElementById('item_value').value = ''
     document.getElementById('input_group').style.display = "block"
     document.getElementById('input_group').value = ''
     $('#modal').modal('show')
 });
 
 document.getElementById('items_tabla').addEventListener('click', function(event){
-    if(event.target.tagName == 'A'){
+    console.log(event.target.tagName)
+    if(event.target.tagName == 'TD'){
         data.opcion = 2
         modalInformation(data)
         document.getElementById('input_group').style.display = "block"
         let value = event.target.innerText
-        let id = event.target.href.split("#")[1]
+        let id = event.target.getAttribute('data-id')
+        let sap = event.target.getAttribute('data-sap')
+        
         document.getElementById('item_id').value = id
         document.getElementById('item_value').value = value
+        document.getElementById('sap').checked = sap
         $('#modal').modal('show')
     }else if(event.target.type == "checkbox"){
         let endpoint = window.location.href.split('#')[0]
@@ -164,8 +169,8 @@ document.getElementById('items_tabla').addEventListener('click', function(event)
 });
 
 document.getElementById('modificar').addEventListener('click', function(event){
-    let option = event.target.href.split("#")[1]
-    let metodo = 0
+    let option = event.target.getAttribute('data-action')
+    let metodo = ''
     let input = document.getElementById('item_value').value 
     if(option == 'agregar'){
         if(columna_tabla == "tipo_transaccion"){
@@ -188,7 +193,7 @@ document.getElementById('modificar').addEventListener('click', function(event){
     }else if(option == 'actualizar'){
         metodo = 'PUT'
         let id = document.getElementById('item_id').value
-        modificarConfiguracion(endpoint,metodo, input, id)
+        modificarConfiguracion(endpoint, metodo, input, id)
         .then((res) => res.json())
         .then((data) => {
             console.log(data)

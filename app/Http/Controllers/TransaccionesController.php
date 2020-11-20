@@ -8,7 +8,7 @@ use Auth;
 
 class TransaccionesController extends Controller
 {
-    public $numeroDatos = 5;
+    public $numeroDatos = 4;
 
     public function __construct()
     {
@@ -23,15 +23,14 @@ class TransaccionesController extends Controller
     public function showConsultaUsuario()
     {
         $consulta = false;
-        $transacciones;
 
         $transacciones = DB::table('tr_presolicitud AS a')
+                ->leftJoin('tr_tipostransaccion AS e', 'e.id', '=', 'a.transaccion_id')
                 ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
                 ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
                 ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
-                ->join('tr_tipostransaccion AS e', 'e.id', '=', 'a.transaccion_id')
                 ->where('a.usuario_id', Auth::user()->cedula)
-                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'e.tipo_transaccion')
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'e.tipo_transaccion', 'd.estado_id', 'c.endpoint')
                 ->paginate($this->numeroDatos);
         
         return view('transaccionesView', compact('consulta','transacciones'));
@@ -45,8 +44,6 @@ class TransaccionesController extends Controller
      */
     public function showConsultaGestores()
     {
-        $tipoTransaccion;
-        $transacciones;
         $consulta = true;
 
         $tipoTransaccion = Auth::user()->tiposTransaccion;
@@ -55,12 +52,12 @@ class TransaccionesController extends Controller
                 ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
                 ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
                 ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
-                ->where('a.transaccion_id', $tipoTransaccion->first()->id)
-                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint')
+                ->where('a.transaccion_id', '=' ,$tipoTransaccion->first()->id)
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
                 ->paginate($this->numeroDatos);
         
         return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
-        //return response()->json(['data'=>$transacciones[0]->endpoint]);
+        //return response()->json(['data'=>$transacciones]);
     }
 
     /**
@@ -103,7 +100,59 @@ class TransaccionesController extends Controller
                 ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
                 ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
                 ->where('a.transaccion_id', $id)
-                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint')
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
+                ->paginate($this->numeroDatos);
+
+        return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
+    }
+
+    /**
+     * Display the Tramites with SAP
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showSap()
+    {
+        $consulta = true;
+
+        $tipoTransaccion = Auth::user()->tiposTransaccion;
+
+        $transacciones = DB::table('tr_presolicitud AS a')
+                ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
+                ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
+                ->join('tr_solicitud AS e', 'e.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_usuarios_tipostransaccion AS f', 'f.tipo_transaccion_id', '=', 'a.transaccion_id')
+                ->where('e.estado_id', '=', 1)
+                ->where('f.usuario_id', '<>', Auth::user()->id)
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
+                ->paginate($this->numeroDatos);
+
+        return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
+    }
+
+    /**
+     * Display the Tramites with SIGEP
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showSigep()
+    {
+        $consulta = true;
+
+        $tipoTransaccion = Auth::user()->tiposTransaccion;
+
+        $transacciones = DB::table('tr_presolicitud AS a')
+                ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
+                ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
+                ->join('tr_solicitud AS e', 'e.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_usuarios_tipostransaccion AS f', 'f.tipo_transaccion_id', '=', 'a.transaccion_id')
+                ->where('e.estado_id', '=', 1)
+                ->where('f.usuario_id', '<>', Auth::user()->id)
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
                 ->paginate($this->numeroDatos);
 
         return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
@@ -141,16 +190,5 @@ class TransaccionesController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function emails(){
-        $consulta = false;
-        return view('emailsView', compact('consulta'));
     }
 }

@@ -14,6 +14,7 @@ class TramiteController extends Controller
 {
     public $etapa_id = 3;
     public $estado_id = 1;
+    public $espacio = " ";
 
     public function __construct()
     {
@@ -50,8 +51,8 @@ class TramiteController extends Controller
         $tramite = Tramite::create([
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
-            'consecutivo_sap' => $data['consecutivo_sap'],
-            'fecha_sap' => $data['fecha_sap'],
+            'consecutivo_sap' => $this->startEndSpaces($data['consecutivo_sap']),
+            'fecha_sap' => $this->returnNull($data['fecha_sap']),
             'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
@@ -92,7 +93,7 @@ class TramiteController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
-        return redirect()->route('show_tramite', $request->consecutivo)->with('status', true);
+        return redirect()->route('edit_tramite', $request->consecutivo)->with('status', true);
     }
 
     /**
@@ -106,7 +107,6 @@ class TramiteController extends Controller
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        $data;
         
         $consultas = new ConsultasController;
         $etapa_estado = $consultas->etapas()
@@ -114,6 +114,9 @@ class TramiteController extends Controller
                         ->data;
 
         $data = Tramite::where('consecutivo', $consecutivo)->first();
+        if($data->fecha_sap){
+            $data->ffecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
+        }
 
         return view('etapas/tramiteView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado'));
     }
@@ -129,14 +132,16 @@ class TramiteController extends Controller
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
-        
+
         $consultas = new ConsultasController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
         
         $data = Tramite::where('consecutivo', $consecutivo)->first();
+        if($data->fecha_sap){
+            $data->ffecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
+        }
 
         return view('etapas/tramiteView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
     }
@@ -152,9 +157,7 @@ class TramiteController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $data = $request->except('_token');
-        $data['etapa_id'] = $this->next_etapa_id;
-        $data['fecha_estado'] = date("Y-m-d H:i:s");
+        $data = $request->except('_token'); 
 
         Tramite::where('consecutivo', $request->consecutivo)
                 ->update($data);
@@ -186,5 +189,16 @@ class TramiteController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function returnNull($str){
+        if($str == ''){
+            return NULL;
+        }
+        return $str;
+    }
+
+    public function startEndSpaces($str){
+        return trim($str, $this->espacio);
     }
 }

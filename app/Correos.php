@@ -2,17 +2,20 @@
 
 namespace App;
 
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 
-class Presolicitud extends Model
+class Correos extends Authenticatable
 {
+    use Notifiable;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'tr_presolicitud';
+    protected $table = 'tr_correos';
 
     /**
      * Indicates if the model should be timestamped.
@@ -27,8 +30,6 @@ class Presolicitud extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'usuario_id', 'consecutivo', 'valor', 'descripcion',
-        'fecha_inicial', 'fecha_final', 'proyecto_id', 'transaccion_id',
-        'estado_id', 'fecha_estado', 'otro_proyecto'
+        'id', 'consecutivo', 'codigo', 'etapa', 'enviado', 'fecha_envio'
     ];
 }

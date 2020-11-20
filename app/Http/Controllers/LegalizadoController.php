@@ -47,7 +47,7 @@ class LegalizadoController extends Controller
     public function create(array $data)
     {
         $legalizado = Legalizado::create([
-            'consecutivo_id' => $data['consecutivo'],
+            'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
             'reintegro' => $data['reintegro'],
             'estado_id' => $this->estado_id,

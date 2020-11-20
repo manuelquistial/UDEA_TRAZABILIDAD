@@ -12,7 +12,7 @@
         <h5>{{ Lang::get('strings.configuracion.usuarios') }}</h5>
     </div>
     <div class="col-6 text-right conf-header">
-        <a class="info-header" href="{{route('nuevo_usuario')}}" id="nuevo_item">{{ Lang::get('strings.configuracion.nuevo_usuario') }}</a>
+        <a class="info-header" href="{{route('nuevo_usuario')}}">{{ Lang::get('strings.configuracion.nuevo_usuario') }}</a>
     </div>
 </div>
 <div class="card-body">
@@ -23,19 +23,17 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>{{ Lang::get('strings.usuario.nombre') }}</th>
-                    <th>{{ Lang::get('strings.usuario.apellidos') }}</th>
+                    <th>{{ Lang::get('strings.usuario.nombre') }} y {{ Lang::get('strings.usuario.apellidos') }}</th>
                     <th>{{ Lang::get('strings.configuracion.habilitado') }}</th>
                 </tr>
             </thead>
             <tbody id="items_tabla">
                 @foreach($usuarios as $usuario)
                 <tr>
-                    <td><a href="#{{ $usuario->id }}">{{ $usuario->nombre }}</a></td>
-                    <td><a href="#{{ $usuario->id }}">{{ $usuario->apellidos }}</a></td>
+                    <td><a class="links" href="{{ route('edit_usuario', $usuario->id) }}">{{ $usuario->nombre }} {{ $usuario->apellidos }}</a></td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" name="habilitar" value="{{ $usuario->id }}" {{ $usuario->estado_id == 4 ? 'selected' : '' }}>
+                            <input type="checkbox" name="habilitar" value="{{ $usuario->id }}" {{ $usuario->estado_id == 4 ? 'checked' : '' }}>
                             <span class="slider round"></span>
                         </label>
                     </td>

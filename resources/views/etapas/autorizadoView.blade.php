@@ -18,18 +18,25 @@
         <div class="form-group">
             <label for="codigo_sigep">{{ Lang::get('strings.autorizado.codigo_sigep') }}</label>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" name="codigo_sigep" value="{{ $etapas ? old('codigo_sigep') : $data->codigo_sigep }}">
-                @if($route !== "show")
-                <div class="input-group-prepend">
-                    <a class="input-group-text" id="redirect" >{{ Lang::get('strings.autorizado.pendiente') }}</a>
-                </div>
-                @endif
+                <input type="number" class="form-control" name="codigo_sigep" value="{{ $etapas ? old('codigo_sigep') : $data->codigo_sigep }}">
             </div>
             @if ($errors->has('codigo_sigep'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('codigo_sigep') }}</small></strong>
                 </span>
             @endif
+        </div>
+        <div class="form-group">
+            <label for="descripcion_pendiente">{{ Lang::get('strings.autorizado.descripcion_pendiente') }}</label>
+            <textarea class="form-control" name="descripcion_pendiente" rows="2">{{ $etapas ? old('descripcion_pendiente') : $data->descripcion_pendiente}}</textarea>
+            @if(session('empty'))
+                <span class="text-danger">
+                    <strong><small>{{ Lang::get('strings.notes.empty_codigo_sigep') }}</small></strong>
+                </span>
+            @endif
+            <small class="form-text text-muted">
+                {!! Lang::get('strings.notes.descripcion_pendiente') !!}
+            </small>
         </div>
         @switch($route)
             @case("index")
@@ -42,17 +49,5 @@
                 @break
         @endswitch
     </form>
-    <div class="form-group">
-            <label for="descripcion">{{ Lang::get('strings.autorizado.descripcion') }}</label>
-            <textarea class="form-control" rows="3" name="descripcion"></textarea>
-            @if ($errors->has('descripcion'))
-                <span class="text-danger">
-                    <strong><small>{{ $errors->first('descripcion') }}</small></strong>
-                </span>
-            @endif
-            <small class="form-text text-muted">
-                {!! Lang::get('strings.notes.autorizado') !!}
-            </small>
-        </div>
 </div>
 @stop

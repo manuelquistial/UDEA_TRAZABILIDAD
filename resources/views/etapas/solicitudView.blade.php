@@ -35,17 +35,24 @@
         </div>
         <div class="form-group">
             <label for="fecha_conveniencia">{{ Lang::get('strings.solicitud.fecha_conveniencia') }}</label>
-            <input type="date" class="form-control" name="fecha_conveniencia" value="{{ $etapas ? old('fecha_conveniencia') : $data->fecha_conveniencia}}">
+            <input type="date" class="form-control" placeholder="yyyy-mm-dd" name="fecha_conveniencia" value="{{ $etapas ? old('fecha_conveniencia') : $data->fecha_conveniencia}}">
+            @if ($errors->has('fecha_conveniencia'))
+                <span class="text-danger">
+                    <strong><small>{{ $errors->first('fecha_conveniencia') }}</small></strong>
+                </span>
+            @endif
         </div>
         <div class="form-group">
             <label for="codigo_sigep_id">{{ Lang::get('strings.solicitud.codigo_sigep') }}</label>
-            <select class="form-control" name="codigo_sigep_id">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            </select>
+            <input type="number" class="form-control" id="codigo_sigep_id" name="codigo_sigep_id" value="{{ $etapas ? old('codigo_sigep_id') : $data->codigo_sigep_id}}">
+            @if ($errors->has('codigo_sigep_id'))
+                <span class="text-danger">
+                    <strong><small>{{ $errors->first('codigo_sigep_id') }}</small></strong>
+                </span>
+            @endif
+            <small class="form-text text-muted">
+                {!! Lang::get('strings.notes.codigo_sigep', array('project' => $proyecto['proyecto_id'])) !!}
+            </small>
         </div>
         <div class="form-group">
             <label for="concepto">{{ Lang::get('strings.solicitud.concepto') }}</label>
@@ -75,4 +82,40 @@
         @endswitch
     </form>
 </div>
+
+<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="titulo"></span>{{ Lang::get('strings.solicitud.codigo_sigep') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{ Lang::get('strings.solicitud.codigo_sigep') }}</th>
+                            <th scope="col">{{ Lang::get('strings.solicitud.rubro_egreso') }}</th>
+                            <th scope="col">{{ Lang::get('strings.solicitud.centro_costos') }}</th>
+                            <th scope="col">{{ Lang::get('strings.general.presupuesto_inicial') }}</th>
+                            <th scope="col">{{ Lang::get('strings.general.egreso') }}</th>
+                            <th scope="col">{{ Lang::get('strings.etapas.reserva') }}</th>
+                            <th scope="col">{{ Lang::get('strings.general.disponible') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table_sigep">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@stop
+
+@section('scripts')
+    <script type="module" src="{{ asset('js/etapas.js') }}" crossorigin="anonymous"></script>
+    <script type="module" src="{{ asset('js/solicitud.js') }}" crossorigin="anonymous"></script>
 @stop

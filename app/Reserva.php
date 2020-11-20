@@ -26,7 +26,7 @@ class Reserva extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'encargado_id', 'consecutivo_id', 'num_oficio', 'fecha_cancelacion',
+        'id', 'encargado_id', 'consecutivo', 'num_oficio', 'fecha_cancelacion',
         'estado_id', 'fecha_estado'
     ];
 }

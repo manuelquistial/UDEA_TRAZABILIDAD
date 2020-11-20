@@ -15,7 +15,7 @@ class HasEtapa
      */
     public function handle($request, Closure $next, $etapa_id)
     {
-        if(!$request->user()->hasEtapa($etapa_id)) {
+        if(!$request->user()->hasOneEtapa($etapa_id)) {
             return redirect('/');
         }
         return $next($request);

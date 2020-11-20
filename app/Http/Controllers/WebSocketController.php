@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use Auth;
 
 class WebSocketController extends Controller implements MessageComponentInterface{
     private $connections = [];
@@ -13,7 +14,7 @@ class WebSocketController extends Controller implements MessageComponentInterfac
      * @throws \Exception
      */
     function onOpen(ConnectionInterface $conn){
-        $this->connections[$conn->resourceId] = compact('conn') + ['user_id' => null];
+        $this->connections[$conn->resourceId] = compact('conn') + ['user_id' => Auth::user()->cedula];
     }
     
      /**

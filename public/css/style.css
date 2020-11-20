@@ -115,6 +115,16 @@ body {
     border-bottom: 1px solid rgba(0,0,0,.125);
 }
 
+.links{
+    cursor: pointer;
+    margin: 0px;
+}
+
+.links:hover{
+    color: #0056b3;
+    text-decoration: underline;
+}
+
 .lateral-inprogress{
     border-left: 5px solid #c6c4c8;
 }
@@ -133,6 +143,12 @@ body {
 
 .lateral-nav-item{
     margin-bottom: 1px;
+}
+
+.modal-radio-input{
+    position: unset;
+    margin-top: 0px;
+    margin-left: 0px;
 }
 
 .nav-pills .nav-link {
@@ -204,7 +220,7 @@ body {
     vertical-align: baseline;
 }
 
-.titulo-h{
+.titulo-header{
     margin: 0px;
 }
 

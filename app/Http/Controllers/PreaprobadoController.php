@@ -13,6 +13,7 @@ class PreaprobadoController extends Controller
 {
     public $etapa_id = 5;
     public $estado_id = 1;
+    public $espacio = " ";
 
     public function __construct()
     {
@@ -49,8 +50,8 @@ class PreaprobadoController extends Controller
         $preaprobado = Preaprobado::create([
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
-            'cdp' => $data['cdp'],
-            'fecha_cdp' => $data['fecha_cdp'],
+            'cdp' => $this->startEndSpaces($data['cdp']),
+            'fecha_cdp' => $this->returnNull($data['fecha_cdp']),
             'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
@@ -135,6 +136,10 @@ class PreaprobadoController extends Controller
 
         $data = Preaprobado::where('consecutivo', $consecutivo)->first();
 
+        if($data->fecha_cdp){
+            $data->fecha_cdp = date("Y-m-d", strtotime($data->fecha_cdp));
+        }
+
         return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
 
@@ -150,8 +155,6 @@ class PreaprobadoController extends Controller
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
-        $data['etapa_id'] = $this->next_etapa_id;
-        $data['fecha_estado'] = date("Y-m-d H:i:s");
 
         Preaprobado::where('consecutivo', $request->consecutivo)
                     ->update($data);
@@ -183,5 +186,16 @@ class PreaprobadoController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function returnNull($str){
+        if($str == ''){
+            return NULL;
+        }
+        return $str;
+    }
+
+    public function startEndSpaces($str){
+        return trim($str, $this->espacio);
     }
 }

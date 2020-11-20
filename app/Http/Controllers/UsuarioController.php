@@ -7,11 +7,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Usuario;
+use App\Etapa;
+use App\Roles;
+use App\TiposTransaccion;
 use Auth;
 
 class UsuarioController extends Controller
 {
-    public $usuarios = 'tr_usuarios';
     public $columna = 'apellidos';
     public $numeroDatos = 5;
 
@@ -28,16 +30,12 @@ class UsuarioController extends Controller
     public function index()
     {
         $opcion = "usuarios"; 
-        $usuarios;
-        try {
-            $usuarios = DB::table($this->usuarios)
-                            ->orderBy($this->columna)
-                            ->paginate($this->numeroDatos);
-        } catch(Exception $e) {
-            $usuarios = "error";
-        }
+        $data_opcion = false;
+
+        $usuarios = Usuario::orderBy($this->columna)
+                        ->paginate($this->numeroDatos);
     
-        return view('configuration.usuariosView', compact('opcion', 'usuarios'));
+        return view('configuration.usuariosView', compact('data_opcion', 'opcion', 'usuarios'));
     }
 
     /**
@@ -45,28 +43,19 @@ class UsuarioController extends Controller
      *
      * @return \App\Usuario
      */
-    public function create()
+    public function newUser()
     {
         $opcion = "nuevo_usuario";
-        $etapas;
-        $roles;
+        $data_opcion = false;
 
-        try {
-            $etapas = DB::table('tr_etapas')
-                            ->where('habilitador', 1)
-                            ->get();
-        } catch(Exception $e) {
-            $etapas = "error";
-        }
-        
-        try {
-            $roles = DB::table('tr_roles')
-                            ->get();
-        } catch(Exception $e) {
-            $roles = "error";
-        }
+        $etapas = Etapa::where('habilitador', 1)
+                        ->get();
 
-        return view('configuration.nuevoUsuarioView', compact('opcion','etapas','roles'));
+        $roles = Roles::get();
+
+        $tipos_transaccion = TiposTransaccion::get();
+
+        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'etapas', 'roles', 'tipos_transaccion'));
     }
 
     /**
@@ -75,14 +64,14 @@ class UsuarioController extends Controller
      * @param  array  $data
      * @return \App\Usuario
      */
-    public function form(array $data)
+    public function create(array $data)
     {
         $usuario = Usuario::create([
-            'nombre' => $data['nombre'],
-            'apellidos' => $data['apellidos'],
-            'email' => $data['email'],
-            'telefono' => $data['telefono'],
-            'cedula' => $data['cedula'],
+            'nombre' => $this->startEndSpaces($data['nombre']),
+            'apellidos' => $this->startEndSpaces($data['apellidos']),
+            'email' => $this->startEndSpaces($data['email']),
+            'telefono' => $this->startEndSpaces($data['telefono']),
+            'cedula' => $this->startEndSpaces($data['cedula']),
             'password' => Hash::make($data['cedula'], [
                 'rounds' => 12,
             ])
@@ -91,7 +80,6 @@ class UsuarioController extends Controller
         if(!empty($data['tipos_transaccion'])){
             $usuario
                 ->tiposTransaccion()
-                //->attach([implode(',',[$data['tipos_transaccion']])]);
                 ->attach($data['tipos_transaccion']);
         }
 
@@ -136,7 +124,7 @@ class UsuarioController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $usuario = $this->form($request->all());
+        $usuario = $this->create($request->all());
         $usuario->save();
         $request->session()->flash('status', 'status');
         return redirect()->route('nuevo_usuario');
@@ -149,9 +137,25 @@ class UsuarioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show()
     {
+        $usuario_id = Auth::user()->id;
+        $opcion = "usuario";
+        $data_opcion = true;
+        
+        $data = Usuario::where('id', $usuario_id)
+                        ->select('id','nombre','apellidos','email','cedula','telefono')
+                        ->first();
 
+        $etapas = Etapa::where('habilitador', 1)->get();
+        $roles = Roles::where('habilitador',1)->get();
+        $tipos_transaccion = TiposTransaccion::where('estado_id',4)->get();
+        $roles_usuario = Usuario::find($usuario_id)->role()->get();
+        $etapas_usuario = Usuario::find($usuario_id)->etapa()->get();
+        $tipos_transaccion_usuario = Usuario::find($usuario_id)->tiposTransaccion()->get();
+        
+        //return response()->json(['data'=>$roles_usuario->etapa()->get()]);
+        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'etapas', 'roles', 'tipos_transaccion', 'roles_usuario', 'etapas_usuario', 'tipos_transaccion_usuario'));
     }
 
     /**
@@ -162,7 +166,7 @@ class UsuarioController extends Controller
      */
     public function showAll()
     {
-        $usuarios = DB::table('tr_usuarios')->select('id', 'nombre', 'apellidos')->get();
+        $usuarios = Usuario::select('id', 'nombre', 'apellidos')->get();
         return json_encode($usuarios);
     }
 
@@ -172,20 +176,24 @@ class UsuarioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit()
+    public function edit($id)
     {
-        $usuario_id = Auth::user()->id;
-        $opcion = "perfil";
-        $data;
-        try {
-            $data = DB::table($this->usuarios)
-                            ->where('id',$usuario_id)
-                            ->select('nombre','apellidos','email','cedula','telefono')
-                            ->first();
-        } catch(Exception $e) {
-            $data = "error";
-        }
-        return view('configuration.nuevoUsuarioView', compact('opcion','data'));
+        $opcion = "administrador";
+        $data_opcion = true;
+        
+        $data = Usuario::where('id', $id)
+                        ->select('id','nombre','apellidos','email','cedula','telefono')
+                        ->first();
+
+        $etapas = Etapa::where('habilitador', 1)->get();
+        $roles = Roles::where('habilitador',1)->get();
+        $tipos_transaccion = TiposTransaccion::where('estado_id',4)->get();
+        $roles_usuario = Usuario::find($id)->role()->get();
+        $etapas_usuario = Usuario::find($id)->etapa()->get();
+        $tipos_transaccion_usuario = Usuario::find($id)->tiposTransaccion()->get();
+        
+        //return response()->json(['data'=>$roles_usuario->etapa()->get()]);
+        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'etapas', 'roles', 'tipos_transaccion', 'roles_usuario', 'etapas_usuario', 'tipos_transaccion_usuario'));
     }
 
     /**
@@ -195,9 +203,64 @@ class UsuarioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $this->validator($request->all())->validate();
+
+        $usuario = Usuario::find($request->sequence);
+
+        $usuario->update(
+            ['nombre' => $this->startEndSpaces($request['nombre'])],
+            ['apellidos' => $this->startEndSpaces($request['apellidos'])],
+            ['email' => $this->startEndSpaces($request['email'])],
+            ['telefono' => $this->startEndSpaces($request['telefono'])],
+            ['cedula' => $this->startEndSpaces($request['cedula'])]
+        );
+
+        $usuario->tiposTransaccion()
+                ->detach($usuario->tiposTransaccion()->get());
+
+        if(!empty($request['tipos_transaccion'])){
+            $usuario->tiposTransaccion()
+                ->attach($request['tipos_transaccion']);
+        }
+
+        $usuario->role()
+                ->detach($usuario->role()->get());
+
+        if(!empty($request['role'])){
+            $usuario->role()
+                ->attach($request['role']);
+        } 
+
+        $usuario->etapa()
+                ->detach($usuario->etapa()->get());
+
+        if($request['etapa'] !== 'on'){
+            $usuario->etapa()
+                ->attach($request['etapa']);
+        } 
+
+        return redirect()->route('edit_usuario', $request->sequence)->with('status', true);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePerfil(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        $data = $request->except('_token', 'sequence');
+
+        Usuario::where('id', $request->sequence)
+                        ->update($data);
+
+        return redirect()->route('show_usuario')->with('status', true);
     }
 
     /**
@@ -208,19 +271,18 @@ class UsuarioController extends Controller
      */
     public function updateEstado(Request $request)
     {
-        $queryStatus;
         $columna;
         if($request->columna == "habilitar"){
             $columna = 'estado_id';
         }
-        try {
-            DB::table($this->usuarios)
-                ->where('id', $request->id)
-                ->update([$columna => $request->item]);
-            $queryStatus = "ok";
-        } catch(Exception $e) {
-            $queryStatus = "error";
-        }
-        return response()->json(['data'=>$queryStatus]);
+
+        Usuario::where('id', $request->id)
+            ->update([$columna => $request->value]);
+
+        return response()->json(['data'=>true]);
+    }
+
+    public function startEndSpaces($str){
+        return trim($str, $this->espacio);
     }
 }

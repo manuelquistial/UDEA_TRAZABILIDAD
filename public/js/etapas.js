@@ -1,7 +1,9 @@
 import {
   getEtapas,
   getEstados,
-  setEstados
+  setEstados,
+  //setAprobadoVariables,
+  redirectTransaccion
 } from './functions.js'
 
 window.onload = function() {
@@ -14,12 +16,17 @@ window.onload = function() {
 
   if(redirect){
       redirect.addEventListener("click", function(event){
-        //let url = window.location.href.replace('show', event.target.id).replace('#','')
+        let consecutivo = document.getElementsByName("consecutivo")[0].value
         let transaccion_id = document.getElementById('transaccion_id').querySelector("option:checked").value;
-        redirect(url, transaccion_id)
+        console.log(url)
+        redirectTransaccion(url, transaccion_id, consecutivo)
         .then((res) => res.json())
         .then((data) => {
-            console.log(data)
+          if(data.data == 'redirect'){
+            window.location.replace(url + 'transacciones/gestores');
+          }else{
+            console.log(data.data)
+          }
         })
         .catch((error) => console.log(error))
       });

@@ -16,7 +16,6 @@ class CreateTramiteTable extends Migration
         Schema::create('tr_tramite', function (Blueprint $table) {
             $table->increments('id')->unsigned();
             $table->integer('consecutivo')->unsigned();
-            $table->foreign('consecutivo')->references('consecutivo')->on('tr_presolicitud');
             $table->integer('encargado_id')->unsigned();
             $table->foreign('encargado_id')->references('cedula')->on('tr_usuarios');
             $table->string('consecutivo_sap')->nullable();

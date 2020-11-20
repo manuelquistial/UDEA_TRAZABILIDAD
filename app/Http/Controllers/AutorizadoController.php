@@ -49,8 +49,7 @@ class AutorizadoController extends Controller
         $autorizado = Autorizado::create([
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
-            'codigo_sigep' => $data['codigo_sigep'],
-            'pendiente_codigo_sigep' => NULL,
+            'codigo_sigep' => $this->startEndSpaces($data['codigo_sigep']),
             'descripcion_pendiente' => NULL,
             'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
@@ -82,6 +81,10 @@ class AutorizadoController extends Controller
     public function store(Request $request)
     {
         $this->validator($request->all())->validate();
+
+        if(returnNull($request->descripcion_pendiente) && returnNull($request->codigo_sigep)){
+            return redirect()->route('index_autorizado', $request->consecutivo)->with('empty', true);
+        }
 
         $autorizado = $this->create($request->all());
         $autorizado->save();
@@ -184,5 +187,16 @@ class AutorizadoController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function returnNull($str){
+        if($str == ''){
+            return NULL;
+        }
+        return $str;
+    }
+
+    public function startEndSpaces($str){
+        return trim($str, $this->espacio);
     }
 }

@@ -31,8 +31,10 @@ return [
         ]
     ],
     'correos' => [
-        'codigos' => 'Codigo SIGEP o SOLPE',
-        'estado' => 'Estado'
+        'codigo' => 'Codigo',
+        'enviado' => 'Enviado',
+        'tipo' => 'Tipo',
+        'enviar_correos' => 'Enviar correos'
     ],
     'configuracion' => [
         'menu_lateral' => [
@@ -52,6 +54,7 @@ return [
         'buscar_usuario' => 'Buscar Usuario',
         'nuevo_usuario' => 'Nuevo usuario',
         'sap' => 'SAP',
+        'sigep' => 'SIGEP',
         'habilitado' => 'Habilitado',
         'etapa' => 'Etapa',
         'modal' => [
@@ -75,18 +78,22 @@ return [
         ]
     ],
     'notes' => [
-        'valor' => 'Consulte <a >aquí</a> los recursos disponibles de su proyecto',
+        'codigo_sigep' => 'Consulte <span class="links" id="codigo_sigep" data-project=":project">aquí</span> el codigo sigep',
+        'valor' => 'Consulte <span class="links">aquí</span> los recursos disponibles de su proyecto',
         'fecha' => 'Para Viáticos y Tiquetes es Obligatorio',
-        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a >aquí</a> Solicitud de Recursos <br> 2. Adjuntar carta de invitacion al evento',
+        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <span class="links">aquí</span> Solicitud de Recursos <br> 2. Adjuntar carta de invitacion al evento',
         'solicitud' => 'Adjuntar Análisis de Conveniencia y/o Formato de Justificación CPSP',
         'autorizado' => 'Describir alguna novedad',
         'usuario_etapa' => 'Seleccionar sólo si es el funcionario encargado.',
         'usuario_tipo_transaccion' => 'Seleccionar los tipos de transaccion al cual el funcionario esta encargado.',
-        'usuario_administrador' => 'Seleccionar en caso de que el funcionario sea Administrador de la plataforma'
+        'usuario_administrador' => 'Seleccionar en caso de que el funcionario sea Administrador de la plataforma',
+        'otro_proyecto' => 'Digite su proyecto en caso de no encontrarlo anteriormente.',
+        'descripcion_pendiente' => 'Justificar en caso de tener pendiente el codigo SIGEP',
+        'empty_codigo_sigep' => 'Requiere justificacion.'
     ],
     'general' => [
         'valor' => 'Valor',
-        'gaurdar' => 'Confirmar',
+        'confirmar' => 'Confirmar',
         'crp' => 'No. del CRP o Pedido',
         'fechaSolicitud' => 'Fecha de Solicitud',
         'anexos' => 'Anexos',
@@ -97,11 +104,21 @@ return [
         'configuracion' => 'Configuración',
         'consecutivo' => 'Consecutivo',
         'guardar' => 'Guardar',
-        'ok' => 'guardada',
-        'actualizar' => "Actualizar"
+        'generada' => 'generada',
+        'generado' => 'generado',
+        'guardado' => 'guardado',
+        'guardada' => 'guardada',
+        'creado' => 'creada',
+        'actualizar' => "Actualizar",
+        'etapas' => 'Etapas',
+        'presupuesto_inicial' => 'Presupuesto inicial',
+        'egreso' => 'Egreso',
+        'disponible' => 'Disponible',
+        'estado' => 'Estado'
     ],
     'presolicitud' => [
         'proyecto' => 'Programa, proyecto y líneas misionales',
+        'otro_proyecto' => 'Otro Proyecto',
         'tipo_transaccion' => 'Tipo de Transacción',
         'descripcion' => 'Descripción de Solicitud',
         'fecha_inicial' => 'Fecha Inicial',
@@ -115,7 +132,8 @@ return [
         'numero_consecutivo' => 'No. Consecutivo',
         'fecha_conveniencia' => 'Fecha de Análisis de conveniencia - Formato de Justificación CPSF',
         'codigo_sigep' => 'Codigo SIGEP',
-        'concepto' => 'Concepto'
+        'concepto' => 'Concepto',
+        'rubro_egreso' => 'Rubro de egresos'
     ],
     'tramite' => [
         'consecutivo_sap' => 'Consecutivo transacción SAP y Portal',
@@ -126,7 +144,7 @@ return [
         'pendiente' => 'Pendiente',
         'confirmacionEnvio' => 'Confirmación de Envío al Ordenador del Gastos',  
         'fechaEnvio' => 'Fecha de Envío',
-        'descripcion' => 'Observaciones'
+        'descripcion_pendiente' => 'Descripcion'
     ],
     'preaprobado' => [
         'cdp' => 'No. CDP',

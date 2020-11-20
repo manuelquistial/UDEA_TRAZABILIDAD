@@ -10,6 +10,8 @@ class TipoTransaccionController extends Controller
     public $tipoTransaccion = 'tr_tipostransaccion';
     public $columna = 'tipo_transaccion';
     public $numeroDatos = 5;
+    public $estado_id = 4;
+    public $sap_estado = 3;
 
     public function __construct()
     {
@@ -77,11 +79,15 @@ class TipoTransaccionController extends Controller
         $sap = null;
 
         if($request->sap){
-            $sap = 3;
+            $sap = $this->sap_estado;
         }
         try {
             DB::table($this->tipoTransaccion)->insert(
-                [$this->columna => $request->item, 'etapa_id' => $sap]
+                [
+                    $this->columna => $request->value['item'], 
+                    'etapa_id' => $sap, 
+                    'estado_id' => $this->estado_id
+                ]
             );
             $queryStatus = "ok";
         } catch(Exceion $e) {
@@ -123,7 +129,7 @@ class TipoTransaccionController extends Controller
         $tipoTransaccion;
         try {
             $tipoTransaccion = DB::table($this->tipoTransaccion)
-                ->where('estado_id', 4)
+                ->where('estado_id', $this->estado_id)
                 ->orderBy($this->columna)
                 ->get();
         } catch(Exception $e) {
@@ -151,19 +157,19 @@ class TipoTransaccionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $queryStatus;
         try {
             DB::table($this->tipoTransaccion)
-              ->where('id', $id)
+              ->where('id', $request->id)
               ->update([$this->columna => $request->value]);
             $queryStatus = "ok";
         } catch(Exception $e) {
             $queryStatus = "error";
         }
         
-        return response()->json(['data'=>$queryStatus]);
+        return response()->json(['data' => $queryStatus]);
     }
 
     /**

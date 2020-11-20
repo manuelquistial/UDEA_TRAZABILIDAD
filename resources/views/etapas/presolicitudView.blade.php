@@ -2,13 +2,13 @@
 
 @section('content')
 <div class="card-body">
-@switch($route)
+    @switch($route)
         @case("index")
             <form action="{{ route('save_presolicitud') }}" method="post"> 
             {!! csrf_field() !!}
             @break
         @case("edit")
-            <form action="{{ route('update_solicitud') }}" method="post"> 
+            <form action="{{ route('update_presolicitud') }}" method="post"> 
             {!! csrf_field() !!}
             @break
         @default
@@ -36,6 +36,18 @@
             </select>
         </div>
         <div class="form-group">
+            <label for="valor">{{ Lang::get('strings.presolicitud.otro_proyecto') }}</label>
+            <input type="text" class="form-control" name="otro_proyecto" value="{{ $etapas ? old('otro_proyecto') : $data->otro_proyecto}}"> 
+            @if ($errors->has('otro_proyecto'))
+                <span class="text-danger">
+                    <strong><small>{{ $errors->first('otro_proyecto') }}</small></strong>
+                </span>
+            @endif
+            <small class="form-text text-muted">
+                {!! Lang::get('strings.notes.otro_proyecto') !!}
+            </small>
+        </div>
+        <div class="form-group">
             <label for="transaccion_id">{{ Lang::get('strings.presolicitud.tipo_transaccion') }}</label>
             <div class="input-group mb-3">
                 <select class="form-control" name="transaccion_id" id="transaccion_id">
@@ -54,9 +66,9 @@
                 @endif
                 </select>
                 @if(!$etapas)
-                    @if($route !== "index")
+                    @if($route == "show" && $data->etapa_id == '1')
                     <div class="input-group-prepend">
-                        <a class="input-group-text" id="redirect" >{{ Lang::get('strings.presolicitud.redireccionar') }}</a>
+                        <a class="input-group-text" id="redirect">{{ Lang::get('strings.presolicitud.redireccionar') }}</a>
                     </div>
                     @endif
                 @endif
@@ -64,7 +76,7 @@
         </div>
         <div class="form-group">
             <label for="valor">{{ Lang::get('strings.general.valor') }}</label>
-            <input type="text" class="form-control" name="valor" value="{{ $etapas ? old('valor') : $data->valor}}"> 
+            <input type="number" step="any" class="form-control" name="valor" value="{{ $etapas ? old('valor') : $data->valor}}"> 
             @if ($errors->has('valor'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('valor') }}</small></strong>
@@ -77,7 +89,7 @@
         <div class="form-row" style="margin: 1rem 0rem;">
             <div class="form-group col-md-6" style="margin: 0px;">
                 <label for="fecha_inicial">{{ Lang::get('strings.presolicitud.fecha_inicial') }}</label>
-                <input type="date" class="form-control" name="fecha_inicial" value="{{ $etapas ? old('fecha_inicial') : $data->fecha_inicial}}">
+                <input type="date" class="form-control" name="fecha_inicial" placeholder="yyyy-mm-dd" value="{{ $etapas ? old('fecha_inicial') : $data->fecha_inicial }}">
                 @if ($errors->has('fecha_inicial'))
                     <span class="text-danger">
                         <strong><small>{{ $errors->first('fecha_inicial') }}</small></strong>
@@ -86,7 +98,7 @@
             </div>
             <div class="form-group col-md-6" style="margin: 0px;">
                 <label for="fecha_final">{{ Lang::get('strings.presolicitud.fecha_final') }}</label>
-                <input type="date" class="form-control" name="fecha_final" value="{{ $etapas ? old('fecha_final') : $data->fecha_final}}">
+                <input type="date" class="form-control" name="fecha_final" placeholder="yyyy-mm-dd" value="{{ $etapas ? old('fecha_final') : $data->fecha_final }}">
                 @if ($errors->has('fecha_final'))
                     <span class="text-danger">
                         <strong><small>{{ $errors->first('fecha_final') }}</small></strong>
@@ -122,7 +134,6 @@
                 @break
             @default
         @endswitch
-        
     </form>
 </div>
 @stop

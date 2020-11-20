@@ -27,6 +27,6 @@ class Aprobado extends Model
      */
     protected $fillable = [
         'id', 'encargado_id', 'consecutivo', 'fecha_crp_pedido', 'crp', 'valor_final_crp', 'nombre_tercero', 'identificacion_tercero',
-        'estado_id', 'fecha_estado', 'fecha_envio_documento', 'fecha_envio_decanatura', 'fecha_envio_presupuestos'
+        'estado_id', 'fecha_estado', 'fecha_envio_documento', 'fecha_envio_decanatura', 'fecha_envio_presupuestos', 'solpe'
     ];
 }
