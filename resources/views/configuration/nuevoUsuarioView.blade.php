@@ -31,25 +31,14 @@
         <form action="{{ route('agregar_nuevo_usuario') }}" method="post">
     @endif
     {!! csrf_field() !!}
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="nombre">{{ Lang::get('strings.usuario.nombre') }}</label>
-                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ $data_opcion ? $data->nombre : old('nombre')}}"> 
-                @if ($errors->has('nombre'))
-                    <span class="text-danger">
-                        <strong><small>{{ $errors->first('nombre') }}</small></strong>
-                    </span>
-                @endif
-            </div>
-            <div class="form-group col-md-6">
-                <label for="apellidos">{{ Lang::get('strings.usuario.apellidos') }}</label>
-                <input type="text" class="form-control" id="apellidos" name="apellidos" value="{{ $data_opcion ? $data->apellidos : old('apellidos')}}"> 
-                @if ($errors->has('apellidos'))
-                    <span class="text-danger">
-                        <strong><small>{{ $errors->first('apellidos') }}</small></strong>
-                    </span>
-                @endif
-            </div>
+        <div class="form-group">
+            <label for="nombre">{{ Lang::get('strings.usuario.nombre') }}</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ $data_opcion ? $data->nombre : old('nombre')}}"> 
+            @if ($errors->has('nombre'))
+                <span class="text-danger">
+                    <strong><small>{{ $errors->first('nombre') }}</small></strong>
+                </span>
+            @endif
         </div>
         @if($opcion != "usuario")
         <div class="form-group">
@@ -108,15 +97,15 @@
                             @endif
                         @endforeach
                         <div class="form-check tipo_transaccion_item">
-                            <input type="checkbox" class="form-check-input" name="tipos_transaccion[]" data-name="{{ $tipo_transaccion->tipo_transaccion }}" id="{{ $tipo_transaccion->id }}" value="{{ $tipo_transaccion->id }}" {{$checked}}>
-                            <label class="form-check-label" for="{{ $tipo_transaccion->id }}">{{ $tipo_transaccion->tipo_transaccion }}</label>
+                            <input type="checkbox" class="form-check-input" name="tipos_transaccion[]" data-name="{{ $tipo_transaccion->tipo_transaccion }}" id="{{ $tipo_transaccion->tipo_transaccion }}" value="{{ $tipo_transaccion->id }}" {{$checked}}>
+                            <label class="form-check-label" for="{{ $tipo_transaccion->tipo_transaccion }}">{{ $tipo_transaccion->tipo_transaccion }}</label>
                         </div>
                     @endforeach
                 @else
                     @foreach($tipos_transaccion as $tipo_transaccion)
                     <div class="form-check tipo_transaccion_item">
-                        <input type="checkbox" class="form-check-input" name="tipos_transaccion[]" data-name="{{ $tipo_transaccion->tipo_transaccion }}" id="{{ $tipo_transaccion->id }}" value="{{ $tipo_transaccion->id }}">
-                        <label class="form-check-label" for="{{ $tipo_transaccion->id }}">{{ $tipo_transaccion->tipo_transaccion }}</label>
+                        <input type="checkbox" class="form-check-input" name="tipos_transaccion[]" data-name="{{ $tipo_transaccion->tipo_transaccion }}" id="{{ $tipo_transaccion->tipo_transaccion }}" value="{{ $tipo_transaccion->id }}">
+                        <label class="form-check-label" for="{{ $tipo_transaccion->tipo_transaccion }}">{{ $tipo_transaccion->tipo_transaccion }}</label>
                     </div>
                     @endforeach
                 @endif
@@ -190,13 +179,13 @@
                         @foreach($roles_usuario as $role_usuario)
                             @if($role_usuario->role_id == $role->role_id)
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->id}}" value="{{$role->id}}" checked>
-                                <label class="form-check-label" for="{{$role->id}}">{{$role->role}}</label>
+                                <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}" checked>
+                                <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
                             </div>
                             @else
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->id}}" value="{{$role->id}}">
-                                <label class="form-check-label" for="{{$role->id}}">{{$role->role}}</label>
+                                <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}">
+                                <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
                             </div>
                             @endif
                         @endforeach
@@ -204,8 +193,8 @@
                 @else
                     @foreach($roles as $role)
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->id}}" value="{{$role->id}}">
-                        <label class="form-check-label" for="{{$role->id}}">{{$role->role}}</label>
+                        <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}">
+                        <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
                     </div>
                     @endforeach
                 @endif
@@ -221,5 +210,5 @@
 @stop
 
 @section('scripts')
-    <script type="module" src="{{ asset('js/nuevoUsuarioScript.js') }}" crossorigin="anonymous"></script>
+    <script type="module" src="{{ asset('js/nuevoUsuario.js') }}" crossorigin="anonymous"></script>
 @stop

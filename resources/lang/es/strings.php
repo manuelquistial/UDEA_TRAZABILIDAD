@@ -20,8 +20,7 @@ return [
         'presolicitud' => 'Presolicitud'
     ],
     'usuario' => [
-        'nombre' => 'Nombre',
-        'apellidos' => 'Apellidos',
+        'nombre' => 'Nombre completo',
         'email' => 'E-Mail',
         'cedula' => 'Cédula',
         'telefono' => 'Teléfono',
@@ -34,7 +33,10 @@ return [
         'codigo' => 'Codigo',
         'enviado' => 'Enviado',
         'tipo' => 'Tipo',
-        'enviar_correos' => 'Enviar correos'
+        'enviar_correos' => 'Enviar correos',
+        'fecha_envio' => 'Fecha Envio',
+        'sigep' => 'SIGEP',
+        'sap' => 'SAP'
     ],
     'configuracion' => [
         'menu_lateral' => [
@@ -87,7 +89,7 @@ return [
         'usuario_etapa' => 'Seleccionar sólo si es el funcionario encargado.',
         'usuario_tipo_transaccion' => 'Seleccionar los tipos de transaccion al cual el funcionario esta encargado.',
         'usuario_administrador' => 'Seleccionar en caso de que el funcionario sea Administrador de la plataforma',
-        'otro_proyecto' => 'Digite su proyecto en caso de no encontrarlo anteriormente.',
+        'otro_proyecto' => 'Digite su proyecto en caso de no encontrarlo anteriormente',
         'descripcion_pendiente' => 'Justificar en caso de tener pendiente el codigo SIGEP',
         'empty_codigo_sigep' => 'Requiere justificacion.'
     ],
@@ -191,4 +193,7 @@ return [
         'conectar' => 'Conectar',
         'olvido_password' => '¿Olvidaste tu contraseña?'
     ],
+    'subjects' => [
+        'presolicitud' => 'Test'
+    ]
 ];

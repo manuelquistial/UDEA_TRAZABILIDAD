@@ -3,12 +3,13 @@
 @section('content')
 <div class="card-body">
     <div class="form-group">
-        <h6>{{ Lang::get('strings.general.crp') }}</h6>
-        <p></p>
+        <label for="crp">{{ Lang::get('strings.general.crp') }}</label>
+        <input type="text" class="form-control" name="crp" value="" disabled>
     </div>
+
     <div class="form-group">
-        <h6>{{ Lang::get('strings.reserva.saldo') }}</h6>
-        <p></p>
+        <label for="saldo">{{ Lang::get('strings.reserva.saldo') }}</label>
+        <input type="text" class="form-control" name="saldo" value="" disabled>
     </div>
 
     @switch($route)
@@ -35,7 +36,7 @@
         </div>
         <div class="form-group">
             <label for="fecha_cancelacion">{{ Lang::get('strings.reserva.fecha_cancelacion') }}</label>
-            <input type="date" class="form-control" name="fecha_cancelacion" value="{{ $etapas ? old('fecha_cancelacion') : $data->fecha_cancelacion}}">
+            <input type="date" class="form-control" name="fecha_cancelacion" placeholder="yyyy-mm-dd" value="{{ $etapas ? old('fecha_cancelacion') : $data->fecha_cancelacion}}">
             @if ($errors->has('fecha_cancelacion'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('fecha_cancelacion') }}</small></strong>
@@ -43,6 +44,9 @@
             @endif
         </div>
         @switch($route)
+            @case("index")
+                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                @break
             @case("edit")
                 <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
                 @break

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Usuario;
 
 class TiposTransaccion extends Model
 {

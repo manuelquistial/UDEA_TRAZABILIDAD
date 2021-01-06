@@ -147,7 +147,7 @@ document.getElementById('items_tabla').addEventListener('click', function(event)
             actualizarEstado(endpoint, etapa, columna, id)
             .then((res) => res.json())
             .then((data) => {
-                console.log(data)
+                location.reload();
             })
             .catch((error) => console.log(error))
         }
@@ -161,7 +161,7 @@ document.getElementById('items_tabla').addEventListener('click', function(event)
             actualizarEstado(endpoint, habilitado, columna, id)
             .then((res) => res.json())
             .then((data) => {
-                console.log(data)
+                location.reload();
             })
             .catch((error) => console.log(error))
         }
@@ -187,7 +187,7 @@ document.getElementById('modificar').addEventListener('click', function(event){
         modificarConfiguracion(endpoint, metodo, data, null)
         .then((res) => res.json())
         .then((data) => {
-            console.log(data)
+            location.reload();
         })
         .catch((error) => console.log(error))
     }else if(option == 'actualizar'){
@@ -196,7 +196,7 @@ document.getElementById('modificar').addEventListener('click', function(event){
         modificarConfiguracion(endpoint, metodo, input, id)
         .then((res) => res.json())
         .then((data) => {
-            console.log(data)
+            location.reload();
         })
         .catch((error) => console.log(error))
     }

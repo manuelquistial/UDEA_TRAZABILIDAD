@@ -1,6 +1,22 @@
 var path = document.getElementsByTagName('base')[0].href
 var token = document.getElementsByTagName('meta')['csrf-token'].getAttribute("content");
 
+async function enviarCorreos(){
+  let route = `${url}/${endpoint}/estado`
+  const response = await fetch(route, {
+    method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+    body: JSON.stringify({
+      consecutivo: consecutivo,
+      estado_id: estado
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
+}
+
 async function redirectTransaccion(url, transaccion_id, consecutivo){
   let route = `${url}/presolicitud/redirect`
   const response = await fetch(route, {
@@ -139,8 +155,7 @@ async function getEtapas(url){
 }
 
 async function getEstados(url, endpoint, consecutivo){
-  let route = `${url}/${endpoint}`
-  console.log(route)
+  let route = `${url}${endpoint}`
   const response = await fetch(route, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
@@ -189,5 +204,6 @@ export{
   getEstados,
   setEstados,
   getCodigoSigep,
-  setAprobadoVariables
+  setAprobadoVariables,
+  enviarCorreos
 }

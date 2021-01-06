@@ -16,8 +16,7 @@ class CreateUsuarioTable extends Migration
         Schema::defaultStringLength(191);
         Schema::create('tr_usuarios', function (Blueprint $table) {
             $table->increments('id')->unsigned();
-            $table->string('nombre');
-            $table->string('apellidos');
+            $table->string('nombre_apellido');
             $table->string('email')->unique();
             $table->integer('cedula')->unique()->unsigned();
             $table->integer('telefono')->unsigned();

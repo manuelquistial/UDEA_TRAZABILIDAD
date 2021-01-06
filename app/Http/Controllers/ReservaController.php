@@ -13,6 +13,7 @@ class ReservaController extends Controller
 {
     public $etapa_id = 7;
     public $estado_id = 1;
+    public $espacio = " ";
 
     public function __construct()
     {
@@ -49,8 +50,8 @@ class ReservaController extends Controller
         $reserva = Reserva::create([
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
-            'num_oficio' => $data['num_oficio'],
-            'fecha_cancelacion' => $data['fecha_cancelacion'],
+            'num_oficio' => $this->startEndSpaces($data['num_oficio']),
+            'fecha_cancelacion' => $this->returnNull($this->startEndSpaces($data['fecha_cancelacion'])),
             'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
@@ -173,6 +174,28 @@ class ReservaController extends Controller
     }
 
     /**
+     * Set estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function setEstado(Request $request)
+    {
+        Reserva::where('consecutivo', $request->consecutivo)
+                ->update(['estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+            
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+                        
+        return response()->json(['data'=>true]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -181,5 +204,16 @@ class ReservaController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function returnNull($str){
+        if($str == ''){
+            return NULL;
+        }
+        return $str;
+    }
+
+    public function startEndSpaces($str){
+        return trim($str, $this->espacio);
     }
 }

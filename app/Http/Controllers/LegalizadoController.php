@@ -47,11 +47,7 @@ class LegalizadoController extends Controller
     public function create(array $data)
     {
         $legalizado = Legalizado::create([
-            'consecutivo' => $data['consecutivo'],
-            'encargado_id' => Auth::user()->cedula,
-            'reintegro' => $data['reintegro'],
-            'estado_id' => $this->estado_id,
-            'fecha_estado' => date("Y-m-d H:i:s")
+            'consecutivo' => $data['value']
         ]);
 
         return $legalizado;
@@ -161,6 +157,28 @@ class LegalizadoController extends Controller
                 ->first();
             
         return response()->json(['data'=>$estado]);
+    }
+
+    /**
+     * Set estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function setEstado(Request $request)
+    {
+        Legalizado::where('consecutivo', $request->consecutivo)
+                ->update(['estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+            
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+                        
+        return response()->json(['data'=>true]);
     }
 
     /**

@@ -66,6 +66,10 @@ body {
     padding: 10px;
 }
 
+.checkbox_table{
+    margin: 5px;
+}
+
 .container-fluid{
     padding: 0px;
 }

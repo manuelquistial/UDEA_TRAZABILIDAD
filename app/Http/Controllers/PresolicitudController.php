@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Mail\MailController;
 use App\Usuario;
 use App\Presolicitud;
 use App\ActualEtapaEstado;
@@ -84,7 +85,8 @@ class PresolicitudController extends Controller
             'fecha_inicial' => 'date|nullable',
             'fecha_final' => 'date|nullable|after_or_equal:fecha_inicial',
             'valor' => 'required|integer',
-            'descripcion' => 'required|string'
+            'descripcion' => 'required|string',
+            'anexos*' => 'mimes:pdf,zip'
         ]);
     }
 
@@ -96,13 +98,20 @@ class PresolicitudController extends Controller
      */
     public function store(Request $request)
     {
-        $etapa_items;
-        $consecutivo;
-
         $etapa_array = [];
         $this->validator($request->all())->validate();
 
-        $presolicitud = $this->create($request->all());
+        $encargado_id = DB::table('tr_usuarios_tipostransaccion AS a')
+                ->leftJoin('tr_usuarios AS b', 'b.id', '=', 'a.usuario_id')
+                ->leftJoin('tr_tipostransaccion AS c', 'c.id', '=', 'a.tipo_transaccion_id')
+                ->where('a.tipo_transaccion_id', $request->transaccion_id)
+                ->select('b.cedula', 'b.email', 'c.tipo_transaccion', 'b.nombre_apellido')
+                ->first();
+
+        $data = $request->all();
+        $data['encargado_id'] = $encargado_id->cedula;
+ 
+        $presolicitud = $this->create($data);
         $presolicitud->save();
         $consecutivo = $presolicitud->id;
 
@@ -114,6 +123,16 @@ class PresolicitudController extends Controller
         ]);
 
         $actual_etapa_estado->save();
+
+        //$email_controller = new CorreosController;
+        //$email_controller->email($encargado_id, $consecutivo, $this->etapa_id);
+
+        if($request->hasFile('anexos')) {
+            foreach($request['anexos'] as $file) {
+                $file_name = str_replace(' ', '_', $file->getClientOriginalName());
+                $path = $file->storeAs('//public/presolicitud/' . $consecutivo . '/', $file_name);
+            }
+        }
 
         return redirect('/')->with('status', true)->with('consecutivo', $consecutivo);
     }
@@ -220,7 +239,7 @@ class PresolicitudController extends Controller
         if($tipo_transaccion){
             $redirect = $request->value;
         }
-        //Doesn´t have the tipo de transaccion, so frontend goint to redirecto to Consulta de Gestores
+        //Doesn´t have the tipo de transaccion, so frontend going to redirect to Consulta de Gestores
         return response()->json(['data'=>$redirect]);
     }
 

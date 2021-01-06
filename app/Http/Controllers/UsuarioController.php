@@ -16,6 +16,7 @@ class UsuarioController extends Controller
 {
     public $columna = 'apellidos';
     public $numeroDatos = 5;
+    public $espacio = " ";
 
     public function __construct()
     {
@@ -67,8 +68,7 @@ class UsuarioController extends Controller
     public function create(array $data)
     {
         $usuario = Usuario::create([
-            'nombre' => $this->startEndSpaces($data['nombre']),
-            'apellidos' => $this->startEndSpaces($data['apellidos']),
+            'nombre_apellido' => $this->startEndSpaces($data['nombre']),
             'email' => $this->startEndSpaces($data['email']),
             'telefono' => $this->startEndSpaces($data['telefono']),
             'cedula' => $this->startEndSpaces($data['cedula']),
@@ -108,7 +108,6 @@ class UsuarioController extends Controller
     {
         return Validator::make($data, [
             'nombre' => 'required|string',
-            'apellidos' => 'required|string',
             'email' => 'required|email',
             'telefono' => 'required|numeric'
         ]);
@@ -127,7 +126,8 @@ class UsuarioController extends Controller
         $usuario = $this->create($request->all());
         $usuario->save();
         $request->session()->flash('status', 'status');
-        return redirect()->route('nuevo_usuario');
+
+        return redirect()->route('usuarios');
         //return response()->json([''=>$request['etapa']]);
     }
 
@@ -144,7 +144,7 @@ class UsuarioController extends Controller
         $data_opcion = true;
         
         $data = Usuario::where('id', $usuario_id)
-                        ->select('id','nombre','apellidos','email','cedula','telefono')
+                        ->select('id','nombre_apellido','email','cedula','telefono')
                         ->first();
 
         $etapas = Etapa::where('habilitador', 1)->get();
@@ -166,7 +166,7 @@ class UsuarioController extends Controller
      */
     public function showAll()
     {
-        $usuarios = Usuario::select('id', 'nombre', 'apellidos')->get();
+        $usuarios = Usuario::select('id', 'nombre_apellido')->get();
         return json_encode($usuarios);
     }
 
@@ -182,7 +182,7 @@ class UsuarioController extends Controller
         $data_opcion = true;
         
         $data = Usuario::where('id', $id)
-                        ->select('id','nombre','apellidos','email','cedula','telefono')
+                        ->select('id','nombre_apellido','email','cedula','telefono')
                         ->first();
 
         $etapas = Etapa::where('habilitador', 1)->get();
@@ -210,8 +210,7 @@ class UsuarioController extends Controller
         $usuario = Usuario::find($request->sequence);
 
         $usuario->update(
-            ['nombre' => $this->startEndSpaces($request['nombre'])],
-            ['apellidos' => $this->startEndSpaces($request['apellidos'])],
+            ['nombre_apellido' => $this->startEndSpaces($request['nombre_apellido'])],
             ['email' => $this->startEndSpaces($request['email'])],
             ['telefono' => $this->startEndSpaces($request['telefono'])],
             ['cedula' => $this->startEndSpaces($request['cedula'])]

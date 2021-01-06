@@ -93,6 +93,9 @@ class TramiteController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
+        $email_controller = new CorreosController;
+        $email_controller->email($encargado_id, $consecutivo, $this->etapa_id);
+
         return redirect()->route('edit_tramite', $request->consecutivo)->with('status', true);
     }
 
@@ -178,6 +181,28 @@ class TramiteController extends Controller
                 ->first();
             
         return response()->json(['data'=>$estado]);
+    }
+
+    /**
+     * Set estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function setEstado(Request $request)
+    {
+        Tramite::where('consecutivo', $request->consecutivo)
+                ->update(['estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+            
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+                        
+        return response()->json(['data'=>true]);
     }
 
     /**

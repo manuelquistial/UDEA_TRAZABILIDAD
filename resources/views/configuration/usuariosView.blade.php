@@ -23,7 +23,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>{{ Lang::get('strings.usuario.nombre') }} y {{ Lang::get('strings.usuario.apellidos') }}</th>
+                    <th>{{ Lang::get('strings.usuario.nombre') }}</th>
                     <th>{{ Lang::get('strings.configuracion.habilitado') }}</th>
                 </tr>
             </thead>

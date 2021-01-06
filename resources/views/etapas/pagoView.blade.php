@@ -2,14 +2,16 @@
 
 @section('content')
 <div class="card-body">
-    <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
-    <div class="form-group">
-        <h6>{{ Lang::get('strings.general.crp') }}</h6>
-        <p></p>
-    </div>
-    <div class="form-group">
-        <h6>{{ Lang::get('strings.pago.valor_egreso') }}</h6>
-        <p></p>
+    <div class="info-body">
+        <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
+        <div class="form-group">
+            <label for="crp">{{ Lang::get('strings.general.crp') }}</label>
+            <input type="text" class="form-control" name="crp" value="" disabled>
+        </div>
+        <div class="form-group">
+            <label for="valor_egreso">{{ Lang::get('strings.pago.valor_egreso') }}</label>
+            <input type="text" class="form-control" name="valor_egreso" value="" disabled>
+        </div>
     </div>
 </div>
 @stop

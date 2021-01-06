@@ -7,12 +7,14 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Autorizado;
 use App\ActualEtapaEstado;
+use App\Correos;
 use Auth;
 
 class AutorizadoController extends Controller
 {
     public $etapa_id = 4;
     public $estado_id = 1;
+    public $espacio = " ";
 
     public function __construct()
     {
@@ -50,7 +52,7 @@ class AutorizadoController extends Controller
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
             'codigo_sigep' => $this->startEndSpaces($data['codigo_sigep']),
-            'descripcion_pendiente' => NULL,
+            'descripcion_pendiente' => $this->startEndSpaces($data['descripcion_pendiente']),
             'estado_id' => $this->estado_id,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
@@ -67,8 +69,7 @@ class AutorizadoController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'codigo_sigep' => 'integer',
-            'descripcion_pendiente' => 'string'
+            'codigo_sigep' => 'integer'
         ]);
     }
 
@@ -80,12 +81,13 @@ class AutorizadoController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validator($request->all())->validate();
 
-        if(returnNull($request->descripcion_pendiente) && returnNull($request->codigo_sigep)){
-            return redirect()->route('index_autorizado', $request->consecutivo)->with('empty', true);
+        if($this->returnNull($request->descripcion_pendiente) == null & $this->returnNull($request->codigo_sigep) == null){
+            return redirect()->route('autorizado', $request->consecutivo)->with('empty', true);
         }
 
+        $this->validator($request->all())->validate();
+        
         $autorizado = $this->create($request->all());
         $autorizado->save();
 
@@ -94,6 +96,16 @@ class AutorizadoController extends Controller
                         'estado_id' => $this->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
+
+        DB::table('tr_correos')->insert(
+            [
+                'consecutivo' => $request->consecutivo, 
+                'codigo' => $request->codigo_sigep,
+                'etapa' => $this->etapa_id,
+                'enviado' => 0,
+                'fecha_envio' => null
+            ]
+        );
 
         return redirect()->route('edit_autorizado', $request->consecutivo)->with('status', true);
     }
@@ -176,6 +188,28 @@ class AutorizadoController extends Controller
                 ->first();
             
         return response()->json(['data'=>$estado]);
+    }
+
+    /**
+     * Set estado of etapa
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function setEstado(Request $request)
+    {
+        Autorizado::where('consecutivo', $request->consecutivo)
+                ->update(['estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+            
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                ->update(['etapa_id' => $this->etapa_id,
+                        'estado_id' => $request->estado_id,
+                        'fecha_estado' => date("Y-m-d H:i:s")
+                        ]);
+                        
+        return response()->json(['data'=>true]);
     }
 
     /**

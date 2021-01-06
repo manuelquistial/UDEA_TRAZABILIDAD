@@ -3,14 +3,17 @@
 @section('content')
 <div class="card-body">
     <div class="info-body">
+
         <div class="form-group">
-            <h6>{{ Lang::get('strings.legalizado.crp') }}</h6>
-            <p></p>
+            <label for="crp">{{ Lang::get('strings.legalizado.crp') }}</label>
+            <input type="text" class="form-control" name="crp" value="" disabled>
         </div>
+
         <div class="form-group">
-            <h6>{{ Lang::get('strings.legalizado.valor') }}</h6>
-            <p></p>
+            <label for="valor">{{ Lang::get('strings.legalizado.valor') }}</label>
+            <input type="text" class="form-control" name="valor" value="" disabled>
         </div>
+
         @switch($route)
             @case("index")
                 <form action="{{ route('save_legalizado') }}" method="post"> 
@@ -34,6 +37,9 @@
                 @endif
             </div>
             @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                    @break
                 @case("edit")
                     <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
                     @break

@@ -210,7 +210,7 @@ class SolicitudController extends Controller
      */
     public function setEstado(Request $request)
     {
-        Presolicitud::where('consecutivo', $request->consecutivo)
+        Solicitud::where('consecutivo', $request->consecutivo)
                 ->update(['estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
