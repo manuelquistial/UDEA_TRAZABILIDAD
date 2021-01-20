@@ -1,0 +1,261 @@
+body {
+    background-color: #ffffff;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#content{
+    margin-top: 12px;
+}
+
+#borrar_item{
+    margin: 0px;
+}
+
+#cambio-estado{
+    cursor: pointer;
+}
+
+#label-sap{
+    margin: 0px;
+}
+
+#one_column{
+    width: 100%;
+}
+
+#opciones_usuario{
+    display: none;
+}
+
+#paginacion{
+    margin-top: 10px;
+}
+
+#sap-switch{
+    margin: 0px;
+}
+
+#title-etapa{
+    margin: 0px;
+}
+
+.actual-cambio-estado{
+    margin: 0px;
+    display: contents;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.fa-times{
+    cursor: pointer;
+    padding: 0.25rem;
+}
+
+.breadcrumb{
+    padding: 0;
+    font-size: .75rem;
+    margin: 5px 0;
+    background-color: #ffffff;
+}
+
+.card{
+    margin-bottom: 10px;
+}
+
+.card-header{
+    padding: 10px;
+}
+
+.container-fluid{
+    padding: 0px;
+}
+
+.conf-header{
+    padding: 0px;
+}
+
+.detalles{
+    display: none;
+}
+
+.fa.status{
+    font-size: 22px;
+}
+
+.fa-times{
+    margin: 0px;
+}
+
+.fa-trash-alt{
+    color: #ff0000;
+}
+
+.form-check-input{
+    cursor: pointer;
+}
+
+.form-check-label{
+    cursor: pointer;
+    width: 100%;
+}
+
+.info-header{
+    padding: 5px 0;
+    font-size: 12px;
+    margin: 0px;
+}
+
+.info-body{
+    padding: 5px 0;
+}
+
+.list-group-item{
+    padding: .45rem 0rem;
+    border: 0px;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.links{
+    cursor: pointer;
+    margin: 0px;
+}
+
+.links:hover{
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.lateral-inprogress{
+    border-left: 5px solid #c6c4c8;
+}
+
+.lateral-done{
+    border-left: 5px solid #28a745;
+}
+
+.lateral-cancel{
+    border-left: 5px solid #dc3545;
+}
+
+.lateral-nav-link:hover{
+    text-decoration: underline;
+}
+
+.lateral-nav-item{
+    margin-bottom: 1px;
+}
+
+.modal-radio-input{
+    position: unset;
+    margin-top: 0px;
+    margin-left: 0px;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0rem;
+}
+
+.navbar{
+    padding: 0rem 1rem;
+}
+
+.nav-item{
+    list-style: none;
+}
+
+.status{
+    position: absolute;
+    transform: translate(82%, 0);
+    top: 0px;
+    display: block;
+    width: 35%;
+    text-align: center;
+    z-index: 1;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 20px;
+    margin: 0px;
+}
+  
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.table{
+    text-align: center;
+    margin: 0px;
+}
+
+.table thead th {
+    vertical-align: baseline;
+}
+
+.titulo-header{
+    margin: 0px;
+}
+
+.tipo_transaccion{
+    margin: 0px;
+    padding: 0.55rem;
+}
+
+.tipo_transaccion_item{
+    margin: 0.25rem 0;
+}
+
+.tipo_transaccion_badge{
+    padding: 0.25rem;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(10px);
+    -ms-transform: translateX(10px);
+    transform: translateX(10px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+} 
