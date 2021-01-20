@@ -12,8 +12,10 @@ use Auth;
 class PreaprobadoController extends Controller
 {
     public $etapa_id = 5;
-    public $estado_id = 1;
+    public $en_proceso = 1;
     public $espacio = " ";
+    public $administrador = "Administrador";
+    public $sap = 3; 
 
     public function __construct()
     {
@@ -31,10 +33,13 @@ class PreaprobadoController extends Controller
         $etapas = true;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
+
+        /*$role = Auth::user()->hasOneRole($this->administrador);
+        $sap = Auth::user()->hasOneEtpa($this->sap);*/
 
         return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
     }
@@ -52,7 +57,7 @@ class PreaprobadoController extends Controller
             'encargado_id' => Auth::user()->cedula,
             'cdp' => $this->startEndSpaces($data['cdp']),
             'fecha_cdp' => $this->returnNull($data['fecha_cdp']),
-            'estado_id' => $this->estado_id,
+            'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -88,7 +93,7 @@ class PreaprobadoController extends Controller
         
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
-                        'estado_id' => $this->estado_id,
+                        'estado_id' => $this->en_proceso,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
@@ -107,7 +112,7 @@ class PreaprobadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -129,7 +134,7 @@ class PreaprobadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;

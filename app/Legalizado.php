@@ -26,7 +26,7 @@ class Legalizado extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'encargado_id', 'consecutivo', 'reintegro',
+        'id', 'encargado_id', 'consecutivo', 'valor_reintegro', 'consecutivo_reingreso',
         'estado_id', 'fecha_estado'
     ];
 }

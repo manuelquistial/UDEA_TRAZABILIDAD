@@ -49,7 +49,7 @@ class TransaccionesController extends Controller
         $tipoTransaccion;
 
         //SIGEP
-        if(Auth::user()->hasOneEtapa(4)){
+        if(Auth::user()->hasOneCargo(2)){
             $tipoTransaccion = TiposTransaccion::get();
         }else{
             $tipoTransaccion = Auth::user()->tiposTransaccion;
@@ -100,7 +100,7 @@ class TransaccionesController extends Controller
         $tipoTransaccion;
 
         //SIGEP
-        if(Auth::user()->hasOneEtapa(4)){
+        if(Auth::user()->hasOneCargo(2)){
             $tipoTransaccion = TiposTransaccion::get();
         }else{
             $tipoTransaccion = Auth::user()->tiposTransaccion;

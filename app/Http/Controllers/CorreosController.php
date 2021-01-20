@@ -37,7 +37,8 @@ class CorreosController extends Controller
         $data->index = $etapa_id;
         $data->consecutivo = $consecutivo;
         $data->tipo_transaccion = $encargado->tipo_transaccion;
-        $data->nombre = $encargado->nombre_apellido;
+        $data->nombre_apellido = $encargado->nombre_apellido;
+        $data->nombre_proyecto = $encargado->nombre_proyecto;
 
         Mail::to($encargado->email)
             ->cc(Auth::user()->email)

@@ -13,7 +13,7 @@ use Auth;
 class AutorizadoController extends Controller
 {
     public $etapa_id = 4;
-    public $estado_id = 1;
+    public $en_proceso = 1;
     public $espacio = " ";
 
     public function __construct()
@@ -32,7 +32,7 @@ class AutorizadoController extends Controller
         $etapas = true;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -51,9 +51,9 @@ class AutorizadoController extends Controller
         $autorizado = Autorizado::create([
             'consecutivo' => $data['consecutivo'],
             'encargado_id' => Auth::user()->cedula,
-            'codigo_sigep' => $this->startEndSpaces($data['codigo_sigep']),
+            'codigo_sigep' => $this->returnNull($this->startEndSpaces($data['codigo_sigep'])),
             'descripcion_pendiente' => $this->startEndSpaces($data['descripcion_pendiente']),
-            'estado_id' => $this->estado_id,
+            'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -69,7 +69,7 @@ class AutorizadoController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'codigo_sigep' => 'integer'
+            'codigo_sigep' => 'integer|nullable'
         ]);
     }
 
@@ -93,7 +93,7 @@ class AutorizadoController extends Controller
 
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
-                        'estado_id' => $this->estado_id,
+                        'estado_id' => $this->en_proceso,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
@@ -122,7 +122,7 @@ class AutorizadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -144,7 +144,7 @@ class AutorizadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -166,6 +166,7 @@ class AutorizadoController extends Controller
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
+        
         $data['etapa_id'] = $this->next_etapa_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 

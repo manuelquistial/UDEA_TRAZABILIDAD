@@ -30,7 +30,7 @@
             <tbody id="items_tabla">
                 @foreach($usuarios as $usuario)
                 <tr>
-                    <td><a class="links" href="{{ route('edit_usuario', $usuario->id) }}">{{ $usuario->nombre }} {{ $usuario->apellidos }}</a></td>
+                    <td><a class="links" href="{{ route('edit_usuario', $usuario->id) }}">{{ $usuario->nombre_apellido }}</a></td>
                     <td>
                         <label class="switch">
                             <input type="checkbox" name="habilitar" value="{{ $usuario->id }}" {{ $usuario->estado_id == 4 ? 'checked' : '' }}>

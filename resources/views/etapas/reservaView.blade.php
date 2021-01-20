@@ -14,11 +14,11 @@
 
     @switch($route)
         @case("index")
-            <form action="{{ route('save_reserva') }}" method="post"> 
+            <form action="{{ route('save_reserva') }}" method="post" enctype="multipart/form-data"> 
             {!! csrf_field() !!}
             @break
         @case("edit")
-            <form action="{{ route('update_reserva') }}" method="post"> 
+            <form action="{{ route('update_reserva') }}" method="post" enctype="multipart/form-data"> 
             {!! csrf_field() !!}
             @break
         @default
@@ -27,7 +27,7 @@
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="num_oficio">{{ Lang::get('strings.reserva.num_oficio') }}</label>
-            <input type="text" class="form-control" name="num_oficio" value="{{ $etapas ? old('num_oficio') : $data->num_oficio}}">
+            <input type="number" class="form-control" name="num_oficio" value="{{ $etapas ? old('num_oficio') : $data->num_oficio}}">
             @if ($errors->has('num_oficio'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('num_oficio') }}</small></strong>
@@ -43,6 +43,30 @@
                 </span>
             @endif
         </div>
+        @if($route != "show")
+            <div class="form-group">
+                <label for="anexos">{{ Lang::get('strings.general.anexos') }}</label>
+                <input type="file" class="form-control-file" name="anexos[]" multiple>
+                @if ($errors->has('anexos'))
+                    <span class="text-danger">
+                        <strong><small>{{ $errors->first('anexos') }}</small></strong>
+                    </span>
+                @endif
+                <small class="form-text text-muted">
+                    {!! Lang::get('strings.notes.reserva') !!}
+                </small>
+            </div>
+        @endif
+        @if($files)
+            <div class="form-group">
+                <label for="anexos_guardados">{{ Lang::get('strings.general.anexos_guardados') }}</label>
+                <div>
+                    @foreach($files as $file )
+                        <a class="nav-link" href="{{route('descargar_documentos','path='.$file)}}" target="_blank">{{ basename($file) }}</a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
         @switch($route)
             @case("index")
                 <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>

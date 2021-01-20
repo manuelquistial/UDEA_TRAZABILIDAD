@@ -28,11 +28,20 @@
         @endswitch 
             <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
             <div class="form-group">
-                <label for="reintegro">{{ Lang::get('strings.legalizado.reintegro') }}</label>
-                <input type="text" class="form-control" name="reintegro" value="{{ $etapas ? old('reintegro') : $data->reintegro}}">
-                @if ($errors->has('reintegro'))
+                <label for="consecutivo_reingreso">{{ Lang::get('strings.legalizado.consecutivo_reingreso') }}</label>
+                <input type="number" class="form-control" name="consecutivo_reingreso" value="{{ $etapas ? old('consecutivo_reingreso') : $data->consecutivo_reingreso}}">
+                @if ($errors->has('consecutivo_reingreso'))
                     <span class="text-danger">
-                        <strong><small>{{ $errors->first('reintegro') }}</small></strong>
+                        <strong><small>{{ $errors->first('consecutivo_reingreso') }}</small></strong>
+                    </span>
+                @endif
+            </div>
+            <div class="form-group">
+                <label for="valor_reintegro">{{ Lang::get('strings.legalizado.valor_reintegro') }}</label>
+                <input type="number" class="form-control" name="valor_reintegro" value="{{ $etapas ? old('valor_reintegro') : $data->valor_reintegro}}">
+                @if ($errors->has('valor_reintegro'))
+                    <span class="text-danger">
+                        <strong><small>{{ $errors->first('valor_reintegro') }}</small></strong>
                     </span>
                 @endif
             </div>

@@ -13,7 +13,7 @@ use Auth;
 class TramiteController extends Controller
 {
     public $etapa_id = 3;
-    public $estado_id = 1;
+    public $en_proceso = 1;
     public $espacio = " ";
 
     public function __construct()
@@ -32,7 +32,7 @@ class TramiteController extends Controller
         $etapas = true;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -53,7 +53,7 @@ class TramiteController extends Controller
             'encargado_id' => Auth::user()->cedula,
             'consecutivo_sap' => $this->startEndSpaces($data['consecutivo_sap']),
             'fecha_sap' => $this->returnNull($data['fecha_sap']),
-            'estado_id' => $this->estado_id,
+            'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -89,12 +89,12 @@ class TramiteController extends Controller
 
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
-                        'estado_id' => $this->estado_id,
+                        'estado_id' => $this->en_proceso,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
-        $email_controller = new CorreosController;
-        $email_controller->email($encargado_id, $consecutivo, $this->etapa_id);
+        //$email_controller = new CorreosController;
+        //$email_controller->email($encargado_id, $consecutivo, $this->etapa_id);
 
         return redirect()->route('edit_tramite', $request->consecutivo)->with('status', true);
     }
@@ -111,7 +111,7 @@ class TramiteController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -136,7 +136,7 @@ class TramiteController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
 
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;

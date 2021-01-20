@@ -20,9 +20,10 @@
         <div class="form-group">
             <label for="proyecto_id">{{ Lang::get('strings.presolicitud.proyecto') }}</label>
             <select class="form-control" name="proyecto_id">
+                <option value="">{{ Lang::get('strings.presolicitud.seleccione_proyecto') }}</option>
             @if($etapas)
                 @foreach( $proyecto as $proyecto )
-                    <option value="{{ $proyecto->codigo }}">{{ $proyecto->nombre }}</option>
+                    <option value="{{ $proyecto->codigo }}" {{old('proyecto_id') == $proyecto->codigo ? 'selected':''}}>{{ $proyecto->nombre }}</option>
                 @endforeach
             @else
                 @foreach( $proyecto as $proyecto )
@@ -50,7 +51,7 @@
                 <select class="form-control" name="transaccion_id" id="transaccion_id">
                 @if($etapas)
                     @foreach($tipoTransaccion as $transaccion )
-                        <option value="{{ $transaccion->id }}">{{ $transaccion->tipo_transaccion }}</option>
+                        <option value="{{ $transaccion->id }}" {{old('transaccion_id') == $transaccion->id ? 'selected':''}}>{{ $transaccion->tipo_transaccion }}</option>
                     @endforeach
                 @else
                     @foreach( $tipoTransaccion as $transaccion )
@@ -115,18 +116,30 @@
                 </span>
             @endif
         </div>
-        <div class="form-group">
-            <label for="anexos">{{ Lang::get('strings.general.anexos') }}</label>
-            <input type="file" class="form-control-file" name="anexos[]" multiple>
-            @if ($errors->has('anexos'))
-                <span class="text-danger">
-                    <strong><small>{{ $errors->first('anexos') }}</small></strong>
-                </span>
-            @endif
-            <small class="form-text text-muted">
-                {!! Lang::get('strings.notes.presolicitud') !!}
-            </small>
-        </div>
+        @if($route != "show")
+            <div class="form-group">
+                <label for="anexos">{{ Lang::get('strings.general.anexos') }}</label>
+                <input type="file" class="form-control-file" name="anexos[]" multiple>
+                @if ($errors->has('anexos'))
+                    <span class="text-danger">
+                        <strong><small>{{ $errors->first('anexos') }}</small></strong>
+                    </span>
+                @endif
+                <small class="form-text text-muted">
+                    {!! Lang::get('strings.notes.presolicitud') !!}
+                </small>
+            </div>
+        @endif
+        @if($files)
+            <div class="form-group">
+                <label for="anexos_guardados">{{ Lang::get('strings.general.anexos_guardados') }}</label>
+                <div>
+                    @foreach($files as $file )
+                        <a class="nav-link" href="{{route('descargar_documentos','path='.$file)}}" target="_blank">{{ basename($file) }}</a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
         @switch($route)
             @case("index")
                 <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.presolicitud.enviar') }}</button></div>

@@ -18,7 +18,8 @@ class CreateLegalizadoTable extends Migration
             $table->integer('consecutivo')->unsigned();
             $table->integer('encargado_id')->unsigned();
             $table->foreign('encargado_id')->references('cedula')->on('tr_usuarios');
-            $table->integer('reintegro')->nullable();
+            $table->integer('valor_reintegro')->unsigned()->nullable();
+            $table->integer('consecutivo_reingreso')->unsigned()->nullable();
             $table->integer('estado_id')->unsigned();
             $table->foreign('estado_id')->references('estado_id')->on('tr_estados');
             $table->dateTime('fecha_estado')->nullable();

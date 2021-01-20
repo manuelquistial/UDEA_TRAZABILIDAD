@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsuariosEtapasTable extends Migration
+class CreateUsuariosCargosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateUsuariosEtapasTable extends Migration
      */
     public function up()
     {
-        Schema::create('tr_usuarios_etapas', function (Blueprint $table) {
+        Schema::create('tr_usuarios_cargos', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('usuario_id')->unsigned();
             $table->foreign('usuario_id')->references('id')->on('tr_usuarios');
-            $table->integer('etapa_id')->unsigned();
-            $table->foreign('etapa_id')->references('etapa_id')->on('tr_etapas');
+            $table->integer('cargo_id')->unsigned();
+            $table->foreign('cargo_id')->references('cargo_id')->on('tr_cargos');
         });
     }
 
@@ -29,6 +29,6 @@ class CreateUsuariosEtapasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tr_usuarios_etapas');
+        Schema::dropIfExists('tr_usuarios_cargos');
     }
 }

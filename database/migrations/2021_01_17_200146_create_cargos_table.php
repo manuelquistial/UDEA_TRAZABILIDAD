@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRolesTable extends Migration
+class CreateCargosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateRolesTable extends Migration
      */
     public function up()
     {
-        Schema::create('tr_roles', function (Blueprint $table) {
+        Schema::create('tr_cargos', function (Blueprint $table) {
             $table->increments('id')->unsigned();
-            $table->string('role');
-            $table->integer('role_id')->unsigned()->unique();
+            $table->string('cargo');
+            $table->integer('cargo_id')->unsigned()->unique();
             $table->boolean('habilitador');
         });
     }
@@ -28,6 +28,6 @@ class CreateRolesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tr_roles');
+        Schema::dropIfExists('tr_cargos');
     }
 }

@@ -27,6 +27,6 @@ class TiposTransaccion extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'tipo_transaccion', 'etapa_id', 'estado_id'
+        'id', 'tipo_transaccion', 'cargo_id', 'estado_id'
     ];
 }

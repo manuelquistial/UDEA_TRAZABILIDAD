@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Reserva;
 use App\Aprobado;
 use Auth;
@@ -12,8 +13,10 @@ use Auth;
 class ReservaController extends Controller
 {
     public $etapa_id = 7;
-    public $estado_id = 1;
+    public $en_proceso = 1;
     public $espacio = " ";
+    public $directorio = "reserva/";
+    public $path = "//public/"; 
 
     public function __construct()
     {
@@ -30,13 +33,14 @@ class ReservaController extends Controller
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
+        $files = 0;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
 
-        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado'));
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','files'));
     }
 
     /**
@@ -52,7 +56,7 @@ class ReservaController extends Controller
             'encargado_id' => Auth::user()->cedula,
             'num_oficio' => $this->startEndSpaces($data['num_oficio']),
             'fecha_cancelacion' => $this->returnNull($this->startEndSpaces($data['fecha_cancelacion'])),
-            'estado_id' => $this->estado_id,
+            'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -69,7 +73,8 @@ class ReservaController extends Controller
     {
         return Validator::make($data, [
             'num_oficio' => 'string',
-            'fecha_cancelacion' => 'date'
+            'fecha_cancelacion' => 'date',
+            'anexos*' => 'mimes:pdf'
         ]);
     }
 
@@ -101,7 +106,7 @@ class ReservaController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
 
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -112,7 +117,9 @@ class ReservaController extends Controller
 
         $data = Reserva::where('consecutivo', $consecutivo)->first();
 
-        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
+        $files = Storage::disk('public')->files($this->directorio . $consecutivo);
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','files'));
     }
 
     /**
@@ -127,14 +134,16 @@ class ReservaController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
 
         $data = Reserva::where('consecutivo', $consecutivo)->first();
 
-        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
+        $files = Storage::disk('public')->files($this->directorio . '/' . $consecutivo);
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','files'));
     }
 
     /**
@@ -148,9 +157,10 @@ class ReservaController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $data = $request->except('_token');
-        $data['etapa_id'] = $this->next_etapa_id;
-        $data['fecha_estado'] = date("Y-m-d H:i:s");
+        $upload_files = new MainController;
+        $upload_files->uploadFile($request, $this->path.$this->directorio);
+
+        $data = $request->except('_token','anexos');
 
         Reserva::where('consecutivo', $request->consecutivo)
                     ->update($data);

@@ -15,7 +15,7 @@ class MailController extends Mailable
     protected $index;
     protected $codigo_sigep;
     protected $codigo_sap;
-    protected $solpe;
+    protected $solped;
     protected $consecutivo;
     protected $tipo_transaccion;
     protected $nombre;
@@ -28,16 +28,18 @@ class MailController extends Mailable
     public function __construct($info_email)
     {
         $this->index = $info_email->index;
-        if($info_email->index == 1){
+        //if($info_email->index == 1){
             $this->consecutivo = $info_email->consecutivo;
-            $this->nombre = $info_email->nombre_apellido;
-        }else{
+            $this->nombre_apellido = $info_email->nombre_apellido;
+            $this->nombre_proyecto = $info_email->nombre_proyecto;
+            $this->tipo_transaccion = $info_email->tipo_transaccion;
+        /*}else{
             $this->index = $info_email->index;
             $this->consecutivo = $info_email->consecutivo;
             $this->codigo_sigep = $info_email->codigo_sigep;
             $this->codigo_sap = $info_email->codigo_sap;
-            $this->solpe = $info_email->solpe;
-        }
+            $this->solped = $info_email->solped;
+        }*/
     }
 
     /**
@@ -47,18 +49,19 @@ class MailController extends Mailable
      */
     public function build()
     {
+        $subject = \Lang::get('strings.correo.subject');
+        $data_email = array(
+            'consecutivo' => $this->consecutivo, 
+            'nombre_apellido' => $this->nombre_apellido,
+            'nombre_proyecto' => $this->nombre_proyecto,
+            'tipo_transaccion' => $this->tipo_transaccion
+        );
         if($this->index == 1){
-            $subject = \Lang::get('strings.subjects.presolicitud');
-            return $this->subject($subject)->view('emails.presolicitudView', array(
-                'consecutivo' => $this->consecutivo, 
-                'nombre' => $this->nombre
-            ));
+            return $this->subject($subject)->view('emails.presolicitudView', $data_email);
+        }else if($this->index == 2){
+            return $this->subject($subject)->view('emails.solicitudView', $data_email);
         }else if($this->index == 3){
-            $subject = \Lang::get('strings.subjects.presolicitud');
-            return $this->subject($subject)->view('emails.tramiteView', array(
-                'consecutivo' => $this->consecutivo, 
-                'nombre' => $this->nombre
-            ));
+            return $this->subject($subject)->view('emails.tramiteView', $data_email);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\TiposTransaccion;
-use App\Etapa;
+use App\Cargos;
 use App\Roles;
 
 class Usuario extends Authenticatable
@@ -48,8 +48,8 @@ class Usuario extends Authenticatable
         return $this->belongsToMany(TiposTransaccion::class, 'tr_usuarios_tipostransaccion', 'usuario_id', 'tipo_transaccion_id')->orderBy('tipo_transaccion', 'asc');
     }
 
-    public function etapa(){
-        return $this->belongsToMany(Etapa::class, 'tr_usuarios_etapas', 'usuario_id', 'etapa_id');
+    public function cargo(){
+        return $this->belongsToMany(Cargos::class, 'tr_usuarios_cargos', 'usuario_id', 'cargo_id');
     }
 
     public function role(){
@@ -65,11 +65,11 @@ class Usuario extends Authenticatable
     }
 
     /**
-    * Check one etapa
-    * @param string $etapas
+    * Check one cargo
+    * @param string $cargos
     */
-    public function hasOneEtapa($etapa_id){
-        return null !== $this->etapa()->where('tr_etapas.etapa_id', $etapa_id)->first();
+    public function hasOneCargo($cargo_id){
+        return null !== $this->cargo()->where('tr_cargos.cargo_id', $cargo_id)->first();
     }
 
     /**
@@ -86,5 +86,28 @@ class Usuario extends Authenticatable
     */
     public function hasTipoTransaccion(){
         return null !== $this->tiposTransaccion()->first();
+    }
+
+    /**
+    * Check if tipo de transaccion have an usuario
+    * @param string $tipoTransaccion
+    */
+    public function tipoTransaccionWithUsuarios(){
+        return $this->tiposTransaccion()
+                ->orWherePivot('usuario_id','!=',NULL)
+                ->where('estado_id','=', 4)
+                ->select('tr_tipostransaccion.id');
+    }
+
+    /**
+    * Check if tipo de transaccion have an usuario
+    * @param string $tipoTransaccion
+    */
+    public function tipoTransaccionWithOutUsuarios(){
+        $ids = array();
+        foreach($this->tipoTransaccionWithUsuarios()->get() as $value){
+            array_push($ids, $value['id']);
+        }
+        return TiposTransaccion::whereNotIn('id', $ids);
     }
 }

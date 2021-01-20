@@ -17,7 +17,7 @@ var elUsuarios = document.getElementById('usuarios');
     .then((res) => res.json())
     .then((data) => {
         data.forEach(function(obj){
-            let usuario = obj.nombre + ' ' + obj.apellidos
+            let usuario = obj.nombre_apellido
             let id = obj.id
             usuarios.push([id, usuario])
             optionSelect(id, usuario, elUsuarios)

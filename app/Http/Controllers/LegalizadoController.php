@@ -12,7 +12,8 @@ use Auth;
 class LegalizadoController extends Controller
 {
     public $etapa_id = 9;
-    public $estado_id = 1;
+    public $en_proceso = 1;
+    public $espacio = " ";
 
     public function __construct()
     {
@@ -30,7 +31,7 @@ class LegalizadoController extends Controller
         $etapas = true;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -47,7 +48,12 @@ class LegalizadoController extends Controller
     public function create(array $data)
     {
         $legalizado = Legalizado::create([
-            'consecutivo' => $data['value']
+            'consecutivo' => $data['consecutivo'],
+            'encargado_id' => Auth::user()->cedula,
+            'valor_reintegro' => $this->startEndSpaces($data['valor_reintegro']),
+            'consecutivo_reingreso' => $this->startEndSpaces($data['consecutivo_reingreso']),
+            'estado_id' => $this->en_proceso,
+            'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
         return $legalizado;
@@ -62,7 +68,8 @@ class LegalizadoController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'reintegro' => 'integer'
+            'valor_reintegro' => 'integer',
+            'consecutivo_reingreso' => 'integer'
         ]);
     }
 
@@ -74,6 +81,7 @@ class LegalizadoController extends Controller
      */
     public function store(Request $request)
     {
+        info($request);
         $this->validator($request->all())->validate();
 
         $legalizado = $this->create($request->all());
@@ -81,7 +89,7 @@ class LegalizadoController extends Controller
 
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
-                        'estado_id' => $this->estado_id,
+                        'estado_id' => $this->en_proceso,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
@@ -100,7 +108,7 @@ class LegalizadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -122,7 +130,7 @@ class LegalizadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -139,9 +147,16 @@ class LegalizadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $this->validator($request->all())->validate();
+
+        $data = $request->except('_token');
+
+        Legalizado::where('consecutivo', $request->consecutivo)
+                    ->update($data);
+
+        return redirect()->route('edit_legalizado', $request->consecutivo)->with('status', true);
     }
 
     /**
@@ -190,5 +205,9 @@ class LegalizadoController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function startEndSpaces($str){
+        return trim($str, $this->espacio);
     }
 }

@@ -19,7 +19,8 @@ class CreatePresolicitudTable extends Migration
             $table->foreign('usuario_id')->references('cedula')->on('tr_usuarios');
             $table->integer('encargado_id')->unsigned()->nullable();
             $table->foreign('encargado_id')->references('cedula')->on('tr_usuarios');
-            $table->integer('proyecto_id')->unsigned();
+            $table->integer('proyecto_id')->unsigned()->nullable();
+            $table->string('nombre_proyecto')->nullable();
             $table->string('otro_proyecto')->nullable();
             $table->integer('transaccion_id')->unsigned();
             $table->foreign('transaccion_id')->references('id')->on('tr_tipostransaccion');

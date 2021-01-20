@@ -13,7 +13,7 @@ use Auth;
 class AprobadoController extends Controller
 {
     public $etapa_id = 6;
-    public $estado_id = 1;
+    public $en_proceso = 1;
     public $espacio = " ";
 
     public function __construct()
@@ -32,12 +32,14 @@ class AprobadoController extends Controller
         $etapas = true;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
 
-        return view('etapas/aprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
+        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+
+        return view('etapas/aprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
 
     /**
@@ -56,7 +58,7 @@ class AprobadoController extends Controller
             'valor_final_crp' => $this->startEndSpaces($data['valor_final_crp']),
             'nombre_tercero' => $this->startEndSpaces($data['nombre_tercero']),
             'identificacion_tercero' => $this->startEndSpaces($data['identificacion_tercero']),
-            'estado_id' => $this->estado_id,
+            'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -89,13 +91,20 @@ class AprobadoController extends Controller
     public function store(Request $request)
     {
         $this->validator($request->all())->validate();
+        $data = Aprobado::where('consecutivo', $request->consecutivo)->first();
 
-        $aprobado = $this->create($request->all());
-        $aprobado->save();
+        if($data == NULL){
+            $aprobado = $this->create($request->all());
+            $aprobado->save();
+        }else{
+            $data = $request->except('_token');
+            Aprobado::where('consecutivo', $request->consecutivo)
+                    ->update($data);
+        }
 
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
-                        'estado_id' => $this->estado_id,
+                        'estado_id' => $this->en_proceso,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
@@ -114,7 +123,7 @@ class AprobadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;;
@@ -136,7 +145,7 @@ class AprobadoController extends Controller
         $etapas = false;
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -175,8 +184,8 @@ class AprobadoController extends Controller
     public function update_items(Request $request)
     {
         $data = null;
-        
-        if($request->columna == 'solpe'){
+        info($request);
+        if($request->columna == 'solped'){
             $data = $request->data;
         }else{
             $data = $this->isValidDate($request->data);
@@ -194,7 +203,9 @@ class AprobadoController extends Controller
                 $aprobado = Aprobado::create([
                     'encargado_id' => Auth::user()->cedula,
                     'consecutivo' => $request->consecutivo,
-                    'estado_id' => $this->estado_id,
+                    'nombre_tercero' => NULL,
+                    'identificacion_tercero' => NULL,
+                    'estado_id' => $this->en_proceso,
                     'fecha_estado' => date("Y-m-d H:i:s"),
                     $request->columna => $request->data,
                 ]);

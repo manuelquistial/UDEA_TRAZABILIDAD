@@ -33,10 +33,10 @@
     {!! csrf_field() !!}
         <div class="form-group">
             <label for="nombre">{{ Lang::get('strings.usuario.nombre') }}</label>
-            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ $data_opcion ? $data->nombre : old('nombre')}}"> 
-            @if ($errors->has('nombre'))
+            <input type="text" class="form-control" id="nombre" name="nombre_apellido" value="{{ $data_opcion ? $data->nombre_apellido : old('nombre_apellido')}}"> 
+            @if ($errors->has('nombre_apellido'))
                 <span class="text-danger">
-                    <strong><small>{{ $errors->first('nombre') }}</small></strong>
+                    <strong><small>{{ $errors->first('nombre_apellido') }}</small></strong>
                 </span>
             @endif
         </div>
@@ -89,31 +89,24 @@
             <input type="text" class="form-control" id="tipo_transaccion" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" placeholder="{{ Lang::get('strings.configuracion.escribir_transaccion') }}"> 
             <div class="dropdown-menu tipo_transaccion" id="tipos_transaccion" aria-labelledby="tipo_transaccion">
                 @if($data_opcion)
-                    @foreach($tipos_transaccion as $tipo_transaccion)
-                        @php $checked = ""; @endphp
-                        @foreach($tipos_transaccion_usuario as $tipo_transaccion_usuario)
-                            @if($tipo_transaccion_usuario->id == $tipo_transaccion->id)
-                                @php $checked = "checked"; @endphp
-                            @endif
-                        @endforeach
+                    @foreach($tipos_transaccion_usuario as $tipo_transaccion_usuario)
                         <div class="form-check tipo_transaccion_item">
-                            <input type="checkbox" class="form-check-input" name="tipos_transaccion[]" data-name="{{ $tipo_transaccion->tipo_transaccion }}" id="{{ $tipo_transaccion->tipo_transaccion }}" value="{{ $tipo_transaccion->id }}" {{$checked}}>
-                            <label class="form-check-label" for="{{ $tipo_transaccion->tipo_transaccion }}">{{ $tipo_transaccion->tipo_transaccion }}</label>
+                            <input type="checkbox" class="form-check-input" name="tipos_transaccion[]" data-name="{{ $tipo_transaccion_usuario->tipo_transaccion }}" id="{{ $tipo_transaccion_usuario->tipo_transaccion }}" value="{{ $tipo_transaccion_usuario->id }}" checked>
+                            <label class="form-check-label" for="{{ $tipo_transaccion_usuario->tipo_transaccion }}">{{ $tipo_transaccion_usuario->tipo_transaccion }}</label>
                         </div>
                     @endforeach
-                @else
-                    @foreach($tipos_transaccion as $tipo_transaccion)
+                @endif
+                @foreach($tipos_transaccion as $tipo_transaccion)
                     <div class="form-check tipo_transaccion_item">
                         <input type="checkbox" class="form-check-input" name="tipos_transaccion[]" data-name="{{ $tipo_transaccion->tipo_transaccion }}" id="{{ $tipo_transaccion->tipo_transaccion }}" value="{{ $tipo_transaccion->id }}">
                         <label class="form-check-label" for="{{ $tipo_transaccion->tipo_transaccion }}">{{ $tipo_transaccion->tipo_transaccion }}</label>
                     </div>
-                    @endforeach
-                @endif
+                @endforeach
             </div>
             <div class="tipo_transaccion_badge" id="tipos_transaccion_badge">
                 @if($data_opcion)
                     @foreach($tipos_transaccion_usuario as $tipo_transaccion_usuario)
-                        <span class="badge badge-pill badge-info">{{ $tipo_transaccion_usuario->tipo_transaccion }}<label class="fas fa-times badge_tipo_transaccion" for="{{ $tipo_transaccion_usuario->id }}" aria-hidden="true"></label></span>
+                        <span class="badge badge-pill badge-info">{{ $tipo_transaccion_usuario->tipo_transaccion }}<label class="fas fa-times badge_tipo_transaccion" for="{{ $tipo_transaccion_usuario->tipo_transaccion }}" aria-hidden="true"></label></span>
                     @endforeach
                 @endif
             </div>
@@ -123,79 +116,63 @@
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="etapa" id="ninguno" checked>
-                    <label class="form-check-label" for="ninguno">{!! Lang::get('strings.usuario.etapas.ninguno') !!}</label>
-                </div>
-                @if($data_opcion)
-                    @foreach($etapas as $etapa)
-                        @foreach($etapas_usuario as $etapa_usuario)
-                            @if($etapa_usuario->etapa_id == $etapa->etapa_id)
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="etapa" id="{{$etapa->id}}" value="{{$etapa->id}}" checked>
-                                @if($etapa->id == '3')
-                                    <label class="form-check-label" for="{{$etapa->id}}">{{ Lang::get('strings.configuracion.sap') }}</label>
-                                @elseif($etapa->id == '4')
-                                    <label class="form-check-label" for="{{$etapa->id}}">{{ Lang::get('strings.configuracion.sigep') }}</label>
-                                @else
-                                    <label class="form-check-label" for="{{$etapa->id}}">{{$etapa->etapa}}</label>
-                                @endif
-                            </div>
+                <label for="cargo_id">{{ Lang::get('strings.usuario.cargo') }}</label>
+                <select class="form-control" name="cargo_id">
+                    <option value="">{{ Lang::get('strings.usuario.seleccione_cargo') }}</option>
+                    @if($data_opcion)
+                        @foreach($cargos as $cargo)
+                            @if($cargos_usuario)
+                                @foreach($cargos_usuario as $cargo_usuario)
+                                    @if($cargo_usuario->cargo_id == $cargo->cargo_id)
+                                        <option value="{{ $cargo->cargo_id }}" {{old('cargo_id') == $cargo->id ? 'ed':''}} selected>{{ $cargo->cargo }}</option>
+                                    @else
+                                        <option value="{{ $cargo->cargo_id }}">{{ $cargo->cargo }}</option>
+                                    @endif
+                                @endforeach
                             @else
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="etapa" id="{{$etapa->id}}" value="{{$etapa->id}}">
-                                @if($etapa->id == '3')
-                                    <label class="form-check-label" for="{{$etapa->id}}">{{ Lang::get('strings.configuracion.sap') }}</label>
-                                @elseif($etapa->id == '4')
-                                    <label class="form-check-label" for="{{$etapa->id}}">{{ Lang::get('strings.configuracion.sigep') }}</label>
-                                @else
-                                    <label class="form-check-label" for="{{$etapa->id}}">{{$etapa->etapa}}</label>
-                                @endif
-                            </div>
+                                <option value="{{ $cargo->cargo_id }}">{{ $cargo->cargo }}</option>
                             @endif
                         @endforeach
-                    @endforeach
-                @else
-                    @foreach($etapas as $etapa)
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="etapa" id="{{$etapa->id}}" value="{{$etapa->id}}">
-                        @if($etapa->id == '3')
-                            <label class="form-check-label" for="{{$etapa->id}}">{{ Lang::get('strings.configuracion.sap') }}</label>
-                        @elseif($etapa->id == '4')
-                            <label class="form-check-label" for="{{$etapa->id}}">{{ Lang::get('strings.configuracion.sigep') }}</label>
-                        @else
-                            <label class="form-check-label" for="{{$etapa->id}}">{{$etapa->etapa}}</label>
-                        @endif
-                    </div>
-                    @endforeach
-                @endif
+                    @else
+                        @foreach($cargos as $cargo)
+                            <option value="{{ $cargo->cargo_id }}">{{ $cargo->cargo }}</option>
+                        @endforeach
+                    @endif
+                </select>
                 <small class="form-text text-muted">
-                    {!! Lang::get('strings.notes.usuario_etapa') !!}
+                    {!! Lang::get('strings.notes.usuario_cargo') !!}
                 </small>
             </div>
             <div class="form-group col-md-6">
                 @if($data_opcion)
                     @foreach($roles as $role)
-                        @foreach($roles_usuario as $role_usuario)
-                            @if($role_usuario->role_id == $role->role_id)
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}" checked>
-                                <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
-                            </div>
-                            @else
+                        @if($roles_usuario)
+                            @foreach($roles_usuario as $role_usuario)
+                                @if($role_usuario->role_id == $role->role_id)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}" checked>
+                                    <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
+                                </div>
+                                @else
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}">
+                                    <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
+                                </div>
+                                @endif
+                            @endforeach
+                        @else
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}">
                                 <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
                             </div>
-                            @endif
-                        @endforeach
+                        @endif
                     @endforeach
                 @else
                     @foreach($roles as $role)
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}">
-                        <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
-                    </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="role[]" id="{{$role->role}}" value="{{$role->id}}">
+                            <label class="form-check-label" for="{{$role->role}}">{{$role->role}}</label>
+                        </div>
                     @endforeach
                 @endif
                 <small class="form-text text-muted">

@@ -17,9 +17,7 @@
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="codigo_sigep">{{ Lang::get('strings.autorizado.codigo_sigep') }}</label>
-            <div class="input-group mb-3">
-                <input type="number" class="form-control" name="codigo_sigep" value="{{ $etapas ? old('codigo_sigep') : $data->codigo_sigep }}">
-            </div>
+            <input type="number" class="form-control" name="codigo_sigep" value="{{ $etapas ? old('codigo_sigep') : $data->codigo_sigep }}">
             @if ($errors->has('codigo_sigep'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('codigo_sigep') }}</small></strong>

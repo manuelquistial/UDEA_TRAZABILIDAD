@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Etapa;
 use App\Presolicitud;
 use App\Solicitud;
@@ -15,7 +17,7 @@ use App\Pago;
 use App\Legalizado;
 use App\ConsecutivoEtapaEstado;
 
-class ConsultasController extends Controller
+class MainController extends Controller
 {
     public function __construct()
     {
@@ -51,5 +53,19 @@ class ConsultasController extends Controller
                 ->get();
 
         return response()->json(['data'=>$etapas]);
+    }
+
+    public function downloads(Request $request){
+        return response()->file(storage_path('app/public/'.$request->path));
+    }
+
+    public function uploadFile($request, $path){
+        if($request->hasFile('anexos')) {
+            foreach($request['anexos'] as $file) {
+                $file_name = str_replace(' ', '_', $file->getClientOriginalName());
+                $path = $file->storeAs($path. $request->consecutivo . '/', $file_name);
+                info($path);
+            }
+        }
     }
 }

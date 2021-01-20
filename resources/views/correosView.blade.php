@@ -32,7 +32,7 @@
                             @if($correo->etapa == '4')
                                 {{ Lang::get('strings.correos.sigep') }}
                             @else
-                                {{ Lang::get('strings.correos.solpe') }}
+                                {{ Lang::get('strings.correos.solped') }}
                             @endif
                         </td>
                         <td>

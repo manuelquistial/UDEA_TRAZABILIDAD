@@ -30,14 +30,14 @@ class EtapasSeeder extends Seeder
         $etapa->etapa = "Tramite";
         $etapa->endpoint = "tramite";
         $etapa->etapa_id = "3";
-        $etapa->habilitador = True;
+        $etapa->habilitador = False;
         $etapa->save();
 
         $etapa = new Etapa();
         $etapa->etapa = "Autorizado Ordenador";
         $etapa->endpoint = "autorizado";
         $etapa->etapa_id = "4";
-        $etapa->habilitador = True;
+        $etapa->habilitador = False;
         $etapa->save();
 
         $etapa = new Etapa();

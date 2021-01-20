@@ -4,11 +4,11 @@
 <div class="card-body">
     @switch($route)
         @case("index")
-            <form action="{{ route('save_solicitud') }}" method="post"> 
+            <form action="{{ route('save_solicitud') }}" method="post" enctype="multipart/form-data"> 
             {!! csrf_field() !!}
             @break
         @case("edit")
-            <form action="{{ route('update_solicitud') }}" method="post"> 
+            <form action="{{ route('update_solicitud') }}" method="post" enctype="multipart/form-data"> 
             {!! csrf_field() !!}
             @break
         @default
@@ -63,13 +63,30 @@
                 </span>
             @endif
         </div>
-        <div class="form-group">
-            <label for="anexos">{{ Lang::get('strings.general.anexos') }}</label>
-            <input type="file" class="form-control-file" name="anexos"> 
-            <small class="form-text text-muted">
-            {{ Lang::get('strings.notes.solicitud') }}
-            </small>
-        </div>
+        @if($route != "show")
+            <div class="form-group">
+                <label for="anexos">{{ Lang::get('strings.general.anexos') }}</label>
+                <input type="file" class="form-control-file" name="anexos[]" multiple>
+                @if ($errors->has('anexos'))
+                    <span class="text-danger">
+                        <strong><small>{{ $errors->first('anexos') }}</small></strong>
+                    </span>
+                @endif
+                <small class="form-text text-muted">
+                    {!! Lang::get('strings.notes.solicitud') !!}
+                </small>
+            </div>
+        @endif
+        @if($files)
+            <div class="form-group">
+                <label for="anexos_guardados">{{ Lang::get('strings.general.anexos_guardados') }}</label>
+                <div>
+                    @foreach($files as $file )
+                        <a class="nav-link" href="{{route('descargar_documentos','path='.$file)}}" target="_blank">{{ basename($file) }}</a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
         @switch($route)
             @case("index")
                 <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>

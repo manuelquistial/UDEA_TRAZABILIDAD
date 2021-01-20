@@ -29,6 +29,6 @@ class Presolicitud extends Model
     protected $fillable = [
         'id', 'usuario_id', 'consecutivo', 'valor', 'descripcion',
         'fecha_inicial', 'fecha_final', 'proyecto_id', 'transaccion_id',
-        'estado_id', 'fecha_estado', 'otro_proyecto'
+        'estado_id', 'fecha_estado', 'otro_proyecto', 'nombre_proyecto'
     ];
 }

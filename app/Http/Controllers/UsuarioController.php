@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Usuario;
-use App\Etapa;
 use App\Roles;
+use App\Cargos;
 use App\TiposTransaccion;
 use Auth;
 
 class UsuarioController extends Controller
 {
-    public $columna = 'apellidos';
+    public $columna = 'nombre_apellido';
     public $numeroDatos = 5;
     public $espacio = " ";
 
@@ -49,14 +49,14 @@ class UsuarioController extends Controller
         $opcion = "nuevo_usuario";
         $data_opcion = false;
 
-        $etapas = Etapa::where('habilitador', 1)
-                        ->get();
+        $cargos = Cargos::get();
 
         $roles = Roles::get();
 
-        $tipos_transaccion = TiposTransaccion::get();
+        $tipos_transaccion = new Usuario;
+        $tipos_transaccion = $tipos_transaccion->tipoTransaccionWithOutUsuarios()->get();
 
-        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'etapas', 'roles', 'tipos_transaccion'));
+        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'cargos', 'roles', 'tipos_transaccion'));
     }
 
     /**
@@ -68,7 +68,7 @@ class UsuarioController extends Controller
     public function create(array $data)
     {
         $usuario = Usuario::create([
-            'nombre_apellido' => $this->startEndSpaces($data['nombre']),
+            'nombre_apellido' => $this->startEndSpaces($data['nombre_apellido']),
             'email' => $this->startEndSpaces($data['email']),
             'telefono' => $this->startEndSpaces($data['telefono']),
             'cedula' => $this->startEndSpaces($data['cedula']),
@@ -83,10 +83,10 @@ class UsuarioController extends Controller
                 ->attach($data['tipos_transaccion']);
         }
 
-        if($data['etapa'] !== 'on'){
+        if($this->returnNull($data['cargo_id'])){
             $usuario
-                ->etapa()
-                ->attach($data['etapa']);
+                ->cargo()
+                ->attach($data['cargo_id']);
         }
 
         if(!empty($data['role'])){
@@ -107,7 +107,7 @@ class UsuarioController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'nombre' => 'required|string',
+            'nombre_apellido' => 'required|string',
             'email' => 'required|email',
             'telefono' => 'required|numeric'
         ]);
@@ -147,15 +147,16 @@ class UsuarioController extends Controller
                         ->select('id','nombre_apellido','email','cedula','telefono')
                         ->first();
 
-        $etapas = Etapa::where('habilitador', 1)->get();
+        $cargos = Cargos::get();
         $roles = Roles::where('habilitador',1)->get();
-        $tipos_transaccion = TiposTransaccion::where('estado_id',4)->get();
+        $tipos_transaccion = new Usuario;
+        $tipos_transaccion = $tipos_transaccion->tipoTransaccionWithOutUsuarios()->get();
         $roles_usuario = Usuario::find($usuario_id)->role()->get();
-        $etapas_usuario = Usuario::find($usuario_id)->etapa()->get();
+        $cargos_usuario = Usuario::find($usuario_id)->cargo()->get();
         $tipos_transaccion_usuario = Usuario::find($usuario_id)->tiposTransaccion()->get();
         
-        //return response()->json(['data'=>$roles_usuario->etapa()->get()]);
-        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'etapas', 'roles', 'tipos_transaccion', 'roles_usuario', 'etapas_usuario', 'tipos_transaccion_usuario'));
+        //return response()->json(['data'=>$roles_usuario->cargo()->get()]);
+        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'cargos', 'roles', 'tipos_transaccion', 'roles_usuario', 'cargos_usuario', 'tipos_transaccion_usuario'));
     }
 
     /**
@@ -185,15 +186,26 @@ class UsuarioController extends Controller
                         ->select('id','nombre_apellido','email','cedula','telefono')
                         ->first();
 
-        $etapas = Etapa::where('habilitador', 1)->get();
+        $cargos = Cargos::get();
         $roles = Roles::where('habilitador',1)->get();
-        $tipos_transaccion = TiposTransaccion::where('estado_id',4)->get();
-        $roles_usuario = Usuario::find($id)->role()->get();
-        $etapas_usuario = Usuario::find($id)->etapa()->get();
+        $tipos_transaccion = new Usuario;
+        $tipos_transaccion = $tipos_transaccion->tipoTransaccionWithOutUsuarios()->get();
+        $roles_usuario = Usuario::find($id)->role();
+        if($roles_usuario->count() == 0){
+            $roles_usuario = false;
+        }else{
+            $roles_usuario = $roles_usuario->get();
+        }
+        $cargos_usuario = Usuario::find($id)->cargo();
+        if($cargos_usuario->count() == 0){
+            $cargos_usuario = false;
+        }else{
+            $cargos_usuario = $cargos_usuario->get();
+        }
         $tipos_transaccion_usuario = Usuario::find($id)->tiposTransaccion()->get();
         
         //return response()->json(['data'=>$roles_usuario->etapa()->get()]);
-        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'etapas', 'roles', 'tipos_transaccion', 'roles_usuario', 'etapas_usuario', 'tipos_transaccion_usuario'));
+        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'roles', 'cargos', 'tipos_transaccion', 'roles_usuario', 'cargos_usuario', 'tipos_transaccion_usuario'));
     }
 
     /**
@@ -209,12 +221,13 @@ class UsuarioController extends Controller
 
         $usuario = Usuario::find($request->sequence);
 
-        $usuario->update(
+        $test = $usuario->update(
             ['nombre_apellido' => $this->startEndSpaces($request['nombre_apellido'])],
             ['email' => $this->startEndSpaces($request['email'])],
             ['telefono' => $this->startEndSpaces($request['telefono'])],
             ['cedula' => $this->startEndSpaces($request['cedula'])]
         );
+
 
         $usuario->tiposTransaccion()
                 ->detach($usuario->tiposTransaccion()->get());
@@ -232,13 +245,14 @@ class UsuarioController extends Controller
                 ->attach($request['role']);
         } 
 
-        $usuario->etapa()
-                ->detach($usuario->etapa()->get());
+        $usuario->cargo()
+                ->detach($usuario->cargo()->get());
 
-        if($request['etapa'] !== 'on'){
-            $usuario->etapa()
-                ->attach($request['etapa']);
-        } 
+        if($this->returnNull($request['cargo_id'])){
+            $usuario
+                ->cargo()
+                ->attach($request['cargo_id']);
+        }
 
         return redirect()->route('edit_usuario', $request->sequence)->with('status', true);
     }
@@ -283,5 +297,12 @@ class UsuarioController extends Controller
 
     public function startEndSpaces($str){
         return trim($str, $this->espacio);
+    }
+
+    public function returnNull($str){
+        if($str == ''){
+            return NULL;
+        }
+        return $str;
     }
 }

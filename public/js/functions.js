@@ -170,7 +170,7 @@ async function getEstados(url, endpoint, consecutivo){
 }
 
 async function setEstados(url, endpoint, consecutivo, estado){
-  let route = `${url}/${endpoint}/estado`
+  let route = `${url}${endpoint}/estado`
   const response = await fetch(route, {
     method: 'PUT', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({

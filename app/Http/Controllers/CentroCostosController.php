@@ -10,7 +10,7 @@ class CentroCostosController extends Controller
     public $centro_costos = 'tr_centro_costos';
     public $columna = 'centro_costo';
     public $numeroDatos = 5;
-    public $estado_id = 4;
+    public $en_proceso = 4;
 
     public function __construct()
     {
@@ -79,7 +79,7 @@ class CentroCostosController extends Controller
             DB::table($this->centro_costos)->insert(
                 [
                     $this->columna => $request->value['item'], 
-                    'estado_id' => $this->estado_id
+                    'estado_id' => $this->en_proceso
                 ]
             );
             $queryStatus = "ok";

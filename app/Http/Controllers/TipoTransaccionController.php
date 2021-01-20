@@ -10,8 +10,8 @@ class TipoTransaccionController extends Controller
     public $tipoTransaccion = 'tr_tipostransaccion';
     public $columna = 'tipo_transaccion';
     public $numeroDatos = 5;
-    public $estado_id = 4;
-    public $sap_estado = 3;
+    public $en_proceso = 4;
+    public $sap_estado = 2;
 
     public function __construct()
     {
@@ -26,14 +26,9 @@ class TipoTransaccionController extends Controller
     public function index()
     {
         $opcion = 'tipos_transaccion'; 
-        $tiposTransaccion;
-        try {
-            $tiposTransaccion = DB::table($this->tipoTransaccion)
-                            ->orderBy($this->columna)
-                            ->paginate($this->numeroDatos);
-        } catch(Exception $e) {
-            $tiposTransaccion = "error";
-        }
+        $tiposTransaccion = DB::table($this->tipoTransaccion)
+                        ->orderBy($this->columna)
+                        ->paginate($this->numeroDatos);
         
         return view('configuration.tipoTransaccionView', compact('opcion', 'tiposTransaccion'));
     }
@@ -85,8 +80,8 @@ class TipoTransaccionController extends Controller
             DB::table($this->tipoTransaccion)->insert(
                 [
                     $this->columna => $request->value['item'], 
-                    'etapa_id' => $sap, 
-                    'estado_id' => $this->estado_id
+                    'cargo_id' => $sap, 
+                    'estado_id' => $this->en_proceso
                 ]
             );
             $queryStatus = "ok";
@@ -129,7 +124,7 @@ class TipoTransaccionController extends Controller
         $tipoTransaccion;
         try {
             $tipoTransaccion = DB::table($this->tipoTransaccion)
-                ->where('estado_id', $this->estado_id)
+                ->where('estado_id', $this->en_proceso)
                 ->orderBy($this->columna)
                 ->get();
         } catch(Exception $e) {
@@ -183,7 +178,7 @@ class TipoTransaccionController extends Controller
         $queryStatus;
         $columna;
         if($request->columna == "sap"){
-            $columna = 'etapa_id';
+            $columna = 'cargo_id';
         }else{
             $columna = 'estado_id';
         }

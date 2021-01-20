@@ -10,7 +10,7 @@ use App\Pago;
 class PagoController extends Controller
 {
     public $etapa_id = 8;
-    public $estado_id = 1;
+    public $en_proceso = 1;
 
     public function __construct()
     {
@@ -26,7 +26,7 @@ class PagoController extends Controller
     {
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -74,7 +74,7 @@ class PagoController extends Controller
     {
         $etapa_id = $this->etapa_id;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;

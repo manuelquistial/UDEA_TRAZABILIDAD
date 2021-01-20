@@ -16,8 +16,8 @@ class CreateTiposTransaccionTable extends Migration
         Schema::create('tr_tipostransaccion', function (Blueprint $table) {
             $table->increments('id')->unsigned()->unique();
             $table->string('tipo_transaccion');
-            $table->integer('etapa_id')->unsigned()->nullable();
-            $table->foreign('etapa_id')->references('etapa_id')->on('tr_etapas');
+            $table->integer('cargo_id')->unsigned()->nullable();
+            $table->foreign('cargo_id')->references('cargo_id')->on('tr_cargos');
             $table->integer('estado_id')->unsigned()->nullable();
             $table->foreign('estado_id')->references('estado_id')->on('tr_estados');
         });

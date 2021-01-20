@@ -34,17 +34,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('consulta_usuario') }}">{{ Lang::get('strings.menu_superior.transaccion') }}</a>
                 </li>
-                @if(Auth::user()->hasOneEtapa(3))
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('correos') }}">{{ Lang::get('strings.menu_superior.correos') }}</a>
-                </li>
+                @if(Auth::user()->hasOneCargo(3) | Auth::user()->hasOneRole("Administrador"))
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('correos') }}">{{ Lang::get('strings.menu_superior.correos') }}</a>
+                    </li>
                 @endif
                 <li class="nav-item">
                     <a class="nav-link"><i class="far fa-bell"></i></a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{ Auth::user()->nombre }} {{ Auth::user()->apellidos }}
+                    {{ Auth::user()->nombre_apellido }}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{{ route('show_usuario') }}">{{ Lang::get('strings.menu_superior.opciones.perfil') }}</a>

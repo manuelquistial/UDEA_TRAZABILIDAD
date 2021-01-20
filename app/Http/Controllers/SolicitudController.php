@@ -6,18 +6,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use App\Presolicitud;
 use App\Solicitud;
 use App\ActualEtapaEstado;
 use App\CentroCostos;
+use App\Cargos;
+use App\TiposTransaccion;
 use Auth;
 
 class SolicitudController extends Controller
 {
     public $etapa_id = 2;
-    public $estado_id = 1;
+    public $en_proceso = 1;
+    public $confirmado = 2;
     public $espacio = " ";
+    public $directorio = "solicitud/";
+    public $path = "//public/"; 
+    public $cargo_sap_id = 3;
 
     public function __construct()
     {
@@ -34,9 +41,10 @@ class SolicitudController extends Controller
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
+        $files = 0;
         $centro_costos;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -44,7 +52,7 @@ class SolicitudController extends Controller
         $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id')->first();
         $centro_costos = CentroCostos::get();
 
-        return view('etapas/solicitudView', compact('route','etapa_id','etapas','etapa_estado','consecutivo','centro_costos','proyecto'));
+        return view('etapas/solicitudView', compact('route','etapa_id','etapas','etapa_estado','consecutivo','centro_costos','proyecto','files'));
     }
 
     /**
@@ -62,7 +70,7 @@ class SolicitudController extends Controller
             'codigo_sigep_id' => $this->startEndSpaces($data['codigo_sigep_id']),
             'fecha_conveniencia' => $this->returnNull($data['fecha_conveniencia']),
             'concepto' => $this->startEndSpaces($data['concepto']),
-            'estado_id' => $this->estado_id,
+            'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
 
@@ -81,7 +89,8 @@ class SolicitudController extends Controller
             'fecha_conveniencia' => 'required|date',
             'centro_costos_id' => 'required|integer',
             'codigo_sigep_id' => 'required|integer',
-            'concepto' => 'required|string'
+            'concepto' => 'required|string',
+            'anexos*' => 'mimes:pdf'
         ]);
     }
 
@@ -100,10 +109,13 @@ class SolicitudController extends Controller
 
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
-                        'estado_id' => $this->estado_id,
+                        'estado_id' => $this->en_proceso,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
     
+        $upload_files = new MainController;
+        $upload_files->uploadFile($request, $this->path.$this->directorio);
+
         return redirect()->route('edit_solicitud', $request->consecutivo)->with('status', true);
         //return response()->json(['data'=>$queryStatus]);
     }
@@ -122,7 +134,7 @@ class SolicitudController extends Controller
         $data;
         $centro_costo;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
 
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -135,8 +147,10 @@ class SolicitudController extends Controller
 
         $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id')->first();
         $centro_costos = CentroCostos::get();
-        
-        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto'));
+
+        $files = Storage::disk('public')->files($this->directorio . $consecutivo);
+
+        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto','files'));
     }
 
     /**
@@ -153,7 +167,7 @@ class SolicitudController extends Controller
         $data;
         $centro_costo;
         
-        $consultas = new ConsultasController;
+        $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
@@ -164,22 +178,26 @@ class SolicitudController extends Controller
         }
         $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id')->first();
         $centro_costos = CentroCostos::get();
+
+        $files = Storage::disk('public')->files($this->directorio . $consecutivo);
         
-        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto'));
+        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto','files'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $this->validator($request->all())->validate();
 
-        $data = $request->except('_token');
+        $upload_files = new MainController;
+        $upload_files->uploadFile($request, $this->path.$this->directorio);
+
+        $data = $request->except('_token','anexos');
 
         Solicitud::where('consecutivo', $request->consecutivo)
                 ->update($data);
@@ -220,6 +238,22 @@ class SolicitudController extends Controller
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
+        
+        if($request->estado_id == $this->confirmado){
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
+            $usuario_sap = new Cargos();
+            $usuario_sap = $usuario_sap->usuarioByCargo($this->cargo_sap_id)->first();
+
+            $data = (object)[];
+            $data->email = $usuario_sap->email;
+            $data->nombre_apellido = $usuario_sap->nombre_apellido;
+            $data->nombre_proyecto = $proyecto->nombre_proyecto;
+            $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
+
+            $email_controller = new CorreosController;
+            $email_controller->email($data, $request->consecutivo, $this->etapa_id);
+        }
                         
         return response()->json(['data'=>true]);
     }

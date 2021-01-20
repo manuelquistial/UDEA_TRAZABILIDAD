@@ -25,9 +25,8 @@ return [
         'cedula' => 'Cédula',
         'telefono' => 'Teléfono',
         'guardar' => 'Guardar',
-        'etapas' => [
-            'ninguno' => 'Ninguno'
-        ]
+        'seleccione_cargo' => 'Seleccione un cargo',
+        'cargo' => 'Cargo'
     ],
     'correos' => [
         'codigo' => 'Codigo',
@@ -86,6 +85,7 @@ return [
         'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <span class="links">aquí</span> Solicitud de Recursos <br> 2. Adjuntar carta de invitacion al evento',
         'solicitud' => 'Adjuntar Análisis de Conveniencia y/o Formato de Justificación CPSP',
         'autorizado' => 'Describir alguna novedad',
+        'reserva' => 'Adjuntar oficio de cancelacion',
         'usuario_etapa' => 'Seleccionar sólo si es el funcionario encargado.',
         'usuario_tipo_transaccion' => 'Seleccionar los tipos de transaccion al cual el funcionario esta encargado.',
         'usuario_administrador' => 'Seleccionar en caso de que el funcionario sea Administrador de la plataforma',
@@ -99,6 +99,7 @@ return [
         'crp' => 'No. del CRP o Pedido',
         'fechaSolicitud' => 'Fecha de Solicitud',
         'anexos' => 'Anexos',
+        'anexos_guardados' => 'Anexos guardados',
         'encargado' => 'Encargado',
         'fecha' => 'Fecha',
         'tramite' => 'Tramites',
@@ -127,7 +128,8 @@ return [
         'fecha_final' => 'Fecha Final',
         'enviar' => 'Enviar',
         'tramitar' => 'Tramitar',
-        'redireccionar' => 'Redireccionar'
+        'redireccionar' => 'Redireccionar',
+        'seleccione_proyecto' => 'Seleccione un proyecto'
     ],
     'solicitud' => [
         'centro_costos' => 'Centro de Costos',
@@ -156,7 +158,7 @@ return [
         'fecha_envio_documento' => 'Fecha de Elaboración Documento Legal (Orden de pedido, contrato, convenio, resolución)',
         'fecha_envio_decanatura' => 'Fecha de Envío - Decanatura',
         'fecha_envio_presupuestos' => 'Fecha de Envío - Presupuestos',
-        'solpe' => 'Solpe',
+        'solped' => 'Solped',
         'fecha_crp_pedido' => 'Fecha del CRP o Pedido',
         'valor_final_crp' => 'Valor final del CRP',
         'nombre_tercero' => 'Nombre del Tercero',
@@ -173,7 +175,8 @@ return [
     'legalizado' => [
         'crp' => 'No. de CRP o No. de comprobante',
         'valor' => 'Valor del egreso',
-        'reintegro' => 'Reintegro'
+        'valor_reintegro' => 'Valor de reintegro',
+        'consecutivo_reingreso' => 'Consecutivo de reingreso'
     ],
     'etapas' => [
         'presolicitud' => 'Presolicitud',
@@ -193,7 +196,7 @@ return [
         'conectar' => 'Conectar',
         'olvido_password' => '¿Olvidaste tu contraseña?'
     ],
-    'subjects' => [
-        'presolicitud' => 'Test'
+    'correo' => [
+        'subject' => 'Notification proceso gestión financiera - Facultad de Comunicaciones y Filología'
     ]
 ];
