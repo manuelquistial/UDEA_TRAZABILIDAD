@@ -8,12 +8,16 @@ use Illuminate\Support\Facades\DB;
 use DateTime;
 use App\Aprobado;
 use App\ActualEtapaEstado;
+use App\Presolicitud;
+use App\TiposTransaccion;
+use App\Usuario;
 use Auth;
 
 class AprobadoController extends Controller
 {
     public $etapa_id = 6;
     public $en_proceso = 1;
+    public $confirmado = 2;
     public $espacio = " ";
 
     public function __construct()
@@ -90,7 +94,10 @@ class AprobadoController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validator($request->all())->validate();
+        $data = $request->all();
+        $data['valor_final_crp'] = $this->replaceDots($data['valor_final_crp']);
+        $this->validator($data)->validate();
+
         $data = Aprobado::where('consecutivo', $request->consecutivo)->first();
 
         if($data == NULL){
@@ -114,10 +121,10 @@ class AprobadoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $consecutivo
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($consecutivo)
     {
         $route = "show";
         $etapas = false;
@@ -167,6 +174,7 @@ class AprobadoController extends Controller
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
+        $data['valor_final_crp'] = $this->replaceDots($data['valor_final_crp']);
 
         Aprobado::where('consecutivo', $request->consecutivo)
                     ->update($data);
@@ -184,7 +192,6 @@ class AprobadoController extends Controller
     public function update_items(Request $request)
     {
         $data = null;
-        info($request);
         if($request->columna == 'solped'){
             $data = $request->data;
         }else{
@@ -209,6 +216,12 @@ class AprobadoController extends Controller
                     'fecha_estado' => date("Y-m-d H:i:s"),
                     $request->columna => $request->data,
                 ]);
+
+                ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+                    ->update(['etapa_id' => $this->etapa_id,
+                            'estado_id' => $this->en_proceso,
+                            'fecha_estado' => date("Y-m-d H:i:s")
+                            ]);
             }
             return response()->json(['data'=>'ok']);
         }else{
@@ -249,6 +262,25 @@ class AprobadoController extends Controller
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
+
+        if($request->estado_id == $this->confirmado){
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
+            
+            $data = (object)[];
+            $data->nombre_proyecto = $proyecto->nombre_proyecto;
+            $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
+            $data->consecutivo = $request->consecutivo;
+            $data->etapa_id = $this->etapa_id;
+            $data->gestor = false;
+
+            $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
+
+            $data->email = $encargado->email;
+            $email_controller = new CorreosController;
+            $email_controller->email($data);
+        
+        }
                         
         return response()->json(['data'=>true]);
     }
@@ -286,5 +318,9 @@ class AprobadoController extends Controller
 
     public function startEndSpaces($str){
         return trim($str, $this->espacio);
+    }
+
+    public function replaceDots($value){
+        return preg_replace('/\./m', '', $value);
     }
 }

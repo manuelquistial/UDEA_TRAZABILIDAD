@@ -11,7 +11,7 @@ class TipoTransaccionController extends Controller
     public $columna = 'tipo_transaccion';
     public $numeroDatos = 5;
     public $en_proceso = 4;
-    public $sap_estado = 2;
+    public $cargo_sap = 2;
 
     public function __construct()
     {
@@ -73,8 +73,8 @@ class TipoTransaccionController extends Controller
         $queryStatus;
         $sap = null;
 
-        if($request->sap){
-            $sap = $this->sap_estado;
+        if($request->value['sap']){
+            $sap = $this->cargo_sap;
         }
         try {
             DB::table($this->tipoTransaccion)->insert(
@@ -100,15 +100,11 @@ class TipoTransaccionController extends Controller
      */
     public function show($data)
     {
-        $tipoTransaccion;
-        try {
-            $tipoTransaccion = DB::table($this->tipoTransaccion)
-                ->where($this->columna, 'like', $data.'%')
-                ->orderBy($this->columna)
-                ->get();
-        } catch(Exception $e) {
-            $tipoTransaccion = "error";
-        }
+
+        $tipoTransaccion = DB::table($this->tipoTransaccion)
+            ->where($this->columna, 'like', '%'.$data.'%')
+            ->orderBy($this->columna)
+            ->get();
         
         return response()->json(['data'=>$tipoTransaccion]);
     }

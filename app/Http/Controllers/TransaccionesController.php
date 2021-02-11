@@ -32,6 +32,7 @@ class TransaccionesController extends Controller
                 ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
                 ->where('a.usuario_id', Auth::user()->cedula)
                 ->select('a.consecutivo', 'c.etapa', 'd.estado', 'e.tipo_transaccion', 'd.estado_id', 'c.endpoint')
+                ->orderBy('b.fecha_estado', 'desc')
                 ->paginate($this->numeroDatos);
         
         return view('transaccionesView', compact('consulta','transacciones'));
@@ -49,7 +50,7 @@ class TransaccionesController extends Controller
         $tipoTransaccion;
 
         //SIGEP
-        if(Auth::user()->hasOneCargo(2)){
+        if(Auth::user()->hasOneCargo(2) | Auth::user()->hasOneRole("Administrador")){
             $tipoTransaccion = TiposTransaccion::get();
         }else{
             $tipoTransaccion = Auth::user()->tiposTransaccion;
@@ -61,6 +62,7 @@ class TransaccionesController extends Controller
                 ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
                 ->where('a.transaccion_id', '=' ,$tipoTransaccion->first()->id)
                 ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
+                ->orderBy('b.fecha_estado', 'desc')
                 ->paginate($this->numeroDatos);
         
         return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
@@ -100,7 +102,7 @@ class TransaccionesController extends Controller
         $tipoTransaccion;
 
         //SIGEP
-        if(Auth::user()->hasOneCargo(2)){
+        if(Auth::user()->hasOneCargo(2) | Auth::user()->hasOneRole("Administrador")){
             $tipoTransaccion = TiposTransaccion::get();
         }else{
             $tipoTransaccion = Auth::user()->tiposTransaccion;
@@ -112,6 +114,7 @@ class TransaccionesController extends Controller
                 ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
                 ->where('a.transaccion_id', $id)
                 ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
+                ->orderBy('b.fecha_estado', 'desc')
                 ->paginate($this->numeroDatos);
 
         return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));

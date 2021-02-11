@@ -14,7 +14,7 @@ class HasTipoTransaccion
      * @return mixed
      */
     public function handle($request, Closure $next){
-        if(!$request->user()->hasTipoTransaccion()) {
+        if(!$request->user()->hasTipoTransaccion() & !$request->user()->hasOneRole("Administrador")) {
             return redirect('/transacciones/usuario');
         }
         return $next($request);

@@ -27,7 +27,7 @@ class Presolicitud extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'usuario_id', 'consecutivo', 'valor', 'descripcion',
+        'id', 'usuario_id', 'encargado_id', 'consecutivo', 'valor', 'descripcion',
         'fecha_inicial', 'fecha_final', 'proyecto_id', 'transaccion_id',
         'estado_id', 'fecha_estado', 'otro_proyecto', 'nombre_proyecto'
     ];

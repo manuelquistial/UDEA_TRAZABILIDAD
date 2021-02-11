@@ -7,7 +7,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ Lang::get('strings.menu_superior.titulo') }}</title>
-        <base href="http://localhost/UDEA_TRAZABILIDAD/public/index.php/" target="_self">
+        <base href="{{\App::environment() == 'production' ? secure_asset('index.php') : asset('index.php')}}" target="_self">
         <!-- Styles -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{{ asset('css/style.css') }}" rel="stylesheet">
@@ -19,13 +19,13 @@
         <script src="https://kit.fontawesome.com/580972a967.js" crossorigin="anonymous"></script>
     </head>
     <body>
-        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light">
             <a class="navbar-brand" >
-                <img src="{{ asset('img/logo_udea.svg') }}" width="200" height="50" alt="">
+                <img src="{{ asset('img/logo_udea_white.svg') }}" width="200" height="50" alt="">
             </a>
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
-                    <h6 class="col titulo-header">{{ Lang::get('strings.menu_superior.titulo') }}</h6>
+                    <h6 class="nav-link col titulo-header">{{ Lang::get('strings.menu_superior.titulo') }}</h6>
                 </ul>
                 @auth
                 <li class="nav-item active">
@@ -39,14 +39,11 @@
                         <a class="nav-link" href="{{ route('correos') }}">{{ Lang::get('strings.menu_superior.correos') }}</a>
                     </li>
                 @endif
-                <li class="nav-item">
-                    <a class="nav-link"><i class="far fa-bell"></i></a>
-                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{ Auth::user()->nombre_apellido }}
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="dropdow-menu-principal">
                         <a class="dropdown-item" href="{{ route('show_usuario') }}">{{ Lang::get('strings.menu_superior.opciones.perfil') }}</a>
                         @if(Auth::user()->hasOneRole("Administrador")) 
                         <a class="dropdown-item" href="{{ route('usuarios') }}">{{ Lang::get('strings.menu_superior.opciones.configuracion') }}</a>
@@ -65,14 +62,6 @@
                 @yield('tipoTransaccionView')
                 @yield('general')
             </div>
-            <footer class="my-4 pt-2 text-muted text-center text-small border-top">
-                <p class="mb-1">© 2017-2018 Company Name</p>
-                <ul class="list-inline">
-                <li class="list-inline-item"><a >Privacy</a></li>
-                <li class="list-inline-item"><a >Terms</a></li>
-                <li class="list-inline-item"><a >Support</a></li>
-                </ul>
-            </footer>
         </div>
         @yield('modal')
         @yield('scripts')

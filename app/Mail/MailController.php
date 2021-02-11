@@ -7,38 +7,50 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Http\Controllers\Lang;
+use Illuminate\Support\Facades\Log;
 
 class MailController extends Mailable
 {
     use Queueable, SerializesModels;
 
-    protected $index;
-    protected $codigo_sigep;
-    protected $codigo_sap;
-    protected $solped;
-    protected $consecutivo;
-    protected $tipo_transaccion;
-    protected $nombre;
+    protected $index = null;
+    protected $codigo_sigep = null;
+    protected $codigo_sap = null;
+    protected $solped = null;
+    protected $consecutivo = null;
+    protected $tipo_transaccion = null;
+    protected $nombre_apellido = null;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($info_email)
+    public function __construct($data_email)
     {
-        $this->index = $info_email->index;
-        //if($info_email->index == 1){
-            $this->consecutivo = $info_email->consecutivo;
-            $this->nombre_apellido = $info_email->nombre_apellido;
-            $this->nombre_proyecto = $info_email->nombre_proyecto;
-            $this->tipo_transaccion = $info_email->tipo_transaccion;
+        $this->index = $data_email->etapa_id;
+
+        $this->email = array(
+            'gestor' => $data_email->gestor,
+            'consecutivo' => $data_email->consecutivo, 
+            'nombre_proyecto' => $data_email->nombre_proyecto,
+            'tipo_transaccion' => $data_email->tipo_transaccion
+        );
+
+        if(isset($data_email->nombre_apellido)){
+            $this->email['nombre_apellido'] = $data_email->nombre_apellido;
+        }
+
+        if(isset($data_email->sap)){
+            $this->email['sap'] = $data_email->sap;
+        }
+
         /*}else{
-            $this->index = $info_email->index;
-            $this->consecutivo = $info_email->consecutivo;
-            $this->codigo_sigep = $info_email->codigo_sigep;
-            $this->codigo_sap = $info_email->codigo_sap;
-            $this->solped = $info_email->solped;
+            $this->index = $data_email->index;
+            $this->consecutivo = $data_email->consecutivo;
+            $this->codigo_sigep = $data_email->codigo_sigep;
+            $this->codigo_sap = $data_email->codigo_sap;
+            $this->solped = $data_email->solped;
         }*/
     }
 
@@ -50,18 +62,24 @@ class MailController extends Mailable
     public function build()
     {
         $subject = \Lang::get('strings.correo.subject');
-        $data_email = array(
-            'consecutivo' => $this->consecutivo, 
-            'nombre_apellido' => $this->nombre_apellido,
-            'nombre_proyecto' => $this->nombre_proyecto,
-            'tipo_transaccion' => $this->tipo_transaccion
-        );
+        
         if($this->index == 1){
-            return $this->subject($subject)->view('emails.presolicitudView', $data_email);
+            $test = $this->subject($subject)->view('emails.presolicitudView', $this->email);
+            return $test;
         }else if($this->index == 2){
-            return $this->subject($subject)->view('emails.solicitudView', $data_email);
+            return $this->subject($subject)->view('emails.solicitudView', $this->email);
         }else if($this->index == 3){
-            return $this->subject($subject)->view('emails.tramiteView', $data_email);
+            return $this->subject($subject)->view('emails.tramiteView', $this->email);
+        }else if($this->index == 4){
+            return $this->subject($subject)->view('emails.autorizadoView', $this->email);
+        }else if($this->index == 5){
+            return $this->subject($subject)->view('emails.preaprobadoView', $this->email);
+        }else if($this->index == 6){
+            return $this->subject($subject)->view('emails.aprobadoView', $this->email);
+        }else if($this->index == 7){
+            return $this->subject($subject)->view('emails.reservaView', $this->email);
+        }else if($this->index == 8){
+            return $this->subject($subject)->view('emails.pagoView', $this->email);
         }
     }
 }

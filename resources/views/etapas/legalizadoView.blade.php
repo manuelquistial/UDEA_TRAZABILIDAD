@@ -6,7 +6,7 @@
 
         <div class="form-group">
             <label for="crp">{{ Lang::get('strings.legalizado.crp') }}</label>
-            <input type="text" class="form-control" name="crp" value="" disabled>
+            <input type="text" class="form-control" name="crp" value="{{ isset($crp['crp']) ? $crp['crp'] : '' }}" disabled>
         </div>
 
         <div class="form-group">
@@ -38,7 +38,7 @@
             </div>
             <div class="form-group">
                 <label for="valor_reintegro">{{ Lang::get('strings.legalizado.valor_reintegro') }}</label>
-                <input type="number" class="form-control" name="valor_reintegro" value="{{ $etapas ? old('valor_reintegro') : $data->valor_reintegro}}">
+                <input type="text" class="form-control" name="valor_reintegro" id="valor" value="{{ $etapas ? old('valor_reintegro') : $data->valor_reintegro}}">
                 @if ($errors->has('valor_reintegro'))
                     <span class="text-danger">
                         <strong><small>{{ $errors->first('valor_reintegro') }}</small></strong>

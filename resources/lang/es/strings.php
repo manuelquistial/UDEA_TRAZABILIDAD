@@ -7,7 +7,7 @@ return [
         'declinar' => 'Declinar'
     ],
     'menu_superior' => [
-        'titulo' => 'Solicitudes de trámites administrativos y financieros',
+        'titulo' => 'Trazabilidad de Solicitudes de Trámites Administrativos',
         'opciones' => [
             'perfil' => 'Perfil',
             'configuracion' => 'Configuración',
@@ -39,14 +39,15 @@ return [
     ],
     'configuracion' => [
         'menu_lateral' => [
+            ['usuarios', 'Usuarios'],
             ['centro_costos', 'Centros de Costos'],
             ['tipos_transaccion', 'Tipos de Transacción'],
-            ['usuarios', 'Usuarios']
+            ['documentos', 'Documentos']
         ],
         'perfil' => 'Perfil',
         'tipos_transaccion' => 'Tipos de Transacción',
         'tipo_transaccion' => 'Tipo de Transacción',
-        'escribir_transaccion' => 'Digite tipo de transacción',
+        'escribir_transaccion' => 'Seleccione tipo de transacción',
         'nuevo_tipo_transaccion' => 'Nuevo tipo de transacción',
         'centro_costos' => 'Centro de Costos',
         'centro_costo' => 'Centro de Costo',
@@ -76,22 +77,25 @@ return [
                 'placeholder' => 'Buscar usuario',
                 'deshabilitar' => "¿Deshabilitar los usuarios seleccionados?"
             ]
-        ]
+        ],
+        'buscar' => 'Buscar',
+        'documentos' => 'Documentos'
     ],
     'notes' => [
         'codigo_sigep' => 'Consulte <span class="links" id="codigo_sigep" data-project=":project">aquí</span> el codigo sigep',
-        'valor' => 'Consulte <span class="links">aquí</span> los recursos disponibles de su proyecto',
-        'fecha' => 'Para Viáticos y Tiquetes es Obligatorio',
-        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <span class="links">aquí</span> Solicitud de Recursos <br> 2. Adjuntar carta de invitacion al evento',
+        'valor' => 'Consulte <span class="links" id="financiero_proyecto">aquí</span> el estado financiero del proyecto',
+        'fecha' => 'Para la solicitud de viáticos y tiquetes son obligatorias ambas fechas',
+        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a class="links" :documento target="_blank">aquí</a> formato de solicitud de apoyo <br> 2. Adjuntar carta de invitacion al evento',
         'solicitud' => 'Adjuntar Análisis de Conveniencia y/o Formato de Justificación CPSP',
         'autorizado' => 'Describir alguna novedad',
         'reserva' => 'Adjuntar oficio de cancelacion',
-        'usuario_etapa' => 'Seleccionar sólo si es el funcionario encargado.',
+        'usuario_etapa' => 'Seleccionar sólo si es el funcionario encargado',
         'usuario_tipo_transaccion' => 'Seleccionar los tipos de transaccion al cual el funcionario esta encargado.',
         'usuario_administrador' => 'Seleccionar en caso de que el funcionario sea Administrador de la plataforma',
-        'otro_proyecto' => 'Digite su proyecto en caso de no encontrarlo anteriormente',
+        'otro_proyecto' => 'Digite aqui el nombre del proyecto en caso de no encontrarlo en la lista',
         'descripcion_pendiente' => 'Justificar en caso de tener pendiente el codigo SIGEP',
-        'empty_codigo_sigep' => 'Requiere justificacion.'
+        'empty_codigo_sigep' => 'Requiere justificacion.',
+        'usuario_cargo' => 'Seleccione el cargo del gestor'
     ],
     'general' => [
         'valor' => 'Valor',
@@ -100,6 +104,7 @@ return [
         'fechaSolicitud' => 'Fecha de Solicitud',
         'anexos' => 'Anexos',
         'anexos_guardados' => 'Anexos guardados',
+        'anexo_guardado' => 'Anexo guardado',
         'encargado' => 'Encargado',
         'fecha' => 'Fecha',
         'tramite' => 'Tramites',
@@ -117,19 +122,39 @@ return [
         'presupuesto_inicial' => 'Presupuesto inicial',
         'egreso' => 'Egreso',
         'disponible' => 'Disponible',
-        'estado' => 'Estado'
+        'estado' => 'Estado',
+        'seleccionar' => 'Seleccionar documento'
     ],
     'presolicitud' => [
         'proyecto' => 'Programa, proyecto y líneas misionales',
-        'otro_proyecto' => 'Otro Proyecto',
+        'otro_proyecto' => 'Otro proyecto',
         'tipo_transaccion' => 'Tipo de Transacción',
-        'descripcion' => 'Descripción de Solicitud',
-        'fecha_inicial' => 'Fecha Inicial',
-        'fecha_final' => 'Fecha Final',
+        'descripcion' => 'Descripción de la solicitud',
+        'fecha_inicial' => 'Fecha inicial',
+        'fecha_final' => 'Fecha final',
         'enviar' => 'Enviar',
         'tramitar' => 'Tramitar',
         'redireccionar' => 'Redireccionar',
-        'seleccione_proyecto' => 'Seleccione un proyecto'
+        'seleccione_proyecto' => 'Seleccione el proyecto de la lista',
+        'modal' => [
+            'nombre_egreso' => 'Nombre de egreso',
+            'pp_inicial' => 'Presupuesto inicial',
+            'reservas' => 'Reservas',
+            'egresos' => 'Egresos',
+            'disponible' => 'Disponible',
+            'disponibilidad_recursos' => 'Disponibilidad de recursos',
+            'total_in_neto' => 'Total de ingresos netos',
+            'reserva_egreso' => 'Reserva + Egreso',
+            'recursos_disponibles' => 'Recursos disponibles',
+            'ingresos' => 'Ingresos',
+            'cuentaxcobrar' => 'Cuenta x Cobrar',
+            'disponibilidad_efectiva' => 'Disponibilidad Efectiva (I-E)',
+            'disponibilidad_real' => 'Disponibilidad Real (I-E-R)',
+            'presupuesto_total' => 'Presupuesto total',
+            'disponible_recursos' => 'Disponible de recursos',
+            'resumen_presupuestal' => 'Resumen presupuestal',
+            'vista_general' => 'Vista de informacion general'
+        ]
     ],
     'solicitud' => [
         'centro_costos' => 'Centro de Costos',

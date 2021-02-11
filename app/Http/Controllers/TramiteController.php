@@ -14,6 +14,7 @@ class TramiteController extends Controller
 {
     public $etapa_id = 3;
     public $en_proceso = 1;
+    public $confirmado = 2;
     public $espacio = " ";
 
     public function __construct()
@@ -93,9 +94,6 @@ class TramiteController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
-        //$email_controller = new CorreosController;
-        //$email_controller->email($encargado_id, $consecutivo, $this->etapa_id);
-
         return redirect()->route('edit_tramite', $request->consecutivo)->with('status', true);
     }
 
@@ -118,7 +116,7 @@ class TramiteController extends Controller
 
         $data = Tramite::where('consecutivo', $consecutivo)->first();
         if($data->fecha_sap){
-            $data->ffecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
+            $data->fecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
         }
 
         return view('etapas/tramiteView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado'));

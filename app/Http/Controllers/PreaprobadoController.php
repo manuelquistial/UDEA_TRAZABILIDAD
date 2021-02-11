@@ -7,12 +7,16 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Preaprobado;
 use App\ActualEtapaEstado;
+use App\Presolicitud;
+use App\TiposTransaccion;
+use App\Usuario;
 use Auth;
 
 class PreaprobadoController extends Controller
 {
     public $etapa_id = 5;
     public $en_proceso = 1;
+    public $confirmado = 2;
     public $espacio = " ";
     public $administrador = "Administrador";
     public $sap = 3; 
@@ -201,6 +205,25 @@ class PreaprobadoController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
                         
+        if($request->estado_id == $this->confirmado){
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
+            
+            $data = (object)[];
+            $data->nombre_proyecto = $proyecto->nombre_proyecto;
+            $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
+            $data->consecutivo = $request->consecutivo;
+            $data->etapa_id = $this->etapa_id;
+            $data->gestor = false;
+
+            $email_controller = new CorreosController;
+            $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
+
+            $data->email = $encargado->email;
+            $email_controller->email($data);
+        
+        }
+
         return response()->json(['data'=>true]);
     }
 

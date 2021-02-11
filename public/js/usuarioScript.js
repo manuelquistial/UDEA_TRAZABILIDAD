@@ -1,5 +1,4 @@
 import {
-    getUserTipoTransaccion,
     optionSelect,
     getUsuarios
 } from './functions.js'
@@ -37,17 +36,6 @@ document.getElementById('usuarios').addEventListener("click", function(event){
         document.getElementById('opciones_usuario').style.display = "block"
         document.getElementById('usuario').value = event.target.innerText
         idUsuario = event.target.value
-        /*getUserTipoTransaccion(id)
-        .then((res) => res.json())
-        .then((data) => {
-            data.forEach(function(obj){
-                let usuario = obj.nombre + ' ' + obj.apellidos
-                let id = obj.id
-                usuarios.push([id, usuario])
-                optionSelect(id, usuario, elUsuarios)
-            })
-        })
-        .catch((error) => console.log(error))*/
     }
 });
 

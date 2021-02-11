@@ -33,14 +33,34 @@ class ReservaController extends Controller
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
-        $files = 0;
+        $files = null;
+        $reserva = null;
         
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
+        
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+            
+        if(isset($crp->crp)){
 
-        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','files'));
+            $reserva = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 3)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+            $reserva = json_decode($reserva)[0];
+        }
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','files','crp','reserva'));
     }
 
     /**
@@ -111,9 +131,9 @@ class ReservaController extends Controller
                         ->getData()
                         ->data;
 
-        $crp_pedido = Aprobado::where('consecutivo', $consecutivo)
+        $crp = Aprobado::where('consecutivo', $consecutivo)
                     ->select('crp')
-                    ->get();
+                    ->first();
 
         $data = Reserva::where('consecutivo', $consecutivo)->first();
 

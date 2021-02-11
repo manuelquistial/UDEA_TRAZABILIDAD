@@ -79,7 +79,12 @@
         </div>
         <div class="form-group">
             <label for="valor_final_crp">{{ Lang::get('strings.aprobado.valor_final_crp') }}</label>
-            <input type="number" class="form-control" name="valor_final_crp" value="{{ $data == NULL  ? old('valor_final_crp') : ($data->valor_final_crp == NULL ? old('valor_final_crp') : $data->valor_final_crp) }}">
+            @if(\App::environment() != 'production')
+                <input type="text" class="form-control" name="valor_final_crp" id="valor" value="{{ $data == NULL  ? old('valor_final_crp') : ($data->valor_final_crp == NULL ? old('valor_final_crp') : $data->valor_final_crp) }}">
+            @else
+                <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
+                <input type="text" class="form-control" name="valor_final_crp" id="valor" value="{{ $data == NULL  ? (str_replace(' €','',numfmt_format_currency($fmt, old('valor_final_crp'),"EUR")) == '0,00' ?'':'') : ($data->valor_final_crp == NULL ? (str_replace(' €','',numfmt_format_currency($fmt, old('valor_final_crp'),"EUR")) == '0,00' ?'':'') : str_replace(' €','',numfmt_format_currency($fmt, $data->valor_final_crp,"EUR"))) }}">
+            @endif
             @if ($errors->has('valor_final_crp'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('valor_final_crp') }}</small></strong>

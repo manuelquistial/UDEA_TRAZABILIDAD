@@ -1,6 +1,19 @@
 var path = document.getElementsByTagName('base')[0].href
 var token = document.getElementsByTagName('meta')['csrf-token'].getAttribute("content");
 
+async function getFinancieroProyecto(url, proyecto_id){
+  let route = `${url}/presolicitud/proyecto/${proyecto_id}`
+  const response = await fetch(route, {
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+
+  return response
+}
+
 async function enviarCorreos(){
   let route = `${url}/${endpoint}/estado`
   const response = await fetch(route, {
@@ -126,7 +139,7 @@ async function actualizarEstado(url, value, columna, id){
 }
 
 async function setAprobadoVariables(url, consecutivo, columna, data){
-  let route = `${url}aprobado/elements`
+  let route = `${url}/aprobado/elements`
   const response = await fetch(route, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
@@ -155,7 +168,7 @@ async function getEtapas(url){
 }
 
 async function getEstados(url, endpoint, consecutivo){
-  let route = `${url}${endpoint}`
+  let route = `${url}/${endpoint}`
   const response = await fetch(route, {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
@@ -170,7 +183,7 @@ async function getEstados(url, endpoint, consecutivo){
 }
 
 async function setEstados(url, endpoint, consecutivo, estado){
-  let route = `${url}${endpoint}/estado`
+  let route = `${url}/${endpoint}/estado`
   const response = await fetch(route, {
     method: 'PUT', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
@@ -205,5 +218,6 @@ export{
   setEstados,
   getCodigoSigep,
   setAprobadoVariables,
-  enviarCorreos
+  enviarCorreos,
+  getFinancieroProyecto
 }

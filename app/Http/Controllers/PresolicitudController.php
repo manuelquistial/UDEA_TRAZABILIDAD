@@ -19,8 +19,9 @@ class PresolicitudController extends Controller
     public $etapa_id = 1;
     public $en_proceso = 1;
     public $espacio = " ";
+    public $directorio_documento = "presolicitud/apoyo_economico/";
     public $directorio = "presolicitud/";
-    public $path = "//public/"; 
+    public $path = "//public/presolicitud/"; 
 
     public function __construct()
     {
@@ -47,7 +48,14 @@ class PresolicitudController extends Controller
                     ->orderBy('nombre', 'asc')
                     ->get();
 
-        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','tipoTransaccion','proyecto','files'));
+        $apoyo_economico = Storage::disk('public')->files($this->directorio_documento);
+        if($apoyo_economico){
+            $apoyo_economico = $apoyo_economico[0];
+        }else{
+            $apoyo_economico = null;
+        }
+            
+        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','tipoTransaccion','proyecto','files','apoyo_economico'));
         //return response()->json([''=>$proyecto]);
     }
 
@@ -61,15 +69,15 @@ class PresolicitudController extends Controller
     {
         $presolicitud = Presolicitud::create([
             'usuario_id' => Auth::user()->cedula,
-            'encargado_id' => NULL,
-            'proyecto_id' => $this->returnNull($this->startEndSpaces($data['proyecto_id'], $this->espacio)),
+            'encargado_id' => $data['encargado_id'],
+            'proyecto_id' => $this->returnNull($this->startEndSpaces($data['proyecto_id'])),
             'nombre_proyecto' => $data['nombre_proyecto'],
-            'otro_proyecto' => $this->startEndSpaces($data['otro_proyecto'], $this->espacio),
-            'transaccion_id' => $this->startEndSpaces($data['transaccion_id'], $this->espacio),
-            'fecha_inicial' => $this->returnNull($this->startEndSpaces($data['fecha_inicial'], $this->espacio)),
-            'fecha_final' => $this->returnNull($this->startEndSpaces($data['fecha_final'], $this->espacio)),
-            'valor' => $this->startEndSpaces($data['valor'], $this->espacio),
-            'descripcion' => $this->startEndSpaces($data['descripcion'], $this->espacio),
+            'otro_proyecto' => $this->startEndSpaces($data['otro_proyecto']),
+            'transaccion_id' => $this->startEndSpaces($data['transaccion_id']),
+            'fecha_inicial' => $this->returnNull($this->startEndSpaces($data['fecha_inicial'])),
+            'fecha_final' => $this->returnNull($this->startEndSpaces($data['fecha_final'])),
+            'valor' => $this->startEndSpaces($data['valor']),
+            'descripcion' => $this->startEndSpaces($data['descripcion']),
             'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
@@ -85,7 +93,6 @@ class PresolicitudController extends Controller
      */
     protected function validator(array $data)
     {
-        info($data);
         return Validator::make($data, [
             'proyecto_id' => 'nullable',
             'otro_proyecto' => 'required_without:proyecto_id|string|nullable',
@@ -105,21 +112,29 @@ class PresolicitudController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validator($request->all())->validate();
+        
+        $data = $request->all();
+        $data['valor'] = $this->replaceDots($data['valor']);
+        $this->validator($data)->validate();
 
         $encargado_id = DB::table('tr_usuarios_tipostransaccion AS a')
                 ->leftJoin('tr_usuarios AS b', 'b.id', '=', 'a.usuario_id')
                 ->leftJoin('tr_tipostransaccion AS c', 'c.id', '=', 'a.tipo_transaccion_id')
-                ->where('a.tipo_transaccion_id', $request->transaccion_id)
+                ->where('a.tipo_transaccion_id', $request['transaccion_id'])
                 ->select('b.cedula', 'b.email', 'c.tipo_transaccion', 'b.nombre_apellido')
                 ->first();
 
-        $data = $request->all();
-        $data['encargado_id'] = $encargado_id->cedula;
         
-        $nombre_proyecto = $this->getNombreProyecto($request['proyecto_id']);
+        $data['encargado_id'] = $encargado_id->cedula;
 
-        $data['nombre_proyecto'] = $nombre_proyecto;
+        if($request['proyecto_id'] != NULL){
+            $nombre_proyecto = $this->getNombreProyecto($request['proyecto_id'])->nombre;
+            $data['nombre_proyecto'] = $nombre_proyecto;
+        }else{
+            $nombre_proyecto = $request['otro_proyecto'];
+            $data['nombre_proyecto'] = $nombre_proyecto;
+        }
+
         $presolicitud = $this->create($data);
         $presolicitud->save();
         $consecutivo = $presolicitud->id;
@@ -133,12 +148,26 @@ class PresolicitudController extends Controller
 
         $actual_etapa_estado->save();
 
+        $upload_files = new DocumentosController;
+        $request->consecutivo = $consecutivo;
+        $upload_files->uploadFile($request, $this->path.$request->consecutivo);
+        
         $encargado_id->nombre_proyecto = $nombre_proyecto;
-        $email_controller = new CorreosController;
-        $email_controller->email($encargado_id, $consecutivo, $this->etapa_id);
 
-        $upload_files = new MainController;
-        $upload_files->uploadFile($request, $this->path.$this->directorio);
+        $email_gestor = $encargado_id->email;
+        
+
+        $email_controller = new CorreosController;
+        $encargado_id->gestor = false;
+        $encargado_id->email = Auth::user()->email;
+        $encargado_id->consecutivo = $consecutivo;
+        $encargado_id->etapa_id = $this->etapa_id;
+        $email_controller->email($encargado_id);
+
+        $encargado_id->gestor = true;
+        unset($encargado_id->nombre_apellido);
+        $encargado_id->email = $email_gestor;
+        $email_controller->email($encargado_id);
 
         return redirect('/')->with('status', true)->with('consecutivo', $consecutivo);
     }
@@ -154,10 +183,6 @@ class PresolicitudController extends Controller
         $etapas = false;
         $route = "show";
         $etapa_id = $this->etapa_id;
-        $etapa_estado;
-        $data;
-        $tipoTransaccion;
-        $proyecto;
 
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
@@ -198,10 +223,6 @@ class PresolicitudController extends Controller
         $etapas = false;
         $route = "edit";
         $etapa_id = 0;
-        $etapa_estado;
-        $data;
-        $tipoTransaccion;
-        $proyecto;
 
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
@@ -228,7 +249,12 @@ class PresolicitudController extends Controller
 
         $files = Storage::disk('public')->files($this->directorio . '/' . $consecutivo);
 
-        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto','files'));
+        $apoyo_economico = Storage::disk('public')->files($this->directorio_documento);
+        if($apoyo_economico){
+            $apoyo_economico = $apoyo_economico[0];
+        }
+
+        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto','files','apoyo_economico'));
     }
 
     /**
@@ -263,10 +289,11 @@ class PresolicitudController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $upload_files = new MainController;
-        $upload_files->uploadFile($request, $this->path.$this->directorio);
+        $upload_files = new DocumentosController;
+        $upload_files->uploadFile($request, $this->path.$request->consecutivo);
 
         $data = $request->except('_token','anexos');
+        $data['valor'] = $this->replaceDots($data['valor']);
 
         Presolicitud::where('consecutivo', $request->consecutivo)
                         ->update($data);
@@ -311,6 +338,148 @@ class PresolicitudController extends Controller
         return response()->json(['data'=>true]);
     }
 
+    public function financieroProyecto($proyecto_id){
+        
+        $pp_inicial  = DB::connection('mysql_sigep')
+                ->table('proyectos as p')
+                ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                ->where('p.Estado', 1)
+                ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                ->where('p.codigo', $proyecto_id)
+                ->where('m.Tipo', 4)
+                ->select('m.Rubro','r.Nombre','m.Valor')
+                ->get();
+                    
+        $pp_inicial = json_decode($pp_inicial);
+
+        $pp_total  = DB::connection('mysql_sigep')
+                ->table('proyectos as p')
+                ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                ->where('p.Estado', 1)
+                ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                ->where('p.codigo', $proyecto_id)
+                ->where('m.Tipo', 4)
+                ->select(DB::raw('sum(m.Valor) pp_total'))
+                ->get();
+                    
+        if(count($pp_total) !== 0){
+            $pp_total = json_decode($pp_total)[0]->pp_total;
+        }else{
+            $pp_total = 0;
+        }
+
+        $total_ingreso = DB::connection('mysql_sigep')
+                        ->table('proyectos as p')
+                        ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                        ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                        ->where('p.Estado', 1)
+                        ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                        ->where('p.codigo', $proyecto_id)
+                        ->where('m.Tipo', 1)
+                        ->select(DB::raw('sum(m.Valor) ingreso'))
+                        ->get();
+                        
+        if(count($total_ingreso) !== 0){
+            $total_ingreso = json_decode($total_ingreso)[0]->ingreso;
+        }else{
+            $total_ingreso = 0;
+        }
+
+        $total_cuentaxcobrar = DB::connection('mysql_sigep')
+                        ->table('proyectos as p')
+                        ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                        ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                        ->where('p.Estado', 1)
+                        ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                        ->where('p.codigo', $proyecto_id)
+                        ->where('m.Tipo', 6)
+                        ->select(DB::raw('sum(m.Valor) cuentaxcobrar'))
+                        ->get();
+                        
+        if(count($total_cuentaxcobrar) !== 0){
+            $total_cuentaxcobrar = json_decode($total_cuentaxcobrar)[0]->cuentaxcobrar;
+        }else{
+            $total_cuentaxcobrar = 0;
+        }
+
+        $total_egreso = DB::connection('mysql_sigep')
+                        ->table('proyectos as p')
+                        ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                        ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                        ->where('p.Estado', 1)
+                        ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                        ->where('p.codigo', $proyecto_id)
+                        ->where('m.Tipo', 2)
+                        ->select(DB::raw('sum(m.Valor) egreso'))
+                        ->get();
+                        
+        if(count($total_egreso) !== 0){
+            $total_egreso = json_decode($total_egreso)[0]->egreso;
+        }else{
+            $total_egreso = 0;
+        }
+
+        $total_reserva = DB::connection('mysql_sigep')
+                        ->table('proyectos as p')
+                        ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                        ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                        ->where('p.Estado', 1)
+                        ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                        ->where('p.codigo', $proyecto_id)
+                        ->where('m.Tipo', 3)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+        if(count($total_reserva) !== 0){
+            $total_reserva = json_decode($total_reserva)[0]->reserva;
+        }else{
+            $total_reserva = 0;
+        }
+
+        foreach ($pp_inicial as $rubro) {
+
+            $egreso = DB::connection('mysql_sigep')
+                            ->table('proyectos as p')
+                            ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                            ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                            ->where('p.Estado', 1)
+                            ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                            ->where('p.codigo', $proyecto_id)
+                            ->where('m.Rubro', $rubro->Rubro)
+                            ->where('m.Tipo', 2)
+                            ->select(DB::raw('sum(m.Valor) egreso'))
+                            ->get();
+                            
+            if(count($egreso) !== 0){
+                $rubro->egreso = json_decode($egreso)[0]->egreso;
+            }else{
+                $rubro->egreso = 0;
+            }
+
+            $reserva = DB::connection('mysql_sigep')
+                            ->table('proyectos as p')
+                            ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                            ->join('rubros as r', 'r.codigo','=','m.Rubro')
+                            ->where('p.Estado', 1)
+                            ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
+                            ->where('p.codigo', $proyecto_id)
+                            ->where('m.Rubro', $rubro->Rubro)
+                            ->where('m.Tipo', 3)
+                            ->select(DB::raw('sum(m.Valor) reserva'))
+                            ->get();
+
+            if(count($reserva) !== 0){
+                $rubro->reserva = json_decode($reserva)[0]->reserva;
+            }else{
+                $rubro->reserva = 0;
+            }
+        }
+
+        return response()->json(['pp_inicial'=>$pp_inicial, 'pp_total' => $pp_total, 'total_egreso' => $total_egreso, 'total_ingreso' => $total_ingreso, 'total_reserva' => $total_reserva, 'total_cuentaxcobrar' => $total_cuentaxcobrar]);
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -340,14 +509,18 @@ class PresolicitudController extends Controller
     }
 
     public function getNombreProyecto($id){
-        if(!$this->returnNull($id)){
+        if($this->returnNull($id)){
             return DB::connection('mysql_sigep')
                     ->table('proyectos')
                     ->where('Estado', 1)
                     ->where('codigo', $id)
                     ->select('nombre')
-                    ->get();
+                    ->first();
         }
         return NULL;
+    }
+
+    public function replaceDots($value){
+        return preg_replace('/\./m', '', $value);
     }
 }

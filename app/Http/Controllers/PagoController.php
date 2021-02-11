@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Pago;
+use App\Aprobado;
 
 class PagoController extends Controller
 {
@@ -25,13 +26,33 @@ class PagoController extends Controller
     public function index($consecutivo)
     {
         $etapa_id = $this->etapa_id;
+        $egreso = null;
         
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
 
-        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado'));
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+            
+        if(isset($crp->crp)){
+
+            $egreso = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 2)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+            $egreso = json_decode($egreso)[0];
+        }
+
+        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado','crp','egreso'));
     }
 
     /**
@@ -79,9 +100,13 @@ class PagoController extends Controller
                         ->getData()
                         ->data;
 
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+
         $data = Pago::where('consecutivo', $consecutivo)->first();
 
-        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado','data'));
+        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado','data','crp'));
     }
 
     /**

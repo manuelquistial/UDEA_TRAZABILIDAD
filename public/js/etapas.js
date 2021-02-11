@@ -3,6 +3,7 @@ import {
   getEstados,
   setEstados,
   //setAprobadoVariables,
+  getFinancieroProyecto,
   redirectTransaccion
 } from './functions.js'
 
@@ -13,12 +14,89 @@ window.onload = function() {
   let consecutivo_cambio_estado = document.getElementById('cambio-estado')
   let etapas_confirmar_declinar = document.getElementById('etapas-confirmar-declinar')
   let status = document.getElementById('status')
+  let valor = document.getElementById('valor');
+  let financiero_proyecto = document.getElementById('financiero_proyecto');
+
+  if(financiero_proyecto){
+    financiero_proyecto.addEventListener('click', function(event){
+      let proyecto_id = document.getElementById('proyecto_id').querySelector('option:checked').value;
+      let total_ingreso = document.getElementById('ingreso');
+      let total_ingreso_3t = document.getElementById('inNeto_3t');
+      let total_egreso = document.getElementById('egreso');
+      let total_reserva = document.getElementById('reserva');
+      let total_reserva_egreso = document.getElementById('reEg');
+      let total_cuentaxcobrar = document.getElementById('cuentapc');
+      let disponible_efectivo = document.getElementById('dispEfec');
+      let disponible_real = document.getElementById('dispReal');
+      let recurso_disponible = document.getElementById('reDi');
+      let disponible_recursos = document.getElementById('dis');
+      let presupuesto_total = document.getElementById('pTotal');
+
+      if(proyecto_id){
+        let table_sigep = document.getElementById('table_sigep')
+        getFinancieroProyecto(url, proyecto_id)
+        .then((res) => res.json())
+        .then((data) => {
+          let ingreso = parseInt(data.total_ingreso == null ? 0 : data.total_ingreso)
+          let reserva = parseInt(data.total_reserva == null ? 0 : data.total_reserva)
+          let egreso = parseInt(data.total_egreso == null ? 0 : data.total_egreso)
+          let cuentaxcobrar = parseInt(data.total_cuentaxcobrar == null ? 0 : data.total_cuentaxcobrar)
+          let ppTotal = parseInt(data.ppTotal == null ? 0 : data.ppTotal)
+
+          total_ingreso.innerHTML = ingreso.toLocaleString('de-DE')
+          total_ingreso_3t.innerHTML = ingreso.toLocaleString('de-DE')
+          total_egreso.innerHTML = egreso.toLocaleString('de-DE')
+          total_reserva.innerHTML = reserva.toLocaleString('de-DE')
+          total_cuentaxcobrar.innerHTML = cuentaxcobrar.toLocaleString('de-DE')
+          disponible_efectivo.innerHTML = (ingreso - egreso).toLocaleString('de-DE')
+          total_reserva_egreso.innerHTML = (egreso + reserva).toLocaleString('de-DE')
+          disponible_real.innerHTML = (ingreso - egreso - reserva).toLocaleString('de-DE')
+          recurso_disponible.innerHTML = (ingreso - egreso - reserva).toLocaleString('de-DE')
+          disponible_recursos.innerHTML = (ingreso - egreso - reserva).toLocaleString('de-DE')
+          presupuesto_total.innerHTML = ppTotal.toLocaleString('de-DE')
+
+          data.pp_inicial.forEach(element => {
+            let tabla_valor = parseInt(element.Valor == null ? 0 : element.Valor)
+            let tabla_reserva = parseInt(element.reserva == null ? 0 : element.reserva)
+            let tabla_egreso = parseInt(element.egreso == null ? 0 : element.egreso)
+            let tabla_disponible = tabla_valor - tabla_reserva - tabla_egreso
+            table_sigep.innerHTML = ''
+
+            table_sigep.innerHTML += `
+              <tr>
+                  <td>${element.Nombre}</td>
+                  <td>${tabla_valor.toLocaleString('de-DE')}</td>
+                  <td>${tabla_reserva.toLocaleString('de-DE')}</td>
+                  <td>${tabla_egreso.toLocaleString('de-DE')}</td>
+                  <td>${tabla_disponible.toLocaleString('de-DE')}</td>
+              </tr>
+              `
+          });
+          $('#modal').modal('show')
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+      }
+    })
+  }
+
+  if(valor){
+    valor.addEventListener("keyup", function(event){
+      let value = valor.value.replace(/\./g,'')
+      let new_value = Number(value).toLocaleString('de-DE')
+      if(new_value != 0){
+        valor.value = new_value
+      }else{
+        valor.value = ''
+      }
+    });
+  }
 
   if(redirect){
       redirect.addEventListener("click", function(event){
         let consecutivo = document.getElementsByName("consecutivo")[0].value
         let transaccion_id = document.getElementById('transaccion_id').querySelector("option:checked").value;
-        console.log(url)
         redirectTransaccion(url, transaccion_id, consecutivo)
         .then((res) => res.json())
         .then((data) => {
@@ -51,22 +129,22 @@ window.onload = function() {
           }
           switch(estado_id) {
             case 0:
-              href = `${element.endpoint}/index/${consecutivo}`
+              href = `index.php/${element.endpoint}/index/${consecutivo}`
               estado = ''
               break;
             case 1:
-              href = `${element.endpoint}/edit/${consecutivo}`
+              href = `index.php/${element.endpoint}/edit/${consecutivo}`
               if(element.endpoint == 'presolicitud'){
-                href = `${element.endpoint}/show/${consecutivo}`
+                href = `index.php/${element.endpoint}/show/${consecutivo}`
               }
               estado = "lateral-inprogress"
               break;
             case 2:
-              href = `${element.endpoint}/show/${consecutivo}`
+              href = `index.php/${element.endpoint}/show/${consecutivo}`
               estado = "lateral-done"
               break;
             default:
-              href = `${element.endpoint}/show/${consecutivo}`
+              href = `index.php/${element.endpoint}/show/${consecutivo}`
               estado = "lateral-cancel"
           }
           document.getElementById(element.endpoint).href = href

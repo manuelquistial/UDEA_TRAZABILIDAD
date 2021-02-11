@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Legalizado;
 use App\ActualEtapaEstado;
+use App\Aprobado;
 use Auth;
 
 class LegalizadoController extends Controller
@@ -36,7 +37,11 @@ class LegalizadoController extends Controller
                         ->getData()
                         ->data;
 
-        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','crp'));
     }
 
     /**
@@ -113,9 +118,13 @@ class LegalizadoController extends Controller
                         ->getData()
                         ->data;
 
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+
         $data = Legalizado::where('consecutivo', $consecutivo)->first();
 
-        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','crp'));
     }
 
     /**

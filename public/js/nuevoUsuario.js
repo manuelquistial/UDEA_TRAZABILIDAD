@@ -1,17 +1,6 @@
-import {
-    getTiposTransaccion,
-    getUsuarios,
-    tildesEspacios
-} from './functions.js'
-
 var checkbox_tipo_transaccion = 'tipos_transaccion[]';
-var checkbox_etapa = 'etapa';
 var elTipoTransaccionBadge;
 var elTipoTransaccion = document.getElementById('tipos_transaccion');
-//console.log(document.getElementById('status').className);
-
-var elRoles = document.getElementById('roles');
-var elEtapas = document.getElementById('etapas');
 
 window.onload = function() {
     let status = document.getElementById('status')
@@ -44,7 +33,3 @@ function badge_tipo_transaccion(){
         `
     })
 }
-
-/*$('body').on("click", ".dropdown-menu", function (e) {
-    $(this).parent().is(".show") && e.stopPropagation();
-});*/

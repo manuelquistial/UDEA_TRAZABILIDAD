@@ -16,8 +16,11 @@
     </div>
 </div>
 <div class="card-body">
-    <div class="form-group">
+    <div class="input-group">
         <input type="text" class="form-control" id="buscar_item" placeholder="{{ $buscar }}">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="buscar_button">{{ Lang::get('strings.configuracion.buscar') }}</button>
+        </div>
     </div>
     <div class="table-responsive-sm">
         <table class="table">
@@ -31,10 +34,10 @@
             <tbody id="items_tabla">
                 @foreach($tiposTransaccion as $tipo_transaccion)
                 <tr>
-                    <td class="links" data-id="{{ $tipo_transaccion->id }}" data-sap="{{ $tipo_transaccion->etapa_id == '3' ? 'true' : ''}}">{{ $tipo_transaccion->tipo_transaccion }}</td>
+                    <td class="links" data-id="{{ $tipo_transaccion->id }}" data-sap="{{ $tipo_transaccion->cargo_id == '2' ? 'true' : ''}}">{{ $tipo_transaccion->tipo_transaccion }}</td>
                     <td>
                         <label class="switch">
-                            <input type="checkbox" name="sap" value="{{ $tipo_transaccion->id }}" {{ $tipo_transaccion->etapa_id == '3' ? 'checked' : ''}}>
+                            <input type="checkbox" name="sap" value="{{ $tipo_transaccion->id }}" {{ $tipo_transaccion->cargo_id == '2' ? 'checked' : ''}}>
                             <span class="slider round"></span>
                         </label>
                     </td>

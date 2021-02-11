@@ -12,6 +12,8 @@
     <div class="col-6 text-right conf-header">
         @if(!$consulta & Auth::user()->hasTipoTransaccion())
             <a class="info-header" href="{{route('consulta_gestores')}}">{{ Lang::get('strings.menu_superior.consulta_gestores') }}</a>
+        @elseif(!$consulta & Auth::user()->hasOneRole("Administrador"))
+            <a class="info-header" href="{{route('consulta_gestores')}}">{{ Lang::get('strings.menu_superior.consulta_gestores') }}</a>
         @elseif($consulta)
             <a class="info-header" href="{{route('consulta_usuario')}}">{{ Lang::get('strings.menu_superior.consulta_usuario') }}</a>
         @endif

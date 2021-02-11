@@ -2,7 +2,7 @@
 
 @section('etapasView')
     @if($etapa_id > 0)
-        <ul class="nav flex-column nav-pills" id="etapas-menu" aria-orientation="vertical">
+        <ul class="nav flex-column nav-pills lateral-column" id="etapas-menu" aria-orientation="vertical">
             @foreach($etapa_estado as $etapa)
                 <li class="nav-item lateral-nav-item">
                     <a class="nav-link lateral-nav-link" id="{{ $etapa->endpoint }}" href="">{{ $etapa->etapa }}</a>
@@ -13,7 +13,7 @@
 @stop
 
 @section('general')
-    <div class="col-8">  
+    <div class="col-md-8">  
         <div class="info-body">
             <div class="modal-header">
                 @if($etapa_id > 0)

@@ -15,11 +15,11 @@
             @break
     @endswitch
         @if(!$etapas)
-        <input type="hidden" name="consecutivo", value="{{ $consecutivo }}">
+            <input type="hidden" name="consecutivo", value="{{ $consecutivo }}">
         @endif
         <div class="form-group">
             <label for="proyecto_id">{{ Lang::get('strings.presolicitud.proyecto') }}</label>
-            <select class="form-control" name="proyecto_id">
+            <select class="form-control" name="proyecto_id" id="proyecto_id">
                 <option value="">{{ Lang::get('strings.presolicitud.seleccione_proyecto') }}</option>
             @if($etapas)
                 @foreach( $proyecto as $proyecto )
@@ -74,7 +74,12 @@
         </div>
         <div class="form-group">
             <label for="valor">{{ Lang::get('strings.general.valor') }}</label>
-            <input type="number" step="any" class="form-control" name="valor" value="{{ $etapas ? old('valor') : $data->valor}}"> 
+            @if(\App::environment() != 'production')
+                <input type="text" class="form-control" id="valor" name="valor" value="{{ $etapas ? (old('valor')) : $data->valor}}"> 
+            @else
+                <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
+                <input type="text" class="form-control" name="valor" id="valor" value="{{ $etapas ? (str_replace(' €','',numfmt_format_currency($fmt, old('valor'),"EUR")) == '0,00' ? '':'') : str_replace(' €','',numfmt_format_currency($fmt, $data->valor,"EUR")) }}">
+            @endif
             @if ($errors->has('valor'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('valor') }}</small></strong>
@@ -126,7 +131,11 @@
                     </span>
                 @endif
                 <small class="form-text text-muted">
-                    {!! Lang::get('strings.notes.presolicitud') !!}
+                    @if($apoyo_economico)
+                        {!! Lang::get('strings.notes.presolicitud',['documento'=>"href=".route('descargar_documentos','path='.$apoyo_economico)]) !!}
+                    @else
+                        {!! Lang::get('strings.notes.presolicitud',['documento'=>""]) !!}
+                    @endif
                 </small>
             </div>
         @endif
@@ -150,5 +159,105 @@
             @default
         @endswitch
     </form>
+</div>
+
+<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="titulo"></span>{{ Lang::get('strings.solicitud.codigo_sigep') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-group" id="accordion" role="tablist" aria-multiselectable="true">
+                    <div class="card card-default">
+                        <div class="card-header modal-header">
+                            <div class="col-6 conf-header">
+                                <a><strong>{{ Lang::get('strings.presolicitud.modal.disponible_recursos') }}</strong></a>
+                            </div>
+                            <div class="col-6 text-right conf-header">
+                                <a class="navbar-nav navbar-right" style="padding-right: 20px;"><strong id="dis"></strong></a>
+                             </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table tableGeneral">
+                                <tbody>
+                                    <tr class="table-style">
+                                        <td colspan="6"><strong>{{ Lang::get('strings.presolicitud.modal.resumen_presupuestal') }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.ingresos') }}</td>
+                                        <td id="ingreso"></td>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.egresos') }}</td>
+                                        <td id="egreso"></td>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.reservas') }}</td>
+                                        <td id="reserva"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.cuentaxcobrar') }}</td>
+                                        <td id="cuentapc"></td>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.disponibilidad_efectiva') }}</td>
+                                        <td id="dispEfec"></td>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.disponibilidad_real') }}</td>
+                                        <td id="dispReal">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.presupuesto_total') }}</td>
+                                        <td id="pTotal"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-header modal-header">
+                            <div class="col-6 conf-header">
+                                <a role="tab" id="headingOne" data="" href="#collapseOne" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapseOne" class=""><strong>{{ Lang::get('strings.presolicitud.modal.vista_general') }}</strong></a>
+                            </div>
+                        </div>
+                      
+                        <div id="collapseOne" class="card-collapse collapse in" role="tabcard" aria-labelledby="headingOne" aria-expanded="true" style="">
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr class="table-style">
+                                            <th scope="col">{{ Lang::get('strings.presolicitud.modal.nombre_egreso') }}</th>
+                                            <th scope="col">{{ Lang::get('strings.presolicitud.modal.pp_inicial') }}</th>
+                                            <th scope="col">{{ Lang::get('strings.presolicitud.modal.reservas') }}</th>
+                                            <th scope="col">{{ Lang::get('strings.presolicitud.modal.egresos') }}</th>
+                                            <th scope="col">{{ Lang::get('strings.presolicitud.modal.disponible') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table_sigep">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-body">
+                                <table class="table text-center table-center">
+                                    <tbody><tr class="table-style">
+                                        <td><strong>{{ Lang::get('strings.presolicitud.modal.disponibilidad_recursos') }}</strong></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.total_in_neto') }}</td>
+                                        <td id="inNeto_3t"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.reserva_egreso') }}</td>
+                                        <td id="reEg"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ Lang::get('strings.presolicitud.modal.recursos_disponibles') }}</td>
+                                        <td id="reDi"></td>
+                                    </tr>
+                                </tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @stop

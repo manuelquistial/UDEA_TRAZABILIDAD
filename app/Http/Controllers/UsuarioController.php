@@ -14,9 +14,11 @@ use Auth;
 
 class UsuarioController extends Controller
 {
+    public $usuarios = 'tr_usuarios';
     public $columna = 'nombre_apellido';
     public $numeroDatos = 5;
     public $espacio = " ";
+    public $estado_habilitado = 4;
 
     public function __construct()
     {
@@ -74,7 +76,8 @@ class UsuarioController extends Controller
             'cedula' => $this->startEndSpaces($data['cedula']),
             'password' => Hash::make($data['cedula'], [
                 'rounds' => 12,
-            ])
+            ]),
+            'estado_id' => $this->estado_habilitado
         ]);
 
         if(!empty($data['tipos_transaccion'])){
@@ -104,11 +107,12 @@ class UsuarioController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    protected function validator(array $data)
+    protected function validator(array $data, $id)
     {
         return Validator::make($data, [
             'nombre_apellido' => 'required|string',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:tr_usuarios,email'.($id ? ','.$id : ''),
+            'cedula' => 'required|unique:tr_usuarios,cedula'.($id ? ','.$id : ''),
             'telefono' => 'required|numeric'
         ]);
     }
@@ -121,7 +125,7 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validator($request->all())->validate();
+        $this->validator($request->all(), NULL)->validate();
 
         $usuario = $this->create($request->all());
         $usuario->save();
@@ -172,6 +176,38 @@ class UsuarioController extends Controller
     }
 
     /**
+     * Display a specific page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function pagination()
+    {
+        $usuarios = DB::table($this->usuarios)
+                        ->orderBy($this->columna)
+                        ->select('nombre_apellido','estado_id')
+                        ->paginate($this->numeroDatos);
+
+        return json_encode($usuarios);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $data
+     * @return \Illuminate\Http\Response
+     */
+    public function showItem($data)
+    {
+        $usuarios = DB::table($this->usuarios)
+            ->where($this->columna, 'like', '%'.$data.'%')
+            ->select('nombre_apellido','estado_id')
+            ->orderBy($this->columna)
+            ->get();
+        
+        return response()->json(['data'=>$usuarios]);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
@@ -217,16 +253,17 @@ class UsuarioController extends Controller
      */
     public function update(Request $request)
     {
-        $this->validator($request->all())->validate();
+        $this->validator($request->all(), $request->sequence)->validate();
 
-        $usuario = Usuario::find($request->sequence);
+        $request = $request->except('_token');
 
-        $test = $usuario->update(
-            ['nombre_apellido' => $this->startEndSpaces($request['nombre_apellido'])],
-            ['email' => $this->startEndSpaces($request['email'])],
-            ['telefono' => $this->startEndSpaces($request['telefono'])],
-            ['cedula' => $this->startEndSpaces($request['cedula'])]
-        );
+        $usuario = Usuario::find($request['sequence']);
+
+        $usuario->nombre_apellido = $this->startEndSpaces($request['nombre_apellido']);
+        $usuario->email = $this->startEndSpaces($request['email']);
+        $usuario->telefono = $this->startEndSpaces($request['telefono']);
+        $usuario->cedula = $this->startEndSpaces($request['cedula']);
+        $usuario->save();
 
 
         $usuario->tiposTransaccion()
@@ -254,7 +291,7 @@ class UsuarioController extends Controller
                 ->attach($request['cargo_id']);
         }
 
-        return redirect()->route('edit_usuario', $request->sequence)->with('status', true);
+        return redirect()->route('edit_usuario', $request['sequence'])->with('status', true);
     }
 
     /**
@@ -266,7 +303,7 @@ class UsuarioController extends Controller
      */
     public function updatePerfil(Request $request)
     {
-        $this->validator($request->all())->validate();
+        $this->validator($request->all(), NULL)->validate();
 
         $data = $request->except('_token', 'sequence');
 

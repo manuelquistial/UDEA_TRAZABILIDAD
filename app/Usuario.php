@@ -32,7 +32,7 @@ class Usuario extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'nombre_apellido', 'email', 'telefono', 'cedula', 'password'
+        'nombre_apellido', 'email', 'telefono', 'cedula', 'password', 'estado_id'
     ];
 
     /**
@@ -96,7 +96,7 @@ class Usuario extends Authenticatable
         return $this->tiposTransaccion()
                 ->orWherePivot('usuario_id','!=',NULL)
                 ->where('estado_id','=', 4)
-                ->select('tr_tipostransaccion.id');
+                ->select('tr_tipostransaccion.id','tr_tipostransaccion.tipo_transaccion');
     }
 
     /**

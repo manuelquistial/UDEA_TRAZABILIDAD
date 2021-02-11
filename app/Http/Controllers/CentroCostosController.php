@@ -45,14 +45,10 @@ class CentroCostosController extends Controller
      */
     public function pagination()
     {
-        $centro_costos;
-        try{
-            $centro_costos = DB::table($this->centro_costos)
-                            ->orderBy($this->columna)
-                            ->paginate($this->numeroDatos);
-        } catch(Exception $e) {
-            $centro_costos = "error";
-        }
+        $centro_costos = DB::table($this->centro_costos)
+                        ->orderBy($this->columna)
+                        ->paginate($this->numeroDatos);
+
         return json_encode($centro_costos);
     }
 
@@ -98,15 +94,11 @@ class CentroCostosController extends Controller
      */
     public function show($data)
     {
-        $centro_costos;
-        try {
-            $centro_costos = DB::table($this->centro_costos)
-                    ->where($this->columna, 'like', $data.'%')
-                    ->orderBy($this->columna)
-                    ->get();
-        } catch(Exception $e) {
-            $centro_costos = "error";
-        }
+        $centro_costos = DB::table($this->centro_costos)
+                ->where($this->columna, 'like', '%'.$data.'%')
+                ->orderBy($this->columna)
+                ->get();
+
         return response()->json(['data'=>$centro_costos]);
     }
 

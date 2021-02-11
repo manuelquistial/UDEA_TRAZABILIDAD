@@ -25,7 +25,7 @@ class CargosSeeder extends Seeder
         $role->save();
 
         $role = new Cargos();
-        $role->cargo = "SIGEP";
+        $role->cargo = "Contabilidad";
         $role->cargo_id = "3";
         $role->habilitador = True;
         $role->save();

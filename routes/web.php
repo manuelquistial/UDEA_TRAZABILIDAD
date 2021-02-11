@@ -39,6 +39,8 @@ Route::middleware(['role:Administrador'])->group(function () {
     Route::GET('usuarios/nuevo', 'UsuarioController@newUser')->name('nuevo_usuario');
     Route::POST('usuarios/update', 'UsuarioController@update')->name('update_usuario');
     Route::POST('usuarios/nuevo/usuario', 'UsuarioController@store')->name('agregar_nuevo_usuario');
+    Route::GET('usuarios/search/{data}', 'UsuarioController@showItem');
+    Route::GET('usuarios/paginacion', 'UsuarioController@pagination');
 
     Route::GET('tipostransaccion', 'TipoTransaccionController@index')->name('tipos_transaccion');
     Route::POST('tipostransaccion', 'TipoTransaccionController@store');
@@ -54,6 +56,10 @@ Route::middleware(['role:Administrador'])->group(function () {
     Route::POST('centrocostos', 'CentroCostosController@store');
     Route::PUT('centrocostos/update', 'CentroCostosController@update');
     Route::PUT('centrocostos/estado', 'CentroCostosController@updateEstado');
+
+    //Documetos
+    Route::GET('documentos', 'DocumentosController@index')->name('documentos');
+    Route::POST('documentos/save', 'DocumentosController@store')->name('subir_documentos');
 });
 
 Route::middleware(['tipo_transaccion'])->group(function () {
@@ -61,6 +67,7 @@ Route::middleware(['tipo_transaccion'])->group(function () {
     Route::PUT('presolicitud/estado', 'PresolicitudController@setEstado');
     Route::GET('presolicitud/show/{id}', 'PresolicitudController@show')->name('show_presolicitud');
     Route::POST('presolicitud/redirect', 'PresolicitudController@redirect');
+    Route::GET('presolicitud/proyecto/{id}', 'PresolicitudController@financieroProyecto');
 
     Route::POST('solicitud', 'SolicitudController@getEstado');
     Route::PUT('solicitud/estado', 'SolicitudController@setEstado');
@@ -128,12 +135,13 @@ Route::middleware(['tipo_transaccion'])->group(function () {
     Route::GET('legalizado/edit/{id}', 'LegalizadoController@edit')->name('edit_legalizado');
     Route::POST('legalizado/update', 'LegalizadoController@update')->name('update_legalizado');
 
-    Route::GET('transacciones/gestores/show/{id}', 'TransaccionesController@show')->name('show_gestores');
     Route::GET('etapas', 'MainController@etapas')->name('etapas');
+
     Route::GET('transacciones/gestores', 'TransaccionesController@showConsultaGestores')->name('consulta_gestores');
+    Route::GET('transacciones/gestores/show/{id}', 'TransaccionesController@show')->name('show_gestores');
 });
 
-Route::GET('documentos', 'MainController@downloads')->name('descargar_documentos');
+Route::GET('documentos/download', 'DocumentosController@downloads')->name('descargar_documentos');
 
 Auth::routes();
 

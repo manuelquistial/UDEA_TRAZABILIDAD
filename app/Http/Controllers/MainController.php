@@ -54,18 +54,4 @@ class MainController extends Controller
 
         return response()->json(['data'=>$etapas]);
     }
-
-    public function downloads(Request $request){
-        return response()->file(storage_path('app/public/'.$request->path));
-    }
-
-    public function uploadFile($request, $path){
-        if($request->hasFile('anexos')) {
-            foreach($request['anexos'] as $file) {
-                $file_name = str_replace(' ', '_', $file->getClientOriginalName());
-                $path = $file->storeAs($path. $request->consecutivo . '/', $file_name);
-                info($path);
-            }
-        }
-    }
 }

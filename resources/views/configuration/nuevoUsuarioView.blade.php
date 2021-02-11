@@ -58,6 +58,7 @@
                 <input type="text" class="form-control" id="cedula" name="cedula" value="{{ $data_opcion ? $data->cedula : old('cedula')}}"> 
                 @if ($errors->has('cedula'))
                     <span class="text-danger">
+                        <strong><small>{{ $errors->first('cedula') }}</small></strong>
                     </span>
                 @endif
             </div>
@@ -86,8 +87,8 @@
         @if($opcion != "usuario")
         <div class="form-group">
             <label for="tipo_transaccion">{{ Lang::get('strings.configuracion.tipo_transaccion') }}</label>
-            <input type="text" class="form-control" id="tipo_transaccion" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" placeholder="{{ Lang::get('strings.configuracion.escribir_transaccion') }}"> 
-            <div class="dropdown-menu tipo_transaccion" id="tipos_transaccion" aria-labelledby="tipo_transaccion">
+            <input type="text" class="form-control" id="tipo_transaccion" data-toggle="dropdown" placeholder="{{ Lang::get('strings.configuracion.escribir_transaccion') }}"> 
+            <div class="dropdown-menu scrollable-menu tipo_transaccion" id="tipos_transaccion" aria-labelledby="tipo_transaccion">
                 @if($data_opcion)
                     @foreach($tipos_transaccion_usuario as $tipo_transaccion_usuario)
                         <div class="form-check tipo_transaccion_item">
@@ -181,7 +182,7 @@
             </div>
         </div>
         @endif
-        <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.usuario.guardar') }}</button></div>
+        <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
     </form>
 </div>
 @stop

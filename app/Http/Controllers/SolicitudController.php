@@ -14,6 +14,7 @@ use App\ActualEtapaEstado;
 use App\CentroCostos;
 use App\Cargos;
 use App\TiposTransaccion;
+use App\Usuario;
 use Auth;
 
 class SolicitudController extends Controller
@@ -23,8 +24,8 @@ class SolicitudController extends Controller
     public $confirmado = 2;
     public $espacio = " ";
     public $directorio = "solicitud/";
-    public $path = "//public/"; 
-    public $cargo_sap_id = 3;
+    public $path = "//public/solicitud/"; 
+    public $cargo_sap_id = 2;
 
     public function __construct()
     {
@@ -113,8 +114,8 @@ class SolicitudController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
     
-        $upload_files = new MainController;
-        $upload_files->uploadFile($request, $this->path.$this->directorio);
+        $upload_files = new DocumentosController;
+        $upload_files->uploadFile($request, $this->path.$request->consecutivo);
 
         return redirect()->route('edit_solicitud', $request->consecutivo)->with('status', true);
         //return response()->json(['data'=>$queryStatus]);
@@ -194,8 +195,8 @@ class SolicitudController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $upload_files = new MainController;
-        $upload_files->uploadFile($request, $this->path.$this->directorio);
+        $upload_files = new DocumentosController;
+        $upload_files->uploadFile($request, $this->path.$request->consecutivo);
 
         $data = $request->except('_token','anexos');
 
@@ -240,19 +241,35 @@ class SolicitudController extends Controller
                         ]);
         
         if($request->estado_id == $this->confirmado){
-            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id')->first();
-            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion','cargo_id')->first();
+            
+            $data = (object)[];
+            $data->nombre_proyecto = $proyecto->nombre_proyecto;
+            $data->consecutivo = $request->consecutivo;
+            $data->etapa_id = $this->etapa_id;
+            $data->gestor = false;
+
+            $email_controller = new CorreosController;
+
             $usuario_sap = new Cargos();
             $usuario_sap = $usuario_sap->usuarioByCargo($this->cargo_sap_id)->first();
 
-            $data = (object)[];
-            $data->email = $usuario_sap->email;
-            $data->nombre_apellido = $usuario_sap->nombre_apellido;
-            $data->nombre_proyecto = $proyecto->nombre_proyecto;
-            $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
+            $data->tipo_transaccion = $tipoTransaccion['tipo_transaccion'];
+            
+            if(($tipoTransaccion['cargo_id'] != null) & isset($usuario_sap['email'])){
+                $data->email = $usuario_sap['email'];
+                $data->sap = true;
 
-            $email_controller = new CorreosController;
-            $email_controller->email($data, $request->consecutivo, $this->etapa_id);
+                $email_controller->email($data);
+            }
+
+            $data->sap = false;
+            $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
+
+            $data->email = $encargado['email'];
+            $email_controller->email($data);
+        
         }
                         
         return response()->json(['data'=>true]);
@@ -270,8 +287,8 @@ class SolicitudController extends Controller
 
         $query = DB::connection('mysql_sigep')
                 ->table('proyectos as p')
-                ->join('rubros as r', 'r.proyecto','=','p.codigo')
-                ->join('movimientos as m', 'm.Rubro','=','r.codigo')
+                ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                ->join('rubros as r', 'r.codigo','=','m.Rubro')
                 ->where('p.Estado', 1)
                 ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
                 ->where('p.codigo', $proyecto_id);
@@ -288,25 +305,26 @@ class SolicitudController extends Controller
 
             $info = DB::connection('mysql_sigep')
                             ->table('proyectos as p')
-                            ->join('rubros as r', 'r.proyecto','=','p.codigo')
-                            ->join('movimientos as m', 'm.Rubro','=','r.codigo')
+                            ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                            ->join('rubros as r', 'r.codigo','=','m.Rubro')
                             ->where('p.Estado', 1)
                             ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
                             ->where('p.codigo', $proyecto_id)
                             ->where('m.Rubro', $rubro->Rubro)
                             ->where('m.Tipo', 4)
-                            ->select('m.Codigo', 'r.Nombre')
+                            ->select('m.Codigo', 'r.Nombre','m.CentroCosto')
                             ->get();
 
             $info = json_decode($info)[0];
 
             $rubro->Codigo = $info->Codigo;
             $rubro->Nombre = $info->Nombre;
+            $rubro->CentroCosto = $info->CentroCosto;
 
             $egreso = DB::connection('mysql_sigep')
                             ->table('proyectos as p')
-                            ->join('rubros as r', 'r.proyecto','=','p.codigo')
-                            ->join('movimientos as m', 'm.Rubro','=','r.codigo')
+                            ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                            ->join('rubros as r', 'r.codigo','=','m.Rubro')
                             ->where('p.Estado', 1)
                             ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
                             ->where('p.codigo', $proyecto_id)
@@ -318,20 +336,19 @@ class SolicitudController extends Controller
                             
             if(count($egreso) !== 0){
                 $rubro->egreso = json_decode($egreso)[0]->egreso;
-                $rubro->CentroCosto = json_decode($egreso)[0]->CentroCosto;
             }else{
                 $rubro->egreso = 0;
             }
 
             $reserva = DB::connection('mysql_sigep')
                             ->table('proyectos as p')
-                            ->join('rubros as r', 'r.proyecto','=','p.codigo')
-                            ->join('movimientos as m', 'm.Rubro','=','r.codigo')
+                            ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
+                            ->join('rubros as r', 'r.codigo','=','m.Rubro')
                             ->where('p.Estado', 1)
                             ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
                             ->where('p.codigo', $proyecto_id)
                             ->where('m.Rubro', $rubro->Rubro)
-                            ->whereOr('m.Tipo', 3)
+                            ->where('m.Tipo', 3)
                             ->select('m.CentroCosto', DB::raw('sum(m.Valor) reserva'))
                             ->groupBy('m.CentroCosto')
                             ->get();

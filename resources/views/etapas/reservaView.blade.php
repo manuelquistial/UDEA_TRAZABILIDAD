@@ -4,12 +4,17 @@
 <div class="card-body">
     <div class="form-group">
         <label for="crp">{{ Lang::get('strings.general.crp') }}</label>
-        <input type="text" class="form-control" name="crp" value="" disabled>
+        <input type="text" class="form-control" name="crp" value="{{ isset($crp['crp']) ? $crp['crp'] : '' }}" disabled>
     </div>
 
     <div class="form-group">
         <label for="saldo">{{ Lang::get('strings.reserva.saldo') }}</label>
-        <input type="text" class="form-control" name="saldo" value="" disabled>
+        @if(\App::environment() != 'production')
+            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva) ? $reserva->reserva : '' }}" disabled>
+        @else
+            <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
+            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva)  ? str_replace(' €','',numfmt_format_currency($fmt, $reserva->reserva ,"EUR")) : '' }}" disabled>
+        @endif
     </div>
 
     @switch($route)

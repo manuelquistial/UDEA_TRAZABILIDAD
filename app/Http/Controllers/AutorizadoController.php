@@ -5,16 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Presolicitud;
 use App\Autorizado;
 use App\ActualEtapaEstado;
+use App\TiposTransaccion;
 use App\Correos;
+use App\Usuario;
 use Auth;
 
 class AutorizadoController extends Controller
 {
     public $etapa_id = 4;
     public $en_proceso = 1;
+    public $confirmado = 2;
     public $espacio = " ";
+    public $cargo_sap_id = 3;
 
     public function __construct()
     {
@@ -210,6 +215,26 @@ class AutorizadoController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
                         
+        if($request->estado_id == $this->confirmado){
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
+
+            /*$usuario_sap = new Cargos();
+            $usuario_sap = $usuario_sap->usuarioByCargo($this->cargo_sap_id)->first();*/
+            $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
+
+            $data = (object)[];
+            $data->email = $encargado->email;
+            $data->consecutivo = $request->consecutivo;
+            $data->etapa_id = $this->etapa_id;
+            $data->nombre_proyecto = $proyecto->nombre_proyecto;
+            $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
+            $data->gestor = false;
+
+            $email_controller = new CorreosController;
+            $email_controller->email($data);
+        }
+
         return response()->json(['data'=>true]);
     }
 

@@ -16,8 +16,11 @@
     </div>
 </div>
 <div class="card-body">
-    <div class="form-group">
+    <div class="input-group">
         <input type="text" class="form-control" id="buscar_item" placeholder="{{ $buscar }}">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="buscar_button">{{ Lang::get('strings.configuracion.buscar') }}</button>
+        </div>
     </div>
     <div class="table-responsive-sm">
         <table class="table">
