@@ -142,6 +142,7 @@ Route::middleware(['tipo_transaccion'])->group(function () {
 });
 
 Route::GET('documentos/download', 'DocumentosController@downloads')->name('descargar_documentos');
+Route::POST('documentos/delete', 'DocumentosController@delete')->name('borrar_documento');
 
 Auth::routes();
 

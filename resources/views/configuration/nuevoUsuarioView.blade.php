@@ -112,7 +112,7 @@
                 @endif
             </div>
             <small class="form-text text-muted">
-                {!! Lang::get('strings.notes.usuario_tipo_transaccion') !!}
+                <strong>{!! Lang::get('strings.notes.usuario_tipo_transaccion') !!}</strong>
             </small>
         </div>
         <div class="form-row">
@@ -141,7 +141,7 @@
                     @endif
                 </select>
                 <small class="form-text text-muted">
-                    {!! Lang::get('strings.notes.usuario_cargo') !!}
+                    <strong>{!! Lang::get('strings.notes.usuario_cargo') !!}</strong>
                 </small>
             </div>
             <div class="form-group col-md-6">
@@ -177,7 +177,7 @@
                     @endforeach
                 @endif
                 <small class="form-text text-muted">
-                    {!! Lang::get('strings.notes.usuario_administrador') !!}
+                    <strong>{!! Lang::get('strings.notes.usuario_administrador') !!}</strong>
                 </small>
             </div>
         </div>

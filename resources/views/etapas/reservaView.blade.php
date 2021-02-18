@@ -9,11 +9,11 @@
 
     <div class="form-group">
         <label for="saldo">{{ Lang::get('strings.reserva.saldo') }}</label>
-        @if(\App::environment() != 'production')
-            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva) ? $reserva->reserva : '' }}" disabled>
-        @else
+        @if(\App::environment() == 'production')
             <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
             <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva)  ? str_replace(' €','',numfmt_format_currency($fmt, $reserva->reserva ,"EUR")) : '' }}" disabled>
+        @else
+            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva) ? $reserva->reserva : '' }}" disabled>
         @endif
     </div>
 
@@ -58,18 +58,21 @@
                     </span>
                 @endif
                 <small class="form-text text-muted">
-                    {!! Lang::get('strings.notes.reserva') !!}
+                    <strong>{!! Lang::get('strings.notes.reserva') !!}</strong>
                 </small>
             </div>
         @endif
         @if($files)
             <div class="form-group">
                 <label for="anexos_guardados">{{ Lang::get('strings.general.anexos_guardados') }}</label>
-                <div>
-                    @foreach($files as $file )
+                @foreach($files as $file)
+                    <div class="input-group mb-3" id="documento_button">
+                        @if($route != "show")
+                            <button type="button" class="btn btn-light fas fa-trash-alt"></button>
+                        @endif
                         <a class="nav-link" href="{{route('descargar_documentos','path='.$file)}}" target="_blank">{{ basename($file) }}</a>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             </div>
         @endif
         @switch($route)

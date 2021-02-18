@@ -64,22 +64,23 @@ class MailController extends Mailable
         $subject = \Lang::get('strings.correo.subject');
         
         if($this->index == 1){
-            $test = $this->subject($subject)->view('emails.presolicitudView', $this->email);
-            return $test;
+            $correo = $this->subject($subject)->view('emails.presolicitudView', $this->email);
         }else if($this->index == 2){
-            return $this->subject($subject)->view('emails.solicitudView', $this->email);
+            $correo = $this->subject($subject)->view('emails.solicitudView', $this->email);
         }else if($this->index == 3){
-            return $this->subject($subject)->view('emails.tramiteView', $this->email);
+            $correo = $this->subject($subject)->view('emails.tramiteView', $this->email);
         }else if($this->index == 4){
-            return $this->subject($subject)->view('emails.autorizadoView', $this->email);
+            $correo = $this->subject($subject)->view('emails.autorizadoView', $this->email);
         }else if($this->index == 5){
-            return $this->subject($subject)->view('emails.preaprobadoView', $this->email);
+            $correo = $this->subject($subject)->view('emails.preaprobadoView', $this->email);
         }else if($this->index == 6){
-            return $this->subject($subject)->view('emails.aprobadoView', $this->email);
+            $correo = $this->subject($subject)->view('emails.aprobadoView', $this->email);
         }else if($this->index == 7){
-            return $this->subject($subject)->view('emails.reservaView', $this->email);
+            $correo = $this->subject($subject)->view('emails.reservaView', $this->email);
         }else if($this->index == 8){
-            return $this->subject($subject)->view('emails.pagoView', $this->email);
+            $correo = $this->subject($subject)->view('emails.pagoView', $this->email);
         }
+
+        return $correo->from(\Config::get('mail.username'));
     }
 }

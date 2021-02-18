@@ -11,10 +11,10 @@
         <div class="form-group">
             <label for="valor_egreso">{{ Lang::get('strings.pago.valor_egreso') }}</label>
             @if(\App::environment() != 'production')
-                <input type="text" class="form-control" name="valor_egreso" value="{{ isset($reserva->egreso) ? $reserva->egreso : '' }}" disabled>
+                <input type="text" class="form-control" name="valor_egreso" value="{{ isset($egreso->egreso) ? $egreso->egreso : '' }}" disabled>
             @else
                 <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
-                <input type="text" class="form-control" name="valor_egreso" value="{{ isset($reserva->egreso)  ? str_replace(' €','',numfmt_format_currency($fmt, $reserva->egreso ,"EUR")) : '' }}" disabled>
+                <input type="text" class="form-control" name="valor_egreso" value="{{ isset($egreso->egreso)  ? str_replace(' €','',numfmt_format_currency($fmt, $egreso->egreso ,"EUR")) : '' }}" disabled>
             @endif
         </div>
     </div>

@@ -20,10 +20,10 @@ import {
                     <td><p class="links" data-codigo="codigo" data-value="${element.Codigo}">${element.Codigo}</p></td>
                     <td>${element.Nombre}</td>
                     <td>${element.CentroCosto}</td>
-                    <td>${element.pp_inicial}</td>
-                    <td>${element.egreso}</td>
-                    <td>${element.reserva}</td>
-                    <td>${parseInt(element.pp_inicial) - parseInt(element.egreso) - parseInt(element.reserva)}</td>
+                    <td>${parseInt(element.pp_inicial).toLocaleString('de-DE')}</td>
+                    <td>${parseInt(element.egreso).toLocaleString('de-DE')}</td>
+                    <td>${parseInt(element.reserva).toLocaleString('de-DE')}</td>
+                    <td>${(parseInt(element.pp_inicial) - parseInt(element.egreso) - parseInt(element.reserva)).toLocaleString('de-DE')}</td>
                 </tr>
                 `
             });

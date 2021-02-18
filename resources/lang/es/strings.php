@@ -85,7 +85,7 @@ return [
         'codigo_sigep' => 'Consulte <span class="links" id="codigo_sigep" data-project=":project">aquí</span> el codigo sigep',
         'valor' => 'Consulte <span class="links" id="financiero_proyecto">aquí</span> el estado financiero del proyecto',
         'fecha' => 'Para la solicitud de viáticos y tiquetes son obligatorias ambas fechas',
-        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a class="links" :documento target="_blank">aquí</a> formato de solicitud de apoyo <br> 2. Adjuntar carta de invitacion al evento',
+        'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a class="links" :documento target="_blank">aquí</a> formato de solicitud de apoyo <br> 2. Adjuntar carta de invitacion al evento <br> 3. Adjuntar otros documentos relacionados con la solicitud',
         'solicitud' => 'Adjuntar Análisis de Conveniencia y/o Formato de Justificación CPSP',
         'autorizado' => 'Describir alguna novedad',
         'reserva' => 'Adjuntar oficio de cancelacion',

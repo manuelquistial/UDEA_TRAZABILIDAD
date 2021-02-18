@@ -4,7 +4,7 @@
     @if($sap)
         Se informa que la etapa Solicitud ha sido confirmada por el gestor, se solicita su revisión para dar inicio al trámite. 
     @else
-        Apreciado usuario se le informa que la etapa Solicitud ha sido confirmada y pasa a la etapa Trámite.
+        Apreciado Gestor Administrativo, se le informa que la etapa Solicitud ha sido confirmada y pasa a la etapa Trámite.
     @endif
 @stop
 

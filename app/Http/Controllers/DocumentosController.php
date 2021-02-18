@@ -54,4 +54,10 @@ class DocumentosController extends Controller
             }
         }
     }
+
+    public function delete(Request $request){
+        Storage::disk('public')->delete($request->path);
+        
+        return response()->json(['data'=>true]);
+    }
 }

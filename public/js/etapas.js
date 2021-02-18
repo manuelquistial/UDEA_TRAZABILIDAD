@@ -3,9 +3,13 @@ import {
   getEstados,
   setEstados,
   //setAprobadoVariables,
+  deleteDocumento,
   getFinancieroProyecto,
   redirectTransaccion
 } from './functions.js'
+
+let file_path = ''
+let element_file = ''
 
 window.onload = function() {
   let url = document.getElementsByTagName('base')[0].href
@@ -16,6 +20,30 @@ window.onload = function() {
   let status = document.getElementById('status')
   let valor = document.getElementById('valor');
   let financiero_proyecto = document.getElementById('financiero_proyecto');
+  let documento_button = document.getElementById('documento_button');
+  let aceptar = document.getElementById('aceptar')
+
+  if(documento_button){
+    documento_button.addEventListener('click', function(event){
+      if(event.target.parentElement.children[0].type == 'button'){
+        element_file = event.target.parentElement
+        file_path = event.target.parentElement.children[1].href
+        file_path = file_path.split('=')[1]
+        $('#modal_documento').modal('show')
+      }
+    })
+  }
+
+  if(aceptar){
+    aceptar.addEventListener('click', function(event){
+      deleteDocumento(url, file_path)
+      .then((res) => res.json())
+      .then((data) => {
+        element_file.remove()
+        $('#modal_documento').modal('hide')
+      })
+    })
+  }
 
   if(financiero_proyecto){
     financiero_proyecto.addEventListener('click', function(event){
@@ -41,7 +69,7 @@ window.onload = function() {
           let reserva = parseInt(data.total_reserva == null ? 0 : data.total_reserva)
           let egreso = parseInt(data.total_egreso == null ? 0 : data.total_egreso)
           let cuentaxcobrar = parseInt(data.total_cuentaxcobrar == null ? 0 : data.total_cuentaxcobrar)
-          let ppTotal = parseInt(data.ppTotal == null ? 0 : data.ppTotal)
+          let ppTotal = parseInt(data.pp_total == null ? 0 : data.pp_total)
 
           total_ingreso.innerHTML = ingreso.toLocaleString('de-DE')
           total_ingreso_3t.innerHTML = ingreso.toLocaleString('de-DE')
@@ -55,12 +83,13 @@ window.onload = function() {
           disponible_recursos.innerHTML = (ingreso - egreso - reserva).toLocaleString('de-DE')
           presupuesto_total.innerHTML = ppTotal.toLocaleString('de-DE')
 
+          table_sigep.innerHTML = ''
+
           data.pp_inicial.forEach(element => {
             let tabla_valor = parseInt(element.Valor == null ? 0 : element.Valor)
             let tabla_reserva = parseInt(element.reserva == null ? 0 : element.reserva)
             let tabla_egreso = parseInt(element.egreso == null ? 0 : element.egreso)
             let tabla_disponible = tabla_valor - tabla_reserva - tabla_egreso
-            table_sigep.innerHTML = ''
 
             table_sigep.innerHTML += `
               <tr>
@@ -201,7 +230,6 @@ window.onload = function() {
           setEstados(url, endpoint, consecutivo, estado)
           .then((res) => res.json())
           .then((value) => {
-            console.log(value)
             if(document.getElementById(endpoint).classList.contains('lateral-inprogress')){
               document.getElementById(endpoint).classList.remove('lateral-inprogress')
             }
@@ -214,7 +242,6 @@ window.onload = function() {
           setEstados(url, endpoint, consecutivo, estado)
           .then((res) => res.json())
           .then((value) => {
-            console.log(value)
             if(document.getElementById(endpoint).classList.contains('lateral-done')){
               document.getElementById(endpoint).classList.remove('lateral-done')
             }

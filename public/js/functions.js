@@ -198,6 +198,21 @@ async function setEstados(url, endpoint, consecutivo, estado){
   return response
 }
 
+async function deleteDocumento(url, file_path){
+  let route = `${url}/documentos/delete`
+  const response = await fetch(route, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    body: JSON.stringify({
+      path: file_path
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
+}
+
 function tildesEspacios(word){
   let word_short = word.toLowerCase()
   word_short.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -219,5 +234,6 @@ export{
   getCodigoSigep,
   setAprobadoVariables,
   enviarCorreos,
-  getFinancieroProyecto
+  getFinancieroProyecto,
+  deleteDocumento
 }

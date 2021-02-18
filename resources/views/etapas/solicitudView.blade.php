@@ -51,7 +51,7 @@
                 </span>
             @endif
             <small class="form-text text-muted">
-                {!! Lang::get('strings.notes.codigo_sigep', array('project' => $proyecto['proyecto_id'])) !!}
+                <strong>{!! Lang::get('strings.notes.codigo_sigep', array('project' => $proyecto['proyecto_id'])) !!}</strong>
             </small>
         </div>
         <div class="form-group">
@@ -73,18 +73,21 @@
                     </span>
                 @endif
                 <small class="form-text text-muted">
-                    {!! Lang::get('strings.notes.solicitud') !!}
+                    <strong>{!! Lang::get('strings.notes.solicitud') !!}</strong>
                 </small>
             </div>
         @endif
         @if($files)
             <div class="form-group">
                 <label for="anexos_guardados">{{ Lang::get('strings.general.anexos_guardados') }}</label>
-                <div>
-                    @foreach($files as $file )
+                @foreach($files as $file)
+                    <div class="input-group mb-3" id="documento_button">
+                        @if($route != "show")
+                            <button type="button" class="btn btn-light fas fa-trash-alt"></button>
+                        @endif
                         <a class="nav-link" href="{{route('descargar_documentos','path='.$file)}}" target="_blank">{{ basename($file) }}</a>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             </div>
         @endif
         @switch($route)

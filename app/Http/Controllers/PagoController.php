@@ -46,7 +46,7 @@ class PagoController extends Controller
                         ->where('ds.tipo_documento', 33) // 33 CRP
                         ->where('ds.numero_documento', $crp->crp)
                         ->where('m.Tipo', 2)
-                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->select(DB::raw('sum(m.Valor) egreso'))
                         ->get();
 
             $egreso = json_decode($egreso)[0];

@@ -33,7 +33,7 @@
                 </span>
             @endif
             <small class="form-text text-muted">
-                {!! Lang::get('strings.notes.descripcion_pendiente') !!}
+                <strong>{!! Lang::get('strings.notes.descripcion_pendiente') !!}</strong>
             </small>
         </div>
         @switch($route)

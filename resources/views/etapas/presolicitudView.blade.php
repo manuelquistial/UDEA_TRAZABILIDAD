@@ -74,6 +74,9 @@
         </div>
         <div class="form-group">
             <label for="valor">{{ Lang::get('strings.general.valor') }}</label>
+            <small class="form-text text-muted">
+                <strong>{!! Lang::get('strings.notes.valor') !!}</strong>
+            </small>
             @if(\App::environment() != 'production')
                 <input type="text" class="form-control" id="valor" name="valor" value="{{ $etapas ? (old('valor')) : $data->valor}}"> 
             @else
@@ -85,9 +88,6 @@
                     <strong><small>{{ $errors->first('valor') }}</small></strong>
                 </span>
             @endif
-            <small class="form-text text-muted">
-                {!! Lang::get('strings.notes.valor') !!}
-            </small>
         </div>
         <div class="form-row" style="margin: 1rem 0rem;">
             <div class="form-group col-md-6" style="margin: 0px;">
@@ -109,7 +109,7 @@
                 @endif
             </div>
             <small class="form-text text-muted">
-                {{ Lang::get('strings.notes.fecha') }}
+                <strong>{{ Lang::get('strings.notes.fecha') }}</strong>
             </small>
         </div>
         <div class="form-group">
@@ -131,22 +131,27 @@
                     </span>
                 @endif
                 <small class="form-text text-muted">
-                    @if($apoyo_economico)
-                        {!! Lang::get('strings.notes.presolicitud',['documento'=>"href=".route('descargar_documentos','path='.$apoyo_economico)]) !!}
-                    @else
-                        {!! Lang::get('strings.notes.presolicitud',['documento'=>""]) !!}
-                    @endif
+                    <strong>
+                        @if($apoyo_economico)
+                            {!! Lang::get('strings.notes.presolicitud',['documento'=>"href=".route('descargar_documentos','path='.$apoyo_economico)]) !!}
+                        @else
+                            {!! Lang::get('strings.notes.presolicitud',['documento'=>""]) !!}
+                        @endif
+                    </strong>
                 </small>
             </div>
         @endif
         @if($files)
             <div class="form-group">
                 <label for="anexos_guardados">{{ Lang::get('strings.general.anexos_guardados') }}</label>
-                <div>
-                    @foreach($files as $file )
+                @foreach($files as $file)
+                    <div class="input-group mb-3" id="documento_button">
+                        @if($route != "show")
+                            <button type="button" class="btn btn-light fas fa-trash-alt"></button>
+                        @endif
                         <a class="nav-link" href="{{route('descargar_documentos','path='.$file)}}" target="_blank">{{ basename($file) }}</a>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             </div>
         @endif
         @switch($route)

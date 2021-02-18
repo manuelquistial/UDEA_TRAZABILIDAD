@@ -56,6 +56,28 @@
 @stop
 
 @section('modal')
+    @if((($etapa_id == 0) | ($etapa_id == 1) || ($etapa_id == 2) || ($etapa_id == 7)) & ($route != "index"))
+    <div class="modal" id="modal_documento" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar documento</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal_content">
+                    <p class="text-justify" style="margin: 0px">¿Desea eliminar este archivo de forma permanente?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="aceptar">Aceptar</button>
+                    <button type="button" class="btn btn-danger" id="cancelar">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @if($etapa_id > 0)
     <div class="modal fade" id="cambio_estado" tabindex="-1" aria-labelledby="cambio_estado" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

@@ -87,7 +87,7 @@ class SolicitudController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'fecha_conveniencia' => 'required|date',
+            'fecha_conveniencia' => 'date|nullable',
             'centro_costos_id' => 'required|integer',
             'codigo_sigep_id' => 'required|integer',
             'concepto' => 'required|string',
@@ -260,7 +260,7 @@ class SolicitudController extends Controller
             if(($tipoTransaccion['cargo_id'] != null) & isset($usuario_sap['email'])){
                 $data->email = $usuario_sap['email'];
                 $data->sap = true;
-
+                info($data->email);
                 $email_controller->email($data);
             }
 
@@ -268,6 +268,7 @@ class SolicitudController extends Controller
             $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
 
             $data->email = $encargado['email'];
+            info($data->email);
             $email_controller->email($data);
         
         }

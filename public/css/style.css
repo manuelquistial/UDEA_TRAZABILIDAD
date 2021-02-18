@@ -45,6 +45,10 @@ body {
     margin: 0px;
 }
 
+#modal_content{
+    padding: 1rem;
+}
+
 #one_column{
     width: 100%;
 }

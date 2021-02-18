@@ -2,7 +2,13 @@
 
 @section('content')
     @if($gestor)
-        Se informa que se ha creado un tramite.
+        Apreciado Gestor Administrativo, 
+        <br>
+        <br>
+        Se le informa que un usuario ha creado una presolicitud de trámite. 
+        <br>
+        <br>
+        Por favor, ingrese al aplicativo para dar inicio al proceso.
     @else
         Apreciado usuario se le informa que su solicitud ha sido enviada al funcionario {{ $nombre_apellido }} que lo acompañará en el proceso. 
         <br>
