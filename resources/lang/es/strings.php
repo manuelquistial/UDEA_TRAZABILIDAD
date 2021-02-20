@@ -35,7 +35,8 @@ return [
         'enviar_correos' => 'Enviar correos',
         'fecha_envio' => 'Fecha Envio',
         'sigep' => 'SIGEP',
-        'sap' => 'SAP'
+        'sap' => 'SAP',
+        'pendiente' => 'Pendiente'
     ],
     'configuracion' => [
         'menu_lateral' => [
@@ -136,6 +137,7 @@ return [
         'tramitar' => 'Tramitar',
         'redireccionar' => 'Redireccionar',
         'seleccione_proyecto' => 'Seleccione el proyecto de la lista',
+        'seleccione_transaccion' => 'Seleccione el tipo de transaccion de la lista',
         'modal' => [
             'nombre_egreso' => 'Nombre de egreso',
             'pp_inicial' => 'Presupuesto inicial',

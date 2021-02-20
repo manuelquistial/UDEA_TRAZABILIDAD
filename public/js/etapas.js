@@ -22,6 +22,19 @@ window.onload = function() {
   let financiero_proyecto = document.getElementById('financiero_proyecto');
   let documento_button = document.getElementById('documento_button');
   let aceptar = document.getElementById('aceptar')
+  let transaccion_id = document.getElementById('transaccion_id')
+  let first_item = document.getElementById('first-item')
+
+  if(transaccion_id){
+    if(first_item){
+      var opt = document.createElement("option");
+      opt.value = document.getElementById('first-item').value;
+      opt.text = document.getElementById('first-item').innerHTML
+
+      transaccion_id.add(opt, transaccion_id.options[1])
+      document.getElementById('first-item').remove()
+    }
+  }
 
   if(documento_button){
     documento_button.addEventListener('click', function(event){
@@ -94,10 +107,10 @@ window.onload = function() {
             table_sigep.innerHTML += `
               <tr>
                   <td>${element.Nombre}</td>
-                  <td>${tabla_valor.toLocaleString('de-DE')}</td>
-                  <td>${tabla_reserva.toLocaleString('de-DE')}</td>
-                  <td>${tabla_egreso.toLocaleString('de-DE')}</td>
-                  <td>${tabla_disponible.toLocaleString('de-DE')}</td>
+                  <td class="text-right">${tabla_valor.toLocaleString('de-DE')}</td>
+                  <td class="text-right">${tabla_reserva.toLocaleString('de-DE')}</td>
+                  <td class="text-right">${tabla_egreso.toLocaleString('de-DE')}</td>
+                  <td class="text-right">${tabla_disponible.toLocaleString('de-DE')}</td>
               </tr>
               `
           });
@@ -113,9 +126,13 @@ window.onload = function() {
   if(valor){
     valor.addEventListener("keyup", function(event){
       let value = valor.value.replace(/\./g,'')
-      let new_value = Number(value).toLocaleString('de-DE')
-      if(new_value != 0){
-        valor.value = new_value
+      if(!isNaN(value)){
+        let new_value = Number(value).toLocaleString('de-DE')
+        if(new_value != 0){
+          valor.value = new_value
+        }else{
+          valor.value = ''
+        }
       }else{
         valor.value = ''
       }

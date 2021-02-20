@@ -81,6 +81,6 @@ class MailController extends Mailable
             $correo = $this->subject($subject)->view('emails.pagoView', $this->email);
         }
 
-        return $correo->from(\Config::get('mail.username'));
+        return $correo;//->from(\Config::get('mail.username'));
     }
 }

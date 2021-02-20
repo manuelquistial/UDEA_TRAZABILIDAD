@@ -16,6 +16,7 @@ class TramiteController extends Controller
     public $en_proceso = 1;
     public $confirmado = 2;
     public $espacio = " ";
+    public $cargo_sigep_id = 3;
 
     public function __construct()
     {
@@ -200,6 +201,29 @@ class TramiteController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
                         
+        if($request->estado_id == $this->confirmado){
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion','cargo_id')->first();
+            
+            $data = (object)[];
+            $data->nombre_proyecto = $proyecto->nombre_proyecto;
+            $data->consecutivo = $request->consecutivo;
+            $data->etapa_id = $this->etapa_id;
+            $data->gestor = false;
+
+            $email_controller = new CorreosController;
+
+            $usuario_sigep = new Cargos();
+            $usuario_sigep = $usuario_sigep->usuarioByCargo($this->cargo_sigep_id)->first();
+
+            $data->tipo_transaccion = $tipoTransaccion['tipo_transaccion'];
+            
+            if(isset($usuario_sigep['email'])){
+                $data->email = $usuario_sigep['email'];
+                $email_controller->email($data);
+            }
+        }
+
         return response()->json(['data'=>true]);
     }
 

@@ -1,7 +1,5 @@
 @extends('emails.baseEmailView')
 
 @section('content')
-    Apreciado Usuario se le informa que su solicitud ha sido enviada al funcionario {{ $nombre_apellido }} que lo acompañará en el proceso. 
-    <br>
-    <br>Muy pronto esta persona establecerá contacto con usted. 
+    Apreciado gestor se le informa que la etapa Tramite ha sido confirmada y pasa al estado Autorizado Ordenador, debe ingresar al aplicativo para registrar el código SIGEP.
 @stop

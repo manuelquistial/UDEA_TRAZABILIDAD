@@ -47,18 +47,31 @@
         </div>
         <div class="form-group">
             <label for="transaccion_id">{{ Lang::get('strings.presolicitud.tipo_transaccion') }}</label>
-            <div class="input-group mb-3">
+            <div class="input-group">
                 <select class="form-control" name="transaccion_id" id="transaccion_id">
+                    <option value="">{{ Lang::get('strings.presolicitud.seleccione_transaccion') }}</option>
                 @if($etapas)
                     @foreach($tipoTransaccion as $transaccion )
-                        <option value="{{ $transaccion->id }}" {{old('transaccion_id') == $transaccion->id ? 'selected':''}}>{{ $transaccion->tipo_transaccion }}</option>
+                        @if($transaccion->id == 28)
+                            <option value="{{ $transaccion->id }}" {{old('transaccion_id') == $transaccion->id ? 'selected':''}} id="first-item">{{ $transaccion->tipo_transaccion }}</option>
+                        @else
+                            <option value="{{ $transaccion->id }}" {{old('transaccion_id') == $transaccion->id ? 'selected':''}}>{{ $transaccion->tipo_transaccion }}</option>
+                        @endif
                     @endforeach
                 @else
                     @foreach( $tipoTransaccion as $transaccion )
                         @if( $transaccion->id == $data->transaccion_id )
-                            <option value="{{ $transaccion->id }}" selected>{{ $transaccion->tipo_transaccion }}</option>
+                            @if($transaccion->id == 28)
+                                <option value="{{ $transaccion->id }}" selected id="first-item">{{ $transaccion->tipo_transaccion }}</option>
+                            @else
+                                <option value="{{ $transaccion->id }}" selected>{{ $transaccion->tipo_transaccion }}</option>
+                            @endif
                         @else
-                            <option value="{{ $transaccion->id }}">{{ $transaccion->tipo_transaccion }}</option>
+                            @if($transaccion->id == 28)
+                                <option value="{{ $transaccion->id }}" id="first-item">{{ $transaccion->tipo_transaccion }}</option>
+                            @else
+                                <option value="{{ $transaccion->id }}">{{ $transaccion->tipo_transaccion }}</option>
+                            @endif
                         @endif
                     @endforeach
                 @endif
@@ -71,6 +84,11 @@
                     @endif
                 @endif
             </div>
+            @if ($errors->has('transaccion_id'))
+                <span class="text-danger">
+                    <strong><small>{{ $errors->first('transaccion_id') }}</small></strong>
+                </span>
+            @endif
         </div>
         <div class="form-group">
             <label for="valor">{{ Lang::get('strings.general.valor') }}</label>

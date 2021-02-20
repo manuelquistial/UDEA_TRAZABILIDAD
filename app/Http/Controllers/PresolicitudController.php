@@ -95,6 +95,7 @@ class PresolicitudController extends Controller
     {
         return Validator::make($data, [
             'proyecto_id' => 'nullable',
+            'transaccion_id' => 'sometimes|required',
             'otro_proyecto' => 'required_without:proyecto_id|string|nullable',
             'fecha_inicial' => 'date|nullable',
             'fecha_final' => 'date|nullable|after_or_equal:fecha_inicial',
@@ -348,7 +349,8 @@ class PresolicitudController extends Controller
                 ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
                 ->where('p.codigo', $proyecto_id)
                 ->where('m.Tipo', 4)
-                ->select('m.Rubro','r.Nombre','m.Valor')
+                ->select('m.Rubro','r.Nombre',DB::raw('sum(m.Valor)'))
+                ->groupBy('m.Rubro')
                 ->get();
                     
         $pp_inicial = json_decode($pp_inicial);

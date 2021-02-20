@@ -264,12 +264,12 @@ class SolicitudController extends Controller
                 $email_controller->email($data);
             }
 
-            $data->sap = false;
+            /*$data->sap = false;
             $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
 
             $data->email = $encargado['email'];
             info($data->email);
-            $email_controller->email($data);
+            $email_controller->email($data);*/
         
         }
                         
@@ -292,13 +292,11 @@ class SolicitudController extends Controller
                 ->join('rubros as r', 'r.codigo','=','m.Rubro')
                 ->where('p.Estado', 1)
                 ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
-                ->where('p.codigo', $proyecto_id);
-
-        $pp_inicial = $query
-                    ->where('m.Tipo', 4)
-                    ->select('m.Rubro', DB::raw('sum(m.Valor) pp_inicial'))
-                    ->groupBy('m.Rubro')
-                    ->get();
+                ->where('p.codigo', $proyecto_id)
+                ->where('m.Tipo', 4)
+                ->select('m.Rubro', DB::raw('sum(m.Valor) pp_inicial'))
+                ->groupBy('m.Rubro')
+                ->get();
         
         $pp_inicial = json_decode($pp_inicial);
 

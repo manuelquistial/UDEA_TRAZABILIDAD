@@ -27,7 +27,13 @@
                     <tr>
                         <td><input type="checkbox" class="form-check-input checkbox_table" name="correo[]" id="correo"></td>
                         <td>{{ $correo->consecutivo }}</td>
-                        <td>{{ $correo->codigo }}</td>
+                        <td>
+                            @if($correo->codigo == 0)
+                                {{ Lang::get('strings.correos.pendiente') }}
+                            @else
+                                {{ $correo->codigo }}
+                            @endif
+                        </td>
                         <td>
                             @if($correo->etapa == '4')
                                 {{ Lang::get('strings.correos.sigep') }}
