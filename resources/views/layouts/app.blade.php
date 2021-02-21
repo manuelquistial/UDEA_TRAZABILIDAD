@@ -49,7 +49,12 @@
                         <a class="dropdown-item" href="{{ route('usuarios') }}">{{ Lang::get('strings.menu_superior.opciones.configuracion') }}</a>
                         @endif
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ route('logout') }}">{{ Lang::get('strings.menu_superior.opciones.cerrar_sesion') }}</a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button class="dropdown-item" type="submit">
+                                {{ Lang::get('strings.menu_superior.opciones.cerrar_sesion') }}
+                            </button>
+                        </form>
                     </div>
                 </li>
                 @endauth

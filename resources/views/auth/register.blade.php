@@ -15,7 +15,7 @@
     @endif
 </div>
 <div class="card-body">
-    <form action="{{ route('usuarios') }}" method="post">
+    <form action="{{ route('usuario') }}" method="post">
     {{ csrf_field() }}
         <div class="form-group">
             <label for="nombre">{{ Lang::get('strings.usuario.nombre') }}</label>

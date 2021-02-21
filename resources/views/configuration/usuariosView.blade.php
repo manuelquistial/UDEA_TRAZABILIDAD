@@ -12,7 +12,7 @@
         <h5>{{ Lang::get('strings.configuracion.usuarios') }}</h5>
     </div>
     <div class="col-6 text-right conf-header">
-        <a class="info-header" href="{{route('nuevo_usuario')}}">{{ Lang::get('strings.configuracion.nuevo_usuario') }}</a>
+        <a class="info-header" href="{{route('usuario')}}">{{ Lang::get('strings.configuracion.nuevo_usuario') }}</a>
     </div>
 </div>
 <div class="card-body">

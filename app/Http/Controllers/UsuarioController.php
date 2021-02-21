@@ -42,26 +42,6 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Create a new user instance after a valid registration.
-     *
-     * @return \App\Usuario
-     */
-    public function newUser()
-    {
-        $opcion = "nuevo_usuario";
-        $data_opcion = false;
-
-        $cargos = Cargos::get();
-
-        $roles = Roles::get();
-
-        $tipos_transaccion = new Usuario;
-        $tipos_transaccion = $tipos_transaccion->tipoTransaccionWithOutUsuarios()->get();
-
-        return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'cargos', 'roles', 'tipos_transaccion'));
-    }
-
-    /**
      * Get data from form.
      *
      * @param  array  $data
