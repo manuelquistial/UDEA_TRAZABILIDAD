@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\TiposTransaccion;
+use App\Models\TiposTransaccion;
 use Auth;
 
 class TransaccionesController extends Controller
@@ -34,7 +34,7 @@ class TransaccionesController extends Controller
                 ->select('a.consecutivo', 'c.etapa', 'd.estado', 'e.tipo_transaccion', 'd.estado_id', 'c.endpoint')
                 ->orderBy('b.fecha_estado', 'desc')
                 ->paginate($this->numeroDatos);
-        
+
         return view('transaccionesView', compact('consulta','transacciones'));
         //return response()->json(['data'=>$transacciones]);
     }
@@ -64,7 +64,7 @@ class TransaccionesController extends Controller
                 ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
                 ->orderBy('b.fecha_estado', 'desc')
                 ->paginate($this->numeroDatos);
-        
+
         return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
         //return response()->json(['data'=>$transacciones]);
     }
@@ -76,7 +76,7 @@ class TransaccionesController extends Controller
      */
     public function create()
     {
-    
+
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,11 +20,14 @@ Route::POST('usuarios/update/perfil', 'UsuarioController@updatePerfil')->name('u
 // Tipo de Transacciones
 Route::GET('tipostransaccion/all', 'TipoTransaccionController@showAll');
 
+// Proyectos
+Route::GET('proyectos/all', 'PresolicitudController@showProyectos');
+
 // Gestores
 Route::GET('transacciones/usuario', 'TransaccionesController@showConsultaUsuario')->name('consulta_usuario');
 
 // Presolicitud
-Route::GET('', 'PresolicitudController@index')->name('presolicitud');
+Route::GET('/presolicitud', 'PresolicitudController@index')->name('presolicitud');
 Route::POST('presolicitud/save', 'PresolicitudController@store')->name('save_presolicitud');
 Route::GET('presolicitud/edit/{id}', 'PresolicitudController@edit')->name('edit_presolicitud');
 Route::POST('presolicitud/update', 'PresolicitudController@update')->name('update_presolicitud');
@@ -36,9 +41,7 @@ Route::middleware(['role:Administrador'])->group(function () {
     Route::GET('usuarios/all', 'UsuarioController@showAll');
     Route::PUT('usuarios/estado', 'UsuarioController@updateEstado');
     Route::GET('usuarios/edit/{id}', 'UsuarioController@edit')->name('edit_usuario');
-    Route::GET('usuarios/nuevo', 'UsuarioController@newUser')->name('nuevo_usuario');
     Route::POST('usuarios/update', 'UsuarioController@update')->name('update_usuario');
-    Route::POST('usuarios/nuevo/usuario', 'UsuarioController@store')->name('agregar_nuevo_usuario');
     Route::GET('usuarios/search/{data}', 'UsuarioController@showItem');
     Route::GET('usuarios/paginacion', 'UsuarioController@pagination');
 
@@ -144,6 +147,4 @@ Route::middleware(['tipo_transaccion'])->group(function () {
 Route::GET('documentos/download', 'DocumentosController@downloads')->name('descargar_documentos');
 Route::POST('documentos/delete', 'DocumentosController@delete')->name('borrar_documento');
 
-Auth::routes();
-
-Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
+require __DIR__.'/auth.php';

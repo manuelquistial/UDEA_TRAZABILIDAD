@@ -3,7 +3,7 @@
 @section('content')
 <div class="modal-header">
     <div class="col-6 conf-header">
-        @if($consulta) 
+        @if($consulta)
             <h5>{{ Lang::get('strings.menu_superior.consulta_gestores') }}</h5>
         @else
             <h5>{{ Lang::get('strings.menu_superior.consulta_usuario') }}</h5>
@@ -59,13 +59,9 @@
                 @endforeach
             </tbody>
         </table>
-        <nav aria-label="Page navigation tipo transaccion" id="paginacion">
+        <nav aria-label="Page navigation tipo transaccion">
             {{ $transacciones->links() }}
         </nav>
     </div>
 </div>
-@stop
-
-@section('scripts')
-    <script type="module" src="{{ asset('js/transacciones.js') }}" crossorigin="anonymous"></script>
 @stop

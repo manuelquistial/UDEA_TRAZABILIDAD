@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Reserva;
-use App\Aprobado;
+use App\Models\Reserva;
+use App\Models\Aprobado;
 use Auth;
 
 class ReservaController extends Controller
@@ -16,7 +16,7 @@ class ReservaController extends Controller
     public $en_proceso = 1;
     public $espacio = " ";
     public $directorio = "reserva/";
-    public $path = "//public/"; 
+    public $path = "//public/";
 
     public function __construct()
     {
@@ -35,22 +35,22 @@ class ReservaController extends Controller
         $etapa_id = $this->etapa_id;
         $files = null;
         $reserva = null;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-        
+
         $crp = Aprobado::where('consecutivo', $consecutivo)
             ->select('crp')
             ->first();
-            
+
         if(isset($crp->crp)){
 
             $reserva = DB::connection('mysql_sigep')
                         ->table('documentos_soporte as ds')
                         ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
-                        ->where('m.habilitado', 1) 
+                        ->where('m.habilitado', 1)
                         ->where('ds.tipo_documento', 33) // 33 CRP
                         ->where('ds.numero_documento', $crp->crp)
                         ->where('m.Tipo', 3)
@@ -153,7 +153,7 @@ class ReservaController extends Controller
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -199,7 +199,7 @@ class ReservaController extends Controller
         $estado = Reserva::where('consecutivo', $request->consecutivo)
                 ->select('estado_id')
                 ->first();
-            
+
         return response()->json(['data'=>$estado]);
     }
 
@@ -215,13 +215,13 @@ class ReservaController extends Controller
                 ->update(['estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-            
+
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-                        
+
         return response()->json(['data'=>true]);
     }
 

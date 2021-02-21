@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
-use App\Tramite;
-use App\ActualEtapaEstado;
+use App\Models\Tramite;
+use App\Models\ActualEtapaEstado;
 use Auth;
 
 class TramiteController extends Controller
@@ -33,7 +33,7 @@ class TramiteController extends Controller
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -109,7 +109,7 @@ class TramiteController extends Controller
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -139,7 +139,7 @@ class TramiteController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-        
+
         $data = Tramite::where('consecutivo', $consecutivo)->first();
         if($data->fecha_sap){
             $data->ffecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
@@ -159,7 +159,7 @@ class TramiteController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $data = $request->except('_token'); 
+        $data = $request->except('_token');
 
         Tramite::where('consecutivo', $request->consecutivo)
                 ->update($data);
@@ -178,7 +178,7 @@ class TramiteController extends Controller
         $estado = Tramite::where('consecutivo', $request->consecutivo)
                 ->select('estado_id')
                 ->first();
-            
+
         return response()->json(['data'=>$estado]);
     }
 
@@ -194,17 +194,17 @@ class TramiteController extends Controller
                 ->update(['estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-            
+
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-                        
+
         if($request->estado_id == $this->confirmado){
             $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id')->first();
             $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion','cargo_id')->first();
-            
+
             $data = (object)[];
             $data->nombre_proyecto = $proyecto->nombre_proyecto;
             $data->consecutivo = $request->consecutivo;
@@ -217,7 +217,7 @@ class TramiteController extends Controller
             $usuario_sigep = $usuario_sigep->usuarioByCargo($this->cargo_sigep_id)->first();
 
             $data->tipo_transaccion = $tipoTransaccion['tipo_transaccion'];
-            
+
             if(isset($usuario_sigep['email'])){
                 $data->email = $usuario_sigep['email'];
                 $email_controller->email($data);

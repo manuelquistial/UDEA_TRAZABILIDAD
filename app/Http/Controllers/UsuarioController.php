@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use App\Usuario;
-use App\Roles;
-use App\Cargos;
-use App\TiposTransaccion;
+use App\Models\Usuario;
+use App\Models\Roles;
+use App\Models\Cargos;
+use App\Models\TiposTransaccion;
 use Auth;
 
 class UsuarioController extends Controller
@@ -32,12 +32,12 @@ class UsuarioController extends Controller
      */
     public function index()
     {
-        $opcion = "usuarios"; 
+        $opcion = "usuarios";
         $data_opcion = false;
 
         $usuarios = Usuario::orderBy($this->columna)
                         ->paginate($this->numeroDatos);
-    
+
         return view('configuration.usuariosView', compact('data_opcion', 'opcion', 'usuarios'));
     }
 
@@ -146,7 +146,7 @@ class UsuarioController extends Controller
         $usuario_id = Auth::user()->id;
         $opcion = "usuario";
         $data_opcion = true;
-        
+
         $data = Usuario::where('id', $usuario_id)
                         ->select('id','nombre_apellido','email','cedula','telefono')
                         ->first();
@@ -158,7 +158,7 @@ class UsuarioController extends Controller
         $roles_usuario = Usuario::find($usuario_id)->role()->get();
         $cargos_usuario = Usuario::find($usuario_id)->cargo()->get();
         $tipos_transaccion_usuario = Usuario::find($usuario_id)->tiposTransaccion()->get();
-        
+
         //return response()->json(['data'=>$roles_usuario->cargo()->get()]);
         return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'cargos', 'roles', 'tipos_transaccion', 'roles_usuario', 'cargos_usuario', 'tipos_transaccion_usuario'));
     }
@@ -203,7 +203,7 @@ class UsuarioController extends Controller
             ->select('nombre_apellido','estado_id')
             ->orderBy($this->columna)
             ->get();
-        
+
         return response()->json(['data'=>$usuarios]);
     }
 
@@ -217,7 +217,7 @@ class UsuarioController extends Controller
     {
         $opcion = "administrador";
         $data_opcion = true;
-        
+
         $data = Usuario::where('id', $id)
                         ->select('id','nombre_apellido','email','cedula','telefono')
                         ->first();
@@ -239,7 +239,7 @@ class UsuarioController extends Controller
             $cargos_usuario = $cargos_usuario->get();
         }
         $tipos_transaccion_usuario = Usuario::find($id)->tiposTransaccion()->get();
-        
+
         //return response()->json(['data'=>$roles_usuario->etapa()->get()]);
         return view('configuration.nuevoUsuarioView', compact('data_opcion', 'opcion', 'data', 'roles', 'cargos', 'tipos_transaccion', 'roles_usuario', 'cargos_usuario', 'tipos_transaccion_usuario'));
     }
@@ -280,7 +280,7 @@ class UsuarioController extends Controller
         if(!empty($request['role'])){
             $usuario->role()
                 ->attach($request['role']);
-        } 
+        }
 
         $usuario->cargo()
                 ->detach($usuario->cargo()->get());

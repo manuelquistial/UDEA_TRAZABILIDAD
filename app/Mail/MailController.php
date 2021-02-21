@@ -6,7 +6,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Http\Controllers\Lang;
 use Illuminate\Support\Facades\Log;
 
 class MailController extends Mailable
@@ -32,7 +31,7 @@ class MailController extends Mailable
 
         $this->email = array(
             'gestor' => $data_email->gestor,
-            'consecutivo' => $data_email->consecutivo, 
+            'consecutivo' => $data_email->consecutivo,
             'nombre_proyecto' => $data_email->nombre_proyecto,
             'tipo_transaccion' => $data_email->tipo_transaccion
         );
@@ -62,7 +61,7 @@ class MailController extends Mailable
     public function build()
     {
         $subject = \Lang::get('strings.correo.subject');
-        
+
         if($this->index == 1){
             $correo = $this->subject($subject)->view('emails.presolicitudView', $this->email);
         }else if($this->index == 2){
