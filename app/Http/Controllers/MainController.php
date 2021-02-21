@@ -5,17 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Etapa;
-use App\Presolicitud;
-use App\Solicitud;
-use App\Tramite;
-use App\Autorizado;
-use App\Preaprobado;
-use App\Aprobado;
-use App\Reserva;
-use App\Pago;
-use App\Legalizado;
-use App\ConsecutivoEtapaEstado;
+use App\Models\Etapa;
+use App\Models\Presolicitud;
+use App\Models\Solicitud;
+use App\Models\Tramite;
+use App\Models\Autorizado;
+use App\Models\Preaprobado;
+use App\Models\Aprobado;
+use App\Models\Reserva;
+use App\Models\Pago;
+use App\Models\Legalizado;
+use App\Models\ConsecutivoEtapaEstado;
 
 class MainController extends Controller
 {

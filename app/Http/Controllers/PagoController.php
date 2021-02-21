@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use App\Pago;
-use App\Aprobado;
+use App\Models\Pago;
+use App\Models\Aprobado;
 
 class PagoController extends Controller
 {
@@ -27,7 +27,7 @@ class PagoController extends Controller
     {
         $etapa_id = $this->etapa_id;
         $egreso = null;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -36,13 +36,13 @@ class PagoController extends Controller
         $crp = Aprobado::where('consecutivo', $consecutivo)
             ->select('crp')
             ->first();
-            
+
         if(isset($crp->crp)){
 
             $egreso = DB::connection('mysql_sigep')
                         ->table('documentos_soporte as ds')
                         ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
-                        ->where('m.habilitado', 1) 
+                        ->where('m.habilitado', 1)
                         ->where('ds.tipo_documento', 33) // 33 CRP
                         ->where('ds.numero_documento', $crp->crp)
                         ->where('m.Tipo', 2)
@@ -94,7 +94,7 @@ class PagoController extends Controller
     public function show($consecutivo)
     {
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -117,7 +117,7 @@ class PagoController extends Controller
      */
     public function edit($consecutivo)
     {
-        
+
     }
 
     /**
@@ -143,7 +143,7 @@ class PagoController extends Controller
         $estado = Pago::where('consecutivo', $request->consecutivo)
                 ->select('estado_id')
                 ->first();
-            
+
         return response()->json(['data'=>$estado]);
     }
 
@@ -159,13 +159,13 @@ class PagoController extends Controller
                 ->update(['estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-            
+
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-                        
+
         return response()->json(['data'=>true]);
     }
 

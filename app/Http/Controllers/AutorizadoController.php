@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use App\Presolicitud;
-use App\Autorizado;
-use App\ActualEtapaEstado;
-use App\TiposTransaccion;
-use App\Correos;
-use App\Usuario;
+use App\Models\Presolicitud;
+use App\Models\Autorizado;
+use App\Models\ActualEtapaEstado;
+use App\Models\TiposTransaccion;
+use App\Models\Correos;
+use App\Models\Usuario;
 use Auth;
 
 class AutorizadoController extends Controller
@@ -25,7 +25,7 @@ class AutorizadoController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -36,7 +36,7 @@ class AutorizadoController extends Controller
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -92,7 +92,7 @@ class AutorizadoController extends Controller
         }
 
         $this->validator($request->all())->validate();
-        
+
         $autorizado = $this->create($request->all());
         $autorizado->save();
 
@@ -104,7 +104,7 @@ class AutorizadoController extends Controller
 
         DB::table('tr_correos')->insert(
             [
-                'consecutivo' => $request->consecutivo, 
+                'consecutivo' => $request->consecutivo,
                 'codigo' => $request->codigo_sigep,
                 'etapa' => $this->etapa_id,
                 'enviado' => 0,
@@ -126,7 +126,7 @@ class AutorizadoController extends Controller
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -148,7 +148,7 @@ class AutorizadoController extends Controller
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -171,7 +171,7 @@ class AutorizadoController extends Controller
         $this->validator($request->all())->validate();
 
         $data = $request->except('_token');
-        
+
         $data['etapa_id'] = $this->next_etapa_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 
@@ -192,7 +192,7 @@ class AutorizadoController extends Controller
         $estado = Autorizado::where('consecutivo', $request->consecutivo)
                 ->select('estado_id')
                 ->first();
-            
+
         return response()->json(['data'=>$estado]);
     }
 
@@ -208,13 +208,13 @@ class AutorizadoController extends Controller
                 ->update(['estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-            
+
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-                        
+
         if($request->estado_id == $this->confirmado){
             $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
             $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();

@@ -2,8 +2,8 @@
 
 @section('configuracionView')
     @if($opcion != "usuario")
-    <ul class="nav flex-column nav-pills lateral-column" aria-orientation="vertical"> 
-        @foreach(Lang::get('strings.configuracion.menu_lateral') as $configuracion) 
+    <ul class="nav flex-column nav-pills lateral-column" aria-orientation="vertical">
+        @foreach(Lang::get('strings.configuracion.menu_lateral') as $configuracion)
             <li class="nav-item lateral-nav-item">
                 <a class="nav-link lateral-nav-link" {{ $opcion == $configuracion[0] ? "id=active_opcion" : '' }} href="{{ route($configuracion[0]) }}">{{ $configuracion[1] }}</a>
             </li>
@@ -13,7 +13,7 @@
 @stop
 
 @section('general')
-    <div class="col-md-8">  
+    <div class="col-md-8">
         <div class="info-body">
             @yield('content')
         </div>

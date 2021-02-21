@@ -13,7 +13,7 @@
 @stop
 
 @section('general')
-    <div class="col-md-8">  
+    <div class="col-md-8">
         <div class="info-body">
             <div class="modal-header">
                 @if($etapa_id > 0)
@@ -25,12 +25,13 @@
                             </button>
                         </div>
                     @endif
-                <div class="col-6 conf-header">
-                    <h5 id="title-etapa">{{ $etapa_estado[$etapa_id-1]->etapa }}</h5>
-                </div>
-                <div class="col-6 text-right conf-header">
-                    <a class="actual-cambio-estado" id="cambio-estado">{{ Lang::get('strings.general.consecutivo') }}: {{ $consecutivo }}</a>
-                </div>
+                    <div class="col-6 conf-header">
+                        <h5 id="title-etapa">{{ $etapa_estado[$etapa_id-1]->etapa }}</h5>
+                    </div>
+                    <div class="col-6 text-right conf-header">
+                        <a class="actual-cambio-estado" id="cambio-estado">{{ Lang::get('strings.general.consecutivo') }}: {{ $consecutivo }}</a>
+                        <h6 id="solicitante">Manuel Alejandro Quistial jUADO</h6>
+                    </div>
                 @else
                     @if(session('status'))
                         <div class="status alert alert-success fade show" id="status" role="alert">
@@ -40,9 +41,9 @@
                             </button>
                         </div>
                     @endif
-                <div class="col-6 conf-header">
-                    <h5>{{ Lang::get('strings.etapas.presolicitud') }}</h5>
-                </div>
+                    <div class="col-6 conf-header">
+                        <h5>{{ Lang::get('strings.etapas.presolicitud') }}</h5>
+                    </div>
                     @if($route == 'edit')
                         <div class="col-6 text-right conf-header">
                             <p class="actual-cambio-estado">{{ Lang::get('strings.general.consecutivo') }}: {{ $consecutivo }}</p>
@@ -124,5 +125,4 @@
 @section('scripts')
     <script type="module" src="{{ asset('js/etapas.js') }}" crossorigin="anonymous"></script>
 @stop
-                    
-                
+

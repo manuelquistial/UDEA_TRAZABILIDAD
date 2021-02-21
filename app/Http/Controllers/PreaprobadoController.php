@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use App\Preaprobado;
-use App\ActualEtapaEstado;
-use App\Presolicitud;
-use App\TiposTransaccion;
-use App\Usuario;
+use App\Models\Preaprobado;
+use App\Models\ActualEtapaEstado;
+use App\Models\Presolicitud;
+use App\Models\TiposTransaccion;
+use App\Models\Usuario;
 use Auth;
 
 class PreaprobadoController extends Controller
@@ -19,13 +19,13 @@ class PreaprobadoController extends Controller
     public $confirmado = 2;
     public $espacio = " ";
     public $administrador = "Administrador";
-    public $sap = 3; 
+    public $sap = 3;
 
     public function __construct()
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -36,7 +36,7 @@ class PreaprobadoController extends Controller
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -94,7 +94,7 @@ class PreaprobadoController extends Controller
 
         $preaprobado = $this->create($request->all());
         $preaprobado->save();
-        
+
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
                         'estado_id' => $this->en_proceso,
@@ -115,7 +115,7 @@ class PreaprobadoController extends Controller
         $route = 'show';
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -137,7 +137,7 @@ class PreaprobadoController extends Controller
         $route = 'edit';
         $etapas = false;
         $etapa_id = $this->etapa_id;
-        
+
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
@@ -167,7 +167,7 @@ class PreaprobadoController extends Controller
 
         Preaprobado::where('consecutivo', $request->consecutivo)
                     ->update($data);
-        
+
         return redirect()->route('edit_preaprobado', $request->consecutivo)->with('status', true);
     }
 
@@ -182,7 +182,7 @@ class PreaprobadoController extends Controller
         $estado = Preaprobado::where('consecutivo', $request->consecutivo)
                 ->select('estado_id')
                 ->first();
-            
+
         return response()->json(['data'=>$estado]);
     }
 
@@ -198,17 +198,17 @@ class PreaprobadoController extends Controller
                 ->update(['estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-            
+
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-                        
+
         if($request->estado_id == $this->confirmado){
             $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
             $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
-            
+
             $data = (object)[];
             $data->nombre_proyecto = $proyecto->nombre_proyecto;
             $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
@@ -221,7 +221,7 @@ class PreaprobadoController extends Controller
 
             $data->email = $encargado->email;
             $email_controller->email($data);
-        
+
         }
 
         return response()->json(['data'=>true]);

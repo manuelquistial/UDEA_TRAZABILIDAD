@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Mail\MailController;
-use App\Usuario;
-use App\Presolicitud;
-use App\ActualEtapaEstado;
-use App\TiposTransaccion;
-use App\Etapa;
+use App\Models\Usuario;
+use App\Models\Presolicitud;
+use App\Models\ActualEtapaEstado;
+use App\Models\TiposTransaccion;
+use App\Models\Etapa;
 use Auth;
 
 class PresolicitudController extends Controller
@@ -21,7 +21,7 @@ class PresolicitudController extends Controller
     public $espacio = " ";
     public $directorio_documento = "presolicitud/apoyo_economico/";
     public $directorio = "presolicitud/";
-    public $path = "//public/presolicitud/"; 
+    public $path = "//public/presolicitud/";
 
     public function __construct()
     {
@@ -54,7 +54,7 @@ class PresolicitudController extends Controller
         }else{
             $apoyo_economico = null;
         }
-            
+
         return view('etapas/presolicitudView', compact('route','etapa_id','etapas','tipoTransaccion','proyecto','files','apoyo_economico'));
         //return response()->json([''=>$proyecto]);
     }
@@ -113,8 +113,9 @@ class PresolicitudController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         $data = $request->all();
+
         $data['valor'] = $this->replaceDots($data['valor']);
         $this->validator($data)->validate();
 
@@ -125,7 +126,7 @@ class PresolicitudController extends Controller
                 ->select('b.cedula', 'b.email', 'c.tipo_transaccion', 'b.nombre_apellido')
                 ->first();
 
-        
+
         $data['encargado_id'] = $encargado_id->cedula;
 
         if($request['proyecto_id'] != NULL){
@@ -152,11 +153,11 @@ class PresolicitudController extends Controller
         $upload_files = new DocumentosController;
         $request->consecutivo = $consecutivo;
         $upload_files->uploadFile($request, $this->path.$request->consecutivo);
-        
+
         $encargado_id->nombre_proyecto = $nombre_proyecto;
 
         $email_gestor = $encargado_id->email;
-        
+
 
         $email_controller = new CorreosController;
         $encargado_id->gestor = false;
@@ -191,7 +192,7 @@ class PresolicitudController extends Controller
                         ->data;
 
         $data = Presolicitud::where('consecutivo', $consecutivo)->first();
-        
+
         if($data->fecha_inicial){
             $data->fecha_inicial = date("Y-m-d", strtotime($data->fecha_inicial));
         }
@@ -200,7 +201,7 @@ class PresolicitudController extends Controller
         }
 
         $tipoTransaccion = $this->tiposTransaccionWithUsuario();
-        
+
         $proyecto = DB::connection('mysql_sigep')
                 ->table('proyectos')
                 ->where('Estado', 1)
@@ -240,13 +241,13 @@ class PresolicitudController extends Controller
         }
 
         $tipoTransaccion = $this->tiposTransaccionWithUsuario();
-        
+
         $proyecto = DB::connection('mysql_sigep')
                 ->table('proyectos')
                 ->where('Estado', 1)
                 ->select('nombre', 'codigo')
                 ->orderBy('nombre', 'asc')
-                ->get(); 
+                ->get();
 
         $files = Storage::disk('public')->files($this->directorio . '/' . $consecutivo);
 
@@ -269,7 +270,7 @@ class PresolicitudController extends Controller
     {
         $redirect = 'redirect';
         $tipo_transaccion = Usuario::find(Auth::user()->id)->hasOneTipoTransaccion($request->value);
-        
+
         Presolicitud::where('consecutivo', $request->consecutivo)
                         ->update(['transaccion_id' => $request->value]);
 
@@ -313,7 +314,7 @@ class PresolicitudController extends Controller
         $estado = Presolicitud::where('consecutivo', $request->consecutivo)
                 ->select('estado_id')
                 ->first();
-            
+
         return response()->json(['data'=>$estado]);
     }
 
@@ -329,18 +330,18 @@ class PresolicitudController extends Controller
                 ->update(['estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-            
+
         ActualEtapaEstado::where('consecutivo', $request->consecutivo)
                 ->update(['etapa_id' => $this->etapa_id,
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-                        
+
         return response()->json(['data'=>true]);
     }
 
     public function financieroProyecto($proyecto_id){
-        
+
         $pp_inicial  = DB::connection('mysql_sigep')
                 ->table('proyectos as p')
                 ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
@@ -349,10 +350,10 @@ class PresolicitudController extends Controller
                 ->where('m.habilitado', 1) // PPINICIAL 4, EGRESO 2
                 ->where('p.codigo', $proyecto_id)
                 ->where('m.Tipo', 4)
-                ->select('m.Rubro','r.Nombre',DB::raw('sum(m.Valor)'))
+                ->select('m.Rubro','r.Nombre',DB::raw('sum(m.Valor) as Valor'))
                 ->groupBy('m.Rubro')
                 ->get();
-                    
+
         $pp_inicial = json_decode($pp_inicial);
 
         $pp_total  = DB::connection('mysql_sigep')
@@ -365,7 +366,7 @@ class PresolicitudController extends Controller
                 ->where('m.Tipo', 4)
                 ->select(DB::raw('sum(m.Valor) pp_total'))
                 ->get();
-                    
+
         if(count($pp_total) !== 0){
             $pp_total = json_decode($pp_total)[0]->pp_total;
         }else{
@@ -382,7 +383,7 @@ class PresolicitudController extends Controller
                         ->where('m.Tipo', 1)
                         ->select(DB::raw('sum(m.Valor) ingreso'))
                         ->get();
-                        
+
         if(count($total_ingreso) !== 0){
             $total_ingreso = json_decode($total_ingreso)[0]->ingreso;
         }else{
@@ -399,7 +400,7 @@ class PresolicitudController extends Controller
                         ->where('m.Tipo', 6)
                         ->select(DB::raw('sum(m.Valor) cuentaxcobrar'))
                         ->get();
-                        
+
         if(count($total_cuentaxcobrar) !== 0){
             $total_cuentaxcobrar = json_decode($total_cuentaxcobrar)[0]->cuentaxcobrar;
         }else{
@@ -416,7 +417,7 @@ class PresolicitudController extends Controller
                         ->where('m.Tipo', 2)
                         ->select(DB::raw('sum(m.Valor) egreso'))
                         ->get();
-                        
+
         if(count($total_egreso) !== 0){
             $total_egreso = json_decode($total_egreso)[0]->egreso;
         }else{
@@ -453,7 +454,7 @@ class PresolicitudController extends Controller
                             ->where('m.Tipo', 2)
                             ->select(DB::raw('sum(m.Valor) egreso'))
                             ->get();
-                            
+
             if(count($egreso) !== 0){
                 $rubro->egreso = json_decode($egreso)[0]->egreso;
             }else{
@@ -491,6 +492,18 @@ class PresolicitudController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function showProyectos(){
+        $proyectos = DB::connection('mysql_sigep')
+                    ->table('proyectos')
+                    ->where('Estado', 1)
+                    ->select('nombre', 'codigo')
+                    ->orderBy('nombre', 'asc')
+                    ->get();
+
+        $no_proyecto = \Lang::get('strings.presolicitud.no_proyecto');
+        return response()->json(['proyectos'=>json_encode($proyectos), 'no_proyecto' => $no_proyecto]);
     }
 
     public function returnNull($str){

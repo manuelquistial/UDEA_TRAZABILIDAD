@@ -69,7 +69,7 @@ async function getItems(endpoint, page, data){
     route = route+'/search/'+data
   }
   const response = await fetch(route, {
-    method: 'GET', 
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': token
@@ -167,6 +167,18 @@ async function getEtapas(url){
   return response
 }
 
+async function getProyectos(url){
+    let route = `${url}/proyectos/all`
+    const response = await fetch(route, {
+      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': token
+      }
+    })
+    return response
+  }
+
 async function getEstados(url, endpoint, consecutivo){
   let route = `${url}/${endpoint}`
   const response = await fetch(route, {
@@ -221,7 +233,7 @@ function tildesEspacios(word){
 }
 
 export{
-  getUsuarios, 
+  getUsuarios,
   getTiposTransaccion,
   getItems,
   tildesEspacios,
@@ -233,6 +245,7 @@ export{
   setEstados,
   getCodigoSigep,
   setAprobadoVariables,
+  getProyectos,
   enviarCorreos,
   getFinancieroProyecto,
   deleteDocumento

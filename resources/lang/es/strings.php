@@ -136,8 +136,10 @@ return [
         'enviar' => 'Enviar',
         'tramitar' => 'Tramitar',
         'redireccionar' => 'Redireccionar',
+        'digite_proyecto' => 'Digite y seleccione un proyecto',
         'seleccione_proyecto' => 'Seleccione el proyecto de la lista',
         'seleccione_transaccion' => 'Seleccione el tipo de transaccion de la lista',
+        'no_proyecto' => 'Proyecto no encontrado',
         'modal' => [
             'nombre_egreso' => 'Nombre de egreso',
             'pp_inicial' => 'Presupuesto inicial',
@@ -173,7 +175,7 @@ return [
     'autorizado' => [
         'codigo_sigep' => 'Código registro SIGEP',
         'pendiente' => 'Pendiente',
-        'confirmacionEnvio' => 'Confirmación de Envío al Ordenador del Gastos',  
+        'confirmacionEnvio' => 'Confirmación de Envío al Ordenador del Gastos',
         'fechaEnvio' => 'Fecha de Envío',
         'descripcion_pendiente' => 'Descripcion'
     ],
