@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
+use App\Models\Presolicitud;
+use App\Models\TiposTransaccion;
 use App\Models\Tramite;
 use App\Models\ActualEtapaEstado;
+use App\Models\Cargos;
 use Auth;
 
 class TramiteController extends Controller
