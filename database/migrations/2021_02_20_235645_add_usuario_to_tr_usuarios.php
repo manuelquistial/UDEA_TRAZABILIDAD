@@ -26,7 +26,7 @@ class AddUsuarioToTrUsuarios extends Migration
     public function down()
     {
         Schema::table('tr_usuarios', function (Blueprint $table) {
-            $table->dropColumn('usuario');
+            $table->dropColumn('tr_usuario');
         });
     }
 }
