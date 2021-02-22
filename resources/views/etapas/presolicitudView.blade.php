@@ -4,11 +4,11 @@
 <div class="card-body">
     @switch($route)
         @case("index")
-            <form action="{{ route('save_presolicitud') }}" method="post" enctype="multipart/form-data"> 
+            <form action="{{ route('save_presolicitud') }}" method="post" enctype="multipart/form-data">
             {!! csrf_field() !!}
             @break
         @case("edit")
-            <form action="{{ route('update_presolicitud') }}" method="post" enctype="multipart/form-data"> 
+            <form action="{{ route('update_presolicitud') }}" method="post" enctype="multipart/form-data">
             {!! csrf_field() !!}
             @break
         @default
@@ -19,26 +19,35 @@
         @endif
         <div class="form-group">
             <label for="proyecto_id">{{ Lang::get('strings.presolicitud.proyecto') }}</label>
-            <select class="form-control" name="proyecto_id" id="proyecto_id">
-                <option value="">{{ Lang::get('strings.presolicitud.seleccione_proyecto') }}</option>
-            @if($etapas)
-                @foreach( $proyecto as $proyecto )
-                    <option value="{{ $proyecto->codigo }}" {{old('proyecto_id') == $proyecto->codigo ? 'selected':''}}>{{ $proyecto->nombre }}</option>
-                @endforeach
-            @else
-                @foreach( $proyecto as $proyecto )
-                    @if( $proyecto->codigo == $data->proyecto_id )
-                        <option value="{{ $proyecto->codigo }}" selected>{{ $proyecto->nombre }}</option>
-                    @else
-                        <option value="{{ $proyecto->codigo }}">{{ $proyecto->nombre }}</option>
-                    @endif
-                @endforeach
-            @endif
-            </select>
+            <input type="text" class="form-control" id="proyecto_id" data-toggle="dropdown" placeholder="{{ Lang::get('strings.presolicitud.digite_proyecto') }}">
+            <div class="dropdown-menu scrollable-menu proyecto_id" id="proyectos" aria-labelledby="proyecto_id">
+                @if($etapas)
+                    @foreach( $proyecto as $proyecto )
+                        <div class="form-check proyecto_id_item">
+                            <input type="radio" class="form-check-input proyecto-id" name="proyecto_id" data-name="{{ $proyecto->nombre }}" id="{{ $proyecto->nombre }}" value="{{ $proyecto->codigo }}">
+                            <label class="form-check-label" for="{{ $proyecto->nombre }}">{{ $proyecto->nombre }}</label>
+                        </div>
+                    @endforeach
+                @else
+                    @foreach( $proyecto as $proyecto )
+                        @if( $proyecto->codigo == $data->proyecto_id )
+                            <div class="form-check proyecto_id_item">
+                                <input type="radio" class="form-check-input proyecto-id" name="proyecto_id" data-name="{{ $proyecto->nombre }}" id="{{ $proyecto->nombre }}" value="{{ $proyecto->codigo }}" checked>
+                                <label class="form-check-label" for="{{ $proyecto->nombre }}">{{ $proyecto->nombre }}</label>
+                            </div>
+                        @else
+                            <div class="form-check proyecto_id_item">
+                                <input type="radio" class="form-check-input proyecto-id" name="proyecto_id" data-name="{{ $proyecto->nombre }}" id="{{ $proyecto->nombre }}" value="{{ $proyecto->codigo }}">
+                                <label class="form-check-label" for="{{ $proyecto->nombre }}">{{ $proyecto->nombre }}</label>
+                            </div>
+                        @endif
+                    @endforeach
+                @endif
+            </div>
         </div>
         <div class="form-group">
             <label for="otro_proyecto">{{ Lang::get('strings.notes.otro_proyecto') }}</label>
-            <input type="text" class="form-control" name="otro_proyecto" value="{{ $etapas ? old('otro_proyecto') : $data->otro_proyecto}}"> 
+            <input type="text" class="form-control" name="otro_proyecto" value="{{ $etapas ? old('otro_proyecto') : $data->otro_proyecto}}">
             @if ($errors->has('otro_proyecto'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('otro_proyecto') }}</small></strong>
@@ -96,7 +105,7 @@
                 <strong>{!! Lang::get('strings.notes.valor') !!}</strong>
             </small>
             @if(\App::environment() != 'production')
-                <input type="text" class="form-control" id="valor" name="valor" value="{{ $etapas ? (old('valor')) : $data->valor}}"> 
+                <input type="text" class="form-control" id="valor" name="valor" value="{{ $etapas ? (old('valor')) : $data->valor}}">
             @else
                 <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
                 <input type="text" class="form-control" name="valor" id="valor" value="{{ $etapas ? (str_replace(' €','',numfmt_format_currency($fmt, old('valor'),"EUR")) == '0,00' ? '':'') : str_replace(' €','',numfmt_format_currency($fmt, $data->valor,"EUR")) }}">
@@ -238,7 +247,7 @@
                                 <a role="tab" id="headingOne" data="" href="#collapseOne" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapseOne" class=""><strong>{{ Lang::get('strings.presolicitud.modal.vista_general') }}</strong></a>
                             </div>
                         </div>
-                      
+
                         <div id="collapseOne" class="card-collapse collapse in" role="tabcard" aria-labelledby="headingOne" aria-expanded="true" style="">
                             <div class="card-body">
                                 <table class="table">
@@ -252,7 +261,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="table_sigep">
-                                        
+
                                     </tbody>
                                 </table>
                             </div>

@@ -11,14 +11,14 @@
                 <form class="form-horizontal" method="POST" action="{{ route('login') }}">
                     {{ csrf_field() }}
 
-                    <div class="form-group{{ $errors->has('cedula') ? ' has-error' : '' }}">
+                    <div class="form-group{{ $errors->has('usuario') ? ' has-error' : '' }}">
                         <label for="usuario" class="control-label">{{ Lang::get('strings.login.usuario') }}</label>
 
-                        <input id="usuario" type="string" class="form-control" name="cedula" value="{{ old('cedula') }}" required autofocus>
+                        <input id="usuario" type="string" class="form-control" name="usuario" value="{{ old('usuario') }}" required autofocus>
 
-                        @if ($errors->has('cedula'))
+                        @if ($errors->has('usuario'))
                             <span class="text-danger">
-                                <strong><small>{{ $errors->first('cedula') }}</small></strong>
+                                <strong><small>{{ $errors->first('usuario') }}</small></strong>
                             </span>
                         @endif
                     </div>

@@ -39,9 +39,9 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function cedula()
+    public function usuario()
     {
-        return 'cedula';
+        return 'usuario';
     }
 
     /**
@@ -53,7 +53,7 @@ class LoginController extends Controller
     protected function credentials(Request $request)
     {
         return [
-            $this->cedula() => $request->get($this->cedula()),
+            $this->usuario() => $request->get($this->usuario()),
             'password' => $request->get('password')
         ];
     }
@@ -67,7 +67,7 @@ class LoginController extends Controller
     protected function validateLogin(Request $request)
     {       
         $this->validate($request, [
-            $this->cedula() => "required|exists:tr_usuarios,{$this->cedula()}",
+            $this->usuario() => "required|exists:tr_usuarios,{$this->usuario()}",
             'password' => 'required',
         ]);
     }

@@ -21,6 +21,9 @@ Route::GET('tipostransaccion/all', 'TipoTransaccionController@showAll');
 // Gestores
 Route::GET('transacciones/usuario', 'TransaccionesController@showConsultaUsuario')->name('consulta_usuario');
 
+// Proyectos
+Route::GET('proyectos/all', 'PresolicitudController@showProyectos');
+
 // Presolicitud
 Route::GET('', 'PresolicitudController@index')->name('presolicitud');
 Route::POST('presolicitud/save', 'PresolicitudController@store')->name('save_presolicitud');
