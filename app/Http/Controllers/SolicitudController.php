@@ -254,7 +254,7 @@ class SolicitudController extends Controller
 
             $usuario_sap = new Cargos();
             $usuario_sap = $usuario_sap->usuarioByCargo($this->cargo_sap_id)->first();
-
+            info($usuario_sap);
             $data->tipo_transaccion = $tipoTransaccion['tipo_transaccion'];
             
             if(($tipoTransaccion['cargo_id'] != null) & isset($usuario_sap['email'])){

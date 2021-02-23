@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
+use App\Presolicitud;
 use App\Tramite;
 use App\ActualEtapaEstado;
+use App\TiposTransaccion;
+use App\Cargos;
 use Auth;
 
 class TramiteController extends Controller
@@ -215,7 +218,7 @@ class TramiteController extends Controller
 
             $usuario_sigep = new Cargos();
             $usuario_sigep = $usuario_sigep->usuarioByCargo($this->cargo_sigep_id)->first();
-
+            info($usuario_sigep);
             $data->tipo_transaccion = $tipoTransaccion['tipo_transaccion'];
             
             if(isset($usuario_sigep['email'])){

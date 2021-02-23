@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Notifications\PasswordReset;
 use App\TiposTransaccion;
 use App\Cargos;
 use App\Roles;
@@ -109,5 +110,16 @@ class Usuario extends Authenticatable
             array_push($ids, $value['id']);
         }
         return TiposTransaccion::whereNotIn('id', $ids);
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new PasswordReset($token));
     }
 }

@@ -42,14 +42,14 @@ return [
         'menu_lateral' => [
             ['usuarios', 'Usuarios'],
             ['centro_costos', 'Centros de Costos'],
-            ['tipos_transaccion', 'Tipos de Transacción'],
+            ['tipos_transaccion', 'Tipos de Trámite'],
             ['documentos', 'Documentos']
         ],
         'perfil' => 'Perfil',
-        'tipos_transaccion' => 'Tipos de Transacción',
-        'tipo_transaccion' => 'Tipo de Transacción',
-        'escribir_transaccion' => 'Seleccione tipo de transacción',
-        'nuevo_tipo_transaccion' => 'Nuevo tipo de transacción',
+        'tipos_transaccion' => 'Tipos de Trámite',
+        'tipo_transaccion' => 'Tipo de Trámite',
+        'escribir_transaccion' => 'Seleccione tipo de trámite',
+        'nuevo_tipo_transaccion' => 'Nuevo tipo de trámite',
         'centro_costos' => 'Centro de Costos',
         'centro_costo' => 'Centro de Costo',
         'nuevo_centro_costo' => 'Nuevo centro de costo',
@@ -62,10 +62,10 @@ return [
         'etapa' => 'Etapa',
         'modal' => [
             'tipos_transaccion' => [
-                'titulo' => 'Tipo de Transacción',
-                'placeholder' => 'Buscar tipo de transacción',
-                'escribir_item' => 'Digite tipo de transacción a guardar',
-                'deshabilitar' => "¿Deshabilitar los tipos de transacción seleccionados?"
+                'titulo' => 'Tipo de Trámite',
+                'placeholder' => 'Buscar tipo de trámite',
+                'escribir_item' => 'Digite tipo de trámite a guardar',
+                'deshabilitar' => "¿Deshabilitar los tipos de trámite seleccionados?"
             ],
             'centro_costos' => [
                 'titulo' => 'Centro de Costos',
@@ -84,8 +84,8 @@ return [
     ],
     'notes' => [
         'codigo_sigep' => 'Consulte <span class="links" id="codigo_sigep" data-project=":project">aquí</span> el codigo sigep',
-        'valor' => 'Consulte <span class="links" id="financiero_proyecto">aquí</span> el estado financiero del proyecto',
-        'fecha' => 'Para la solicitud de viáticos y tiquetes son obligatorias ambas fechas',
+        'valor' => 'Verifique <strong><span class="links" style="color: #000000;" id="financiero_proyecto">aquí</span></strong> la disponibilidad presupuestal del proyecto',
+        'fecha' => 'Solo para la solicitud viáticos y tiquetes son obligatorias ambas fechas',
         'presolicitud' => 'Para tramites de solicitud de apoyos economicos<br> 1. Descargar <a class="links" :documento target="_blank">aquí</a> formato de solicitud de apoyo <br> 2. Adjuntar carta de invitacion al evento <br> 3. Adjuntar otros documentos relacionados con la solicitud',
         'solicitud' => 'Adjuntar Análisis de Conveniencia y/o Formato de Justificación CPSP',
         'autorizado' => 'Describir alguna novedad',
@@ -129,7 +129,7 @@ return [
     'presolicitud' => [
         'proyecto' => 'Programa, proyecto y líneas misionales',
         'otro_proyecto' => 'Otro proyecto',
-        'tipo_transaccion' => 'Tipo de Transacción',
+        'tipo_transaccion' => 'Tipo de Trámite',
         'descripcion' => 'Descripción de la solicitud',
         'fecha_inicial' => 'Fecha inicial',
         'fecha_final' => 'Fecha final',
@@ -138,7 +138,7 @@ return [
         'redireccionar' => 'Redireccionar',
         'digite_proyecto' => 'Digite y seleccione un proyecto',
         'seleccione_proyecto' => 'Seleccione el proyecto de la lista',
-        'seleccione_transaccion' => 'Seleccione el tipo de transaccion de la lista',
+        'seleccione_transaccion' => 'Seleccione el tipo de trámite de la lista',
         'no_proyecto' => 'Proyecto no encontrado',
         'modal' => [
             'nombre_egreso' => 'Nombre de egreso',

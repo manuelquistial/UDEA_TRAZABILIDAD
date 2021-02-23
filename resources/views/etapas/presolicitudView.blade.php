@@ -55,6 +55,23 @@
             @endif
         </div>
         <div class="form-group">
+            <label for="valor">{{ Lang::get('strings.general.valor') }}</label>
+            <small class="form-text text-muted">
+                <p style="color:#33691e; margin:0px">{!! Lang::get('strings.notes.valor') !!}</p>
+            </small>
+            @if(\App::environment() != 'production')
+                <input type="text" class="form-control" id="valor" name="valor" value="{{ $etapas ? (old('valor')) : $data->valor}}">
+            @else
+                <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
+                <input type="text" class="form-control" name="valor" id="valor" value="{{ $etapas ? (str_replace(' €','',numfmt_format_currency($fmt, old('valor'),"EUR")) == '0,00' ? '':'') : str_replace(' €','',numfmt_format_currency($fmt, $data->valor,"EUR")) }}">
+            @endif
+            @if ($errors->has('valor'))
+                <span class="text-danger">
+                    <strong><small>{{ $errors->first('valor') }}</small></strong>
+                </span>
+            @endif
+        </div>
+        <div class="form-group">
             <label for="transaccion_id">{{ Lang::get('strings.presolicitud.tipo_transaccion') }}</label>
             <div class="input-group">
                 <select class="form-control" name="transaccion_id" id="transaccion_id">
@@ -99,23 +116,6 @@
                 </span>
             @endif
         </div>
-        <div class="form-group">
-            <label for="valor">{{ Lang::get('strings.general.valor') }}</label>
-            <small class="form-text text-muted">
-                <strong>{!! Lang::get('strings.notes.valor') !!}</strong>
-            </small>
-            @if(\App::environment() != 'production')
-                <input type="text" class="form-control" id="valor" name="valor" value="{{ $etapas ? (old('valor')) : $data->valor}}">
-            @else
-                <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
-                <input type="text" class="form-control" name="valor" id="valor" value="{{ $etapas ? (str_replace(' €','',numfmt_format_currency($fmt, old('valor'),"EUR")) == '0,00' ? '':'') : str_replace(' €','',numfmt_format_currency($fmt, $data->valor,"EUR")) }}">
-            @endif
-            @if ($errors->has('valor'))
-                <span class="text-danger">
-                    <strong><small>{{ $errors->first('valor') }}</small></strong>
-                </span>
-            @endif
-        </div>
         <div class="form-row" style="margin: 1rem 0rem;">
             <div class="form-group col-md-6" style="margin: 0px;">
                 <label for="fecha_inicial">{{ Lang::get('strings.presolicitud.fecha_inicial') }}</label>
@@ -136,7 +136,7 @@
                 @endif
             </div>
             <small class="form-text text-muted">
-                <strong>{{ Lang::get('strings.notes.fecha') }}</strong>
+                <p style="color:#33691e; margin:0px">{{ Lang::get('strings.notes.fecha') }}</p>
             </small>
         </div>
         <div class="form-group">
