@@ -342,6 +342,8 @@ class PresolicitudController extends Controller
 
     public function financieroProyecto($proyecto_id){
 
+        $total_proyecto_text = \Lang::get('strings.presolicitud.total_proyecto');
+
         $pp_inicial  = DB::connection('mysql_sigep')
                 ->table('proyectos as p')
                 ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
@@ -480,7 +482,7 @@ class PresolicitudController extends Controller
             }
         }
 
-        return response()->json(['pp_inicial'=>$pp_inicial, 'pp_total' => $pp_total, 'total_egreso' => $total_egreso, 'total_ingreso' => $total_ingreso, 'total_reserva' => $total_reserva, 'total_cuentaxcobrar' => $total_cuentaxcobrar]);
+        return response()->json(['pp_inicial'=>$pp_inicial, 'pp_total' => $pp_total, 'total_egreso' => $total_egreso, 'total_ingreso' => $total_ingreso, 'total_reserva' => $total_reserva, 'total_cuentaxcobrar' => $total_cuentaxcobrar, 'total_proyecto_text' => $total_proyecto_text]);
     }
 
     /**

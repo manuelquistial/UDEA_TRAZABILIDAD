@@ -178,6 +178,12 @@ window.onload = function() {
 
         if(proyecto_id){
             let table_sigep = document.getElementById('table_sigep')
+
+            var total_valor_sum = 0;
+            var total_reserva_sum = 0;
+            var total_egreso_sum = 0;
+            var total_disponible_sum = 0;
+
             getFinancieroProyecto(url, proyecto_id)
             .then((res) => res.json())
             .then((data) => {
@@ -207,6 +213,11 @@ window.onload = function() {
                 let tabla_egreso = parseInt(element.egreso == null ? 0 : element.egreso)
                 let tabla_disponible = tabla_valor - tabla_reserva - tabla_egreso
 
+                total_valor_sum = total_valor_sum + tabla_valor
+                total_reserva_sum = total_reserva_sum + tabla_reserva
+                total_egreso_sum = total_egreso_sum + tabla_egreso
+                total_disponible_sum = total_disponible_sum + tabla_disponible
+
                 table_sigep.innerHTML += `
                 <tr>
                     <td>${element.Nombre}</td>
@@ -217,10 +228,19 @@ window.onload = function() {
                 </tr>
                 `
             });
+            table_sigep.innerHTML += `
+            <tr>
+                <td><strong>${data.total_proyecto_text}</strong></td>
+                <td class="text-right"><strong>${total_valor_sum.toLocaleString('de-DE')}</strong></td>
+                <td class="text-right"><strong>${total_reserva_sum.toLocaleString('de-DE')}</strong></td>
+                <td class="text-right"><strong>${total_egreso_sum.toLocaleString('de-DE')}</strong></td>
+                <td class="text-right"><strong>${total_disponible_sum.toLocaleString('de-DE')}</strong></td>
+            </tr>
+            `
             $('#modal').modal('show')
             })
             .catch((error) => {
-            console.log(error)
+                console.log(error)
             })
         }
         })

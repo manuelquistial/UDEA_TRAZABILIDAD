@@ -141,6 +141,7 @@ return [
         'seleccione_proyecto' => 'Seleccione el proyecto de la lista',
         'seleccione_transaccion' => 'Seleccione el tipo de trámite de la lista',
         'no_proyecto' => 'Proyecto no encontrado',
+        'total_proyecto' => 'TOTAL PROYECTO',
         'modal' => [
             'nombre_egreso' => 'Nombre de egreso',
             'pp_inicial' => 'Presupuesto inicial',
