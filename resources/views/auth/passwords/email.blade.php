@@ -4,7 +4,7 @@
 <div class="col-5">  
     <div class="info-body">
         <div class="modal-header">
-            <h5 class="titulo-header">{{ Lang::get('strings.login.iniciar_sesion') }}</h5>
+            <h5 class="titulo-header">{{ Lang::get('strings.login.email_password') }}</h5>
         </div>
 
         <div class="card-body">
@@ -18,7 +18,7 @@
                 {{ csrf_field() }}
 
                 <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                    <label for="email" class="control-label">E-Mail Address</label>
+                    <label for="email" class="control-label">{{ Lang::get('strings.usuario.email') }}</label>
                     <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
 
                     @if ($errors->has('email'))
@@ -30,7 +30,7 @@
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">
-                        Send Password Reset Link
+                        {{ Lang::get('strings.login.link_password') }}
                     </button>
                 </div>
             </form>

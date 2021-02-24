@@ -33,7 +33,7 @@ class Usuario extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'nombre_apellido', 'email', 'telefono', 'cedula', 'password', 'estado_id'
+        'nombre_apellido', 'email', 'telefono', 'cedula', 'usuario', 'password', 'estado_id'
     ];
 
     /**
@@ -50,7 +50,7 @@ class Usuario extends Authenticatable
     }
 
     public function cargo(){
-        return $this->belongsToMany(Cargos::class, 'tr_usuarios_cargos', 'usuario_id', 'cargo_id');
+        return $this->belongsToMany(Cargos::class, 'tr_usuarios_cargos', 'usuario_id', 'cargo_id', 'id', 'cargo_id');
     }
 
     public function role(){

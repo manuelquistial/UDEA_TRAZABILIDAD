@@ -36,7 +36,8 @@ return [
         'fecha_envio' => 'Fecha Envio',
         'sigep' => 'SIGEP',
         'sap' => 'SAP',
-        'pendiente' => 'Pendiente'
+        'pendiente' => 'Pendiente',
+        'solped' => 'SOLPED'
     ],
     'configuracion' => [
         'menu_lateral' => [
@@ -222,8 +223,13 @@ return [
         'iniciar_sesion' => 'Iniciar sesión',
         'usuario' => 'Usuario*',
         'password' => 'Contraseña*',
+        'confirm_password' => 'Confirmar contraseña*',
         'conectar' => 'Conectar',
-        'olvido_password' => '¿Olvidaste tu contraseña?'
+        'olvido_password' => '¿Olvidaste tu contraseña?',
+        'email_password' => 'Verficar contraseña',
+        'link_password' => 'Enviar enlace para cambio de contraseña',
+        'change_password' => 'Cambiar contraseña'
+
     ],
     'correo' => [
         'subject' => 'Notification proceso gestión financiera - Facultad de Comunicaciones y Filología'

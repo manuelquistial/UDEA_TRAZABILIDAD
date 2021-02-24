@@ -31,7 +31,7 @@ class Cargos extends Model
     ];
 
     public function usuario(){
-        return $this->belongsToMany(Usuario::class, 'tr_usuarios_cargos', 'cargo_id', 'usuario_id');
+        return $this->belongsToMany(Usuario::class, 'tr_usuarios_cargos', 'cargo_id', 'usuario_id', 'cargo_id', 'id');
     }
 
     public function usuarioByCargo($cargo_id){

@@ -33,6 +33,16 @@ class AutorizadoController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Autorizado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_autorizado', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_autorizado', $consecutivo);
+            }
+        }
+
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
@@ -123,6 +133,13 @@ class AutorizadoController extends Controller
      */
     public function show($consecutivo)
     {
+        $data = Autorizado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_autorizado', $consecutivo);
+            }
+        }
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -131,8 +148,6 @@ class AutorizadoController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-
-        $data = Autorizado::where('consecutivo', $consecutivo)->first();
 
         return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
@@ -145,6 +160,14 @@ class AutorizadoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Autorizado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_autorizado', $consecutivo);
+            }
+        }
+
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -153,8 +176,6 @@ class AutorizadoController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-
-        $data = Autorizado::where('consecutivo', $consecutivo)->first();
 
         return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
@@ -172,11 +193,15 @@ class AutorizadoController extends Controller
 
         $data = $request->except('_token');
         
-        $data['etapa_id'] = $this->next_etapa_id;
         $data['fecha_estado'] = date("Y-m-d H:i:s");
 
         Autorizado::where('consecutivo', $request->consecutivo)
                 ->update($data);
+
+        DB::table('tr_correos')
+            ->where('consecutivo', $request->consecutivo)
+            ->where('etapa', $this->etapa_id)
+            ->update(['codigo' => $request->codigo_sigep]);
 
         return redirect()->route('edit_autorizado', $request->consecutivo)->with('status', true);
     }

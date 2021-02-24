@@ -33,6 +33,15 @@ class PreaprobadoController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Preaprobado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_preaprobado', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_preaprobado', $consecutivo);
+            }
+        }
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
@@ -112,6 +121,14 @@ class PreaprobadoController extends Controller
      */
     public function show($consecutivo)
     {
+        $data = Preaprobado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_preaprobado', $consecutivo);
+            }
+        }
+
         $route = 'show';
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -120,8 +137,6 @@ class PreaprobadoController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-
-        $data = Preaprobado::where('consecutivo', $consecutivo)->first();
 
         return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }
@@ -134,6 +149,14 @@ class PreaprobadoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Preaprobado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_preaprobado', $consecutivo);
+            }
+        }
+
         $route = 'edit';
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -142,8 +165,6 @@ class PreaprobadoController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-
-        $data = Preaprobado::where('consecutivo', $consecutivo)->first();
 
         if($data->fecha_cdp){
             $data->fecha_cdp = date("Y-m-d", strtotime($data->fecha_cdp));

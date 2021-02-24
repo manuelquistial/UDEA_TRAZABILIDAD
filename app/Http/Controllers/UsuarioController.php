@@ -22,7 +22,7 @@ class UsuarioController extends Controller
 
     public function __construct()
     {
-        //$this->middleware('auth');
+        $this->middleware('auth');
     }
 
     /**
@@ -74,6 +74,7 @@ class UsuarioController extends Controller
             'email' => $this->startEndSpaces($data['email']),
             'telefono' => $this->startEndSpaces($data['telefono']),
             'cedula' => $this->startEndSpaces($data['cedula']),
+            'usuario' => $this->startEndSpaces($data['cedula']),
             'password' => Hash::make($data['cedula'], [
                 'rounds' => 12,
             ]),
@@ -113,6 +114,21 @@ class UsuarioController extends Controller
             'nombre_apellido' => 'required|string',
             'email' => 'required|email|unique:tr_usuarios,email'.($id ? ','.$id : ''),
             'cedula' => 'required|unique:tr_usuarios,cedula'.($id ? ','.$id : ''),
+            'telefono' => 'required|numeric'
+        ]);
+    }
+
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator_update(array $data, $id)
+    {
+        return Validator::make($data, [
+            'nombre_apellido' => 'required|string',
+            'email' => 'required|email|unique:tr_usuarios,email'.($id ? ','.$id : ''),
             'telefono' => 'required|numeric'
         ]);
     }
@@ -226,12 +242,14 @@ class UsuarioController extends Controller
         $roles = Roles::where('habilitador',1)->get();
         $tipos_transaccion = new Usuario;
         $tipos_transaccion = $tipos_transaccion->tipoTransaccionWithOutUsuarios()->get();
+        
         $roles_usuario = Usuario::find($id)->role();
         if($roles_usuario->count() == 0){
             $roles_usuario = false;
         }else{
             $roles_usuario = $roles_usuario->get();
         }
+
         $cargos_usuario = Usuario::find($id)->cargo();
         if($cargos_usuario->count() == 0){
             $cargos_usuario = false;
@@ -303,10 +321,10 @@ class UsuarioController extends Controller
      */
     public function updatePerfil(Request $request)
     {
-        $this->validator($request->all(), NULL)->validate();
+        $this->validator_update($request->all(), $request->sequence)->validate();
 
         $data = $request->except('_token', 'sequence');
-
+        info($data);
         Usuario::where('id', $request->sequence)
                         ->update($data);
 

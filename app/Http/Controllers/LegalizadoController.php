@@ -28,6 +28,16 @@ class LegalizadoController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Legalizado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_legalizado', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_legalizado', $consecutivo);
+            }
+        }
+
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
@@ -109,6 +119,14 @@ class LegalizadoController extends Controller
      */
     public function show($id)
     {
+        $data = Legalizado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_legalizado', $consecutivo);
+            }
+        }
+
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -122,8 +140,6 @@ class LegalizadoController extends Controller
             ->select('crp')
             ->first();
 
-        $data = Legalizado::where('consecutivo', $consecutivo)->first();
-
         return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','crp'));
     }
 
@@ -135,6 +151,14 @@ class LegalizadoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Legalizado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_legalizado', $consecutivo);
+            }
+        }
+
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -143,8 +167,6 @@ class LegalizadoController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-
-        $data = Legalizado::where('consecutivo', $consecutivo)->first();
 
         return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
     }

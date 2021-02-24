@@ -39,7 +39,8 @@ import {
     });
 
     enviar_correos.addEventListener('click', function(event){
-
+        let checkboxes = selected_correos.querySelectorAll(`input[type=checkbox]:checked`);
+        console.log(checkboxes)
     });
 
 })();

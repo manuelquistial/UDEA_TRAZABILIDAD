@@ -32,6 +32,16 @@ class AprobadoController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_aprobado', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_aprobado', $consecutivo);
+            }
+        }
+
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
@@ -126,6 +136,14 @@ class AprobadoController extends Controller
      */
     public function show($consecutivo)
     {
+        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_aprobado', $consecutivo);
+            }
+        }
+
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -133,9 +151,7 @@ class AprobadoController extends Controller
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
-                        ->data;;
-
-        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+                        ->data;
 
         return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
     }
@@ -148,6 +164,14 @@ class AprobadoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_aprobado', $consecutivo);
+            }
+        }
+
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -156,8 +180,6 @@ class AprobadoController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-
-        $data = Aprobado::where('consecutivo', $consecutivo)->first();
 
         return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
     }
@@ -171,10 +193,10 @@ class AprobadoController extends Controller
      */
     public function update(Request $request)
     {
-        $this->validator($request->all())->validate();
-
         $data = $request->except('_token');
         $data['valor_final_crp'] = $this->replaceDots($data['valor_final_crp']);
+
+        $this->validator($data)->validate();
 
         Aprobado::where('consecutivo', $request->consecutivo)
                     ->update($data);
@@ -206,6 +228,13 @@ class AprobadoController extends Controller
                     [$request->columna => $request->data]
                 );
                 
+                if($request->columna == 'solped'){
+                    DB::table('tr_correos')
+                        ->where('consecutivo', $request->consecutivo)
+                        ->where('etapa', $this->etapa_id)
+                        ->update(['codigo' => $request->data]);
+                }
+
             } else {
                 $aprobado = Aprobado::create([
                     'encargado_id' => Auth::user()->cedula,
@@ -222,6 +251,18 @@ class AprobadoController extends Controller
                             'estado_id' => $this->en_proceso,
                             'fecha_estado' => date("Y-m-d H:i:s")
                             ]);
+                
+                if($request->columna == 'solped'){
+                    DB::table('tr_correos')->insert(
+                        [
+                            'consecutivo' => $request->consecutivo, 
+                            'codigo' => $request->data,
+                            'etapa' => $this->etapa_id,
+                            'enviado' => 0,
+                            'fecha_envio' => null
+                        ]
+                    );
+                }
             }
             return response()->json(['data'=>'ok']);
         }else{

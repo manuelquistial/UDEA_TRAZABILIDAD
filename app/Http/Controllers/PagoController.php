@@ -25,6 +25,16 @@ class PagoController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Pago::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_pago', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_pago', $consecutivo);
+            }
+        }
+
         $etapa_id = $this->etapa_id;
         $egreso = null;
         
@@ -93,6 +103,14 @@ class PagoController extends Controller
      */
     public function show($consecutivo)
     {
+        $data = Pago::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_pago', $consecutivo);
+            }
+        }
+
         $etapa_id = $this->etapa_id;
         
         $consultas = new MainController;
@@ -103,8 +121,6 @@ class PagoController extends Controller
         $crp = Aprobado::where('consecutivo', $consecutivo)
             ->select('crp')
             ->first();
-
-        $data = Pago::where('consecutivo', $consecutivo)->first();
 
         return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado','data','crp'));
     }
@@ -117,6 +133,13 @@ class PagoController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Pago::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_pago', $consecutivo);
+            }
+        }
         
     }
 

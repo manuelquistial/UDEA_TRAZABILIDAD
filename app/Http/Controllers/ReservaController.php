@@ -30,6 +30,16 @@ class ReservaController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Reserva::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_reserva', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_reserva', $consecutivo);
+            }
+        }
+
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
@@ -122,6 +132,14 @@ class ReservaController extends Controller
      */
     public function show($consecutivo)
     {
+        $data = Reserva::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_reserva', $consecutivo);
+            }
+        }
+
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -134,8 +152,6 @@ class ReservaController extends Controller
         $crp = Aprobado::where('consecutivo', $consecutivo)
                     ->select('crp')
                     ->first();
-
-        $data = Reserva::where('consecutivo', $consecutivo)->first();
 
         $files = Storage::disk('public')->files($this->directorio . $consecutivo);
 
@@ -150,6 +166,14 @@ class ReservaController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Reserva::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_reserva', $consecutivo);
+            }
+        }
+
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -158,8 +182,6 @@ class ReservaController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-
-        $data = Reserva::where('consecutivo', $consecutivo)->first();
 
         $files = Storage::disk('public')->files($this->directorio . '/' . $consecutivo);
 

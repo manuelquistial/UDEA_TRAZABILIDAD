@@ -289,13 +289,13 @@ class PresolicitudController extends Controller
      */
     public function update(Request $request)
     {
-        $this->validator($request->all())->validate();
+        $data = $request->except('_token','anexos');
+        $data['valor'] = $this->replaceDots($data['valor']);
+
+        $this->validator($data)->validate();
 
         $upload_files = new DocumentosController;
         $upload_files->uploadFile($request, $this->path.$request->consecutivo);
-
-        $data = $request->except('_token','anexos');
-        $data['valor'] = $this->replaceDots($data['valor']);
 
         Presolicitud::where('consecutivo', $request->consecutivo)
                         ->update($data);

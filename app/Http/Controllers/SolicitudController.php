@@ -39,6 +39,16 @@ class SolicitudController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Solicitud::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_solicitud', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_solicitud', $consecutivo);
+            }
+        }
+        
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
@@ -129,6 +139,14 @@ class SolicitudController extends Controller
      */
     public function show($consecutivo)
     {
+        $data = Solicitud::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_solicitud', $consecutivo);
+            }
+        }
+
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -141,7 +159,6 @@ class SolicitudController extends Controller
                         ->getData()
                         ->data;
 
-        $data = Solicitud::where('consecutivo', $consecutivo)->first();
         if($data->fecha_conveniencia){
             $data->fecha_conveniencia = date("Y-m-d", strtotime($data->fecha_conveniencia));
         }
@@ -162,6 +179,14 @@ class SolicitudController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Solicitud::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_solicitud', $consecutivo);
+            }
+        }
+
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -173,7 +198,6 @@ class SolicitudController extends Controller
                         ->getData()
                         ->data;
 
-        $data = Solicitud::where('consecutivo', $consecutivo)->first();
         if($data->fecha_conveniencia){
             $data->fecha_conveniencia = date("Y-m-d", strtotime($data->fecha_conveniencia));
         }

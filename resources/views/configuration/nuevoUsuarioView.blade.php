@@ -125,7 +125,7 @@
                             @if($cargos_usuario)
                                 @foreach($cargos_usuario as $cargo_usuario)
                                     @if($cargo_usuario->cargo_id == $cargo->cargo_id)
-                                        <option value="{{ $cargo->cargo_id }}" {{old('cargo_id') == $cargo->id ? 'ed':''}} selected>{{ $cargo->cargo }}</option>
+                                        <option value="{{ $cargo->cargo_id }}" {{old('cargo_id') == $cargo->id ? $cargo->id :''}} selected>{{ $cargo->cargo }}</option>
                                     @else
                                         <option value="{{ $cargo->cargo_id }}">{{ $cargo->cargo }}</option>
                                     @endif

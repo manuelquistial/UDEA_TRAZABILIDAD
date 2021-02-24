@@ -18,6 +18,7 @@ class UsuarioSeeder extends Seeder
         $usuario->email = "manuel.quistial@udea.edu.co";
         $usuario->telefono = "3117483498";
         $usuario->cedula = "1113533874";
+        $usuario->usuario = "1113533874";
         $usuario->password = Hash::make("1113533874", [
             'rounds' => 12,
         ]);

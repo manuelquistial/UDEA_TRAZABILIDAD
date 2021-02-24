@@ -30,7 +30,7 @@
 
                         @if ($errors->has('password'))
                             <span class="text-danger">
-                                <strong><small>{ $errors->first('password') }}</small></strong>
+                                <strong><small>{{ $errors->first('password') }}</small></strong>
                             </span>
                         @endif
                     </div>

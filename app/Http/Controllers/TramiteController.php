@@ -20,6 +20,7 @@ class TramiteController extends Controller
     public $confirmado = 2;
     public $espacio = " ";
     public $cargo_sigep_id = 3;
+    public $cargo_responsable_id = 4;
 
     public function __construct()
     {
@@ -33,6 +34,16 @@ class TramiteController extends Controller
      */
     public function index($consecutivo)
     {
+        $data = Tramite::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_tramite', $consecutivo);
+            }else if($estado['estado_id'] == 2){
+                return redirect()->route('show_tramite', $consecutivo);
+            }
+        }
+
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
@@ -109,6 +120,14 @@ class TramiteController extends Controller
      */
     public function show($consecutivo)
     {
+        $data = Tramite::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 1){
+                return redirect()->route('edit_tramite', $consecutivo);
+            }
+        }
+
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -118,7 +137,6 @@ class TramiteController extends Controller
                         ->getData()
                         ->data;
 
-        $data = Tramite::where('consecutivo', $consecutivo)->first();
         if($data->fecha_sap){
             $data->fecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
         }
@@ -134,6 +152,14 @@ class TramiteController extends Controller
      */
     public function edit($consecutivo)
     {
+        $data = Tramite::where('consecutivo', $consecutivo)->first();
+        if($data){
+            $estado = $data->select('estado_id')->first();
+            if($estado['estado_id'] == 2){
+                return redirect()->route('show_tramite', $consecutivo);
+            }
+        }
+
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
@@ -142,8 +168,7 @@ class TramiteController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
-        
-        $data = Tramite::where('consecutivo', $consecutivo)->first();
+
         if($data->fecha_sap){
             $data->ffecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
         }
@@ -205,6 +230,7 @@ class TramiteController extends Controller
                         ]);
                         
         if($request->estado_id == $this->confirmado){
+            
             $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id')->first();
             $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion','cargo_id')->first();
             
@@ -216,14 +242,21 @@ class TramiteController extends Controller
 
             $email_controller = new CorreosController;
 
-            $usuario_sigep = new Cargos();
-            $usuario_sigep = $usuario_sigep->usuarioByCargo($this->cargo_sigep_id)->first();
-            info($usuario_sigep);
+            $usuario_cargos = new Cargos();
+            $usuario_sigep = $usuario_cargos->usuarioByCargo($this->cargo_sigep_id)->first();
+            $usuario_responsable = $usuario_cargos->usuarioByCargo($this->cargo_responsable_id)->select('email')->get();
             $data->tipo_transaccion = $tipoTransaccion['tipo_transaccion'];
             
             if(isset($usuario_sigep['email'])){
                 $data->email = $usuario_sigep['email'];
                 $email_controller->email($data);
+            }
+
+            if(isset($usuario_responsable)){
+                foreach ($usuario_responsable as &$value) {
+                    $data->email = $value['email'];
+                    $email_controller->email($data);
+                }
             }
         }
 
