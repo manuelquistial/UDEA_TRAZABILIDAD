@@ -2,18 +2,20 @@
 
 @section('content')
 <div class="card-body">
-    @switch($route)
-        @case("index")
-            <form action="{{ route('save_autorizado') }}" method="post"> 
-            {!! csrf_field() !!}
-            @break
-        @case("edit")
-            <form action="{{ route('update_autorizado') }}" method="post"> 
-            {!! csrf_field() !!}
-            @break
-        @default
-            @break
-    @endswitch 
+    @if($estado != 3)
+        @switch($route)
+            @case("index")
+                <form action="{{ route('save_autorizado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @case("edit")
+                <form action="{{ route('update_autorizado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @default
+                @break
+        @endswitch 
+    @endif
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="codigo_sigep">{{ Lang::get('strings.autorizado.codigo_sigep') }}</label>
@@ -36,16 +38,18 @@
                 <strong>{!! Lang::get('strings.notes.descripcion_pendiente') !!}</strong>
             </small>
         </div>
-        @switch($route)
-            @case("index")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
-                @break
-            @case("edit")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
-                @break
-            @default
-                @break
-        @endswitch
+        @if($estado != 3)
+            @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                    @break
+                @case("edit")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                    @break
+                @default
+                    @break
+            @endswitch
+        @endif
     </form>
 </div>
 @stop

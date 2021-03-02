@@ -2,24 +2,26 @@
 
 @section('content')
 <div class="card-body">
-    @switch($route)
-        @case("index")
-            <form action="{{ route('save_presolicitud') }}" method="post" enctype="multipart/form-data">
-            {!! csrf_field() !!}
-            @break
-        @case("edit")
-            <form action="{{ route('update_presolicitud') }}" method="post" enctype="multipart/form-data">
-            {!! csrf_field() !!}
-            @break
-        @default
-            @break
-    @endswitch
+    @if($estado != 3)
+        @switch($route)
+            @case("index")
+                <form action="{{ route('save_presolicitud') }}" method="post" enctype="multipart/form-data">
+                {!! csrf_field() !!}
+                @break
+            @case("edit")
+                <form action="{{ route('update_presolicitud') }}" method="post" enctype="multipart/form-data">
+                {!! csrf_field() !!}
+                @break
+            @default
+                @break
+        @endswitch
+    @endif
         @if(!$etapas)
             <input type="hidden" name="consecutivo", value="{{ $consecutivo }}">
         @endif
         <div class="form-group">
             <label for="proyecto_id">{{ Lang::get('strings.presolicitud.proyecto') }}</label>
-            <input type="text" class="form-control" id="proyecto_id" data-toggle="dropdown" placeholder="{{ Lang::get('strings.presolicitud.digite_proyecto') }}">
+            <input type="text" class="form-control" id="proyecto_id" data-toggle="dropdown" placeholder="{{ Lang::get('strings.presolicitud.digite_proyecto') }}" autocomplete="off">
             <div class="dropdown-menu scrollable-menu proyecto_id" id="proyectos" aria-labelledby="proyecto_id">
                 @if($etapas)
                     @foreach( $proyecto as $proyecto )
@@ -181,15 +183,17 @@
                 @endforeach
             </div>
         @endif
-        @switch($route)
-            @case("index")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.presolicitud.enviar') }}</button></div>
-                @break
-            @case("edit")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
-                @break
-            @default
-        @endswitch
+        @if($estado != 3)
+            @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.presolicitud.enviar') }}</button></div>
+                    @break
+                @case("edit")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                    @break
+                @default
+            @endswitch
+        @endif
     </form>
 </div>
 

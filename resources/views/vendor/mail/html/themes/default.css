@@ -105,7 +105,7 @@ img {
 .header {
     padding: 25px 0;
     text-align: center;
-    background-color: #6c9a06;
+    background-color: #0d4928;
 }
 
 .header a {
@@ -165,7 +165,7 @@ img {
 }
 
 .footer p {
-    color: #FFFFFF;
+    color: #6c9a06;
     font-size: 12px;
     text-align: center;
 }
@@ -190,7 +190,7 @@ img {
     color: #74787E;
     font-size: 15px;
     line-height: 18px;
-    padding: 10px 0;
+    padding: 10px;
     margin: 0;
 }
 

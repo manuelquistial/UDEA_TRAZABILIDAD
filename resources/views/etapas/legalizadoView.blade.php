@@ -11,21 +11,38 @@
 
         <div class="form-group">
             <label for="valor">{{ Lang::get('strings.legalizado.valor') }}</label>
-            <input type="text" class="form-control" name="valor" value="" disabled>
+            @if(\App::environment() != 'production')
+                <input type="text" class="form-control" name="valor_egreso" value="{{ isset($egreso->egreso) ? $egreso->egreso : 0 }}" disabled>
+            @else
+                <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
+                <input type="text" class="form-control" name="valor_egreso" value="{{ isset($egreso->egreso)  ? str_replace(' €','',numfmt_format_currency($fmt, $egreso->egreso ,"EUR")) : 0 }}" disabled>
+            @endif
         </div>
 
-        @switch($route)
-            @case("index")
-                <form action="{{ route('save_legalizado') }}" method="post"> 
-                {!! csrf_field() !!}
-                @break
-            @case("edit")
-                <form action="{{ route('update_legalizado') }}" method="post"> 
-                {!! csrf_field() !!}
-                @break
-            @default
-                @break
-        @endswitch 
+        <div class="form-group">
+            <label for="valor">{{ Lang::get('strings.legalizado.valor_legalizar') }}</label>
+            @if(\App::environment() != 'production')
+                <input type="text" class="form-control" name="valor_legalizar" value="{{ isset($reserva->reserva) ? $reserva->reserva - $data['valor_reintegro'] : 0 - $data['valor_reintegro'] }}" disabled>
+            @else
+                <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
+                <input type="text" class="form-control" name="valor_legalizar" value="{{ isset($reserva->reserva)  ? str_replace(' €','',numfmt_format_currency($fmt, $reserva->reserva - $data['valor_reintegro'] ,"EUR")) : 0 - $data['valor_reintegro'] }}" disabled>
+            @endif
+        </div>
+
+        @if(($estado != 3) || ($tipo_transaccion != 0))
+            @switch($route)
+                @case("index")
+                    <form action="{{ route('save_legalizado') }}" method="post"> 
+                    {!! csrf_field() !!}
+                    @break
+                @case("edit")
+                    <form action="{{ route('update_legalizado') }}" method="post"> 
+                    {!! csrf_field() !!}
+                    @break
+                @default
+                    @break
+            @endswitch 
+        @endif
             <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
             <div class="form-group">
                 <label for="consecutivo_reingreso">{{ Lang::get('strings.legalizado.consecutivo_reingreso') }}</label>
@@ -45,16 +62,18 @@
                     </span>
                 @endif
             </div>
-            @switch($route)
-                @case("index")
-                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
-                    @break
-                @case("edit")
-                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
-                    @break
-                @default
-                    @break
-            @endswitch
+            @if(($estado != 3) || ($tipo_transaccion != 0))
+                @switch($route)
+                    @case("index")
+                        <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                        @break
+                    @case("edit")
+                        <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                        @break
+                    @default
+                        @break
+                @endswitch
+            @endif
         </form>
     </div>
 </div>

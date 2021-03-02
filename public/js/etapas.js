@@ -5,7 +5,8 @@ import {
   getProyectos,
   deleteDocumento,
   getFinancieroProyecto,
-  redirectTransaccion
+  redirectTransaccion,
+  declinarProceso
 } from './functions.js'
 
 let file_path = ''
@@ -26,6 +27,7 @@ window.onload = function() {
     let first_item = document.getElementById('first-item')
     let proyectos = document.getElementById('proyectos')
     let proyecto_search = document.getElementById('proyecto_id')
+    let declinar = document.getElementById('declinar')
 
     if(proyectos){
         getProyectos(url)
@@ -152,12 +154,12 @@ window.onload = function() {
 
     if(aceptar){
         aceptar.addEventListener('click', function(event){
-        deleteDocumento(url, file_path)
-        .then((res) => res.json())
-        .then((data) => {
-            element_file.remove()
-            $('#modal_documento').modal('hide')
-        })
+            deleteDocumento(url, file_path)
+            .then((res) => res.json())
+            .then((data) => {
+                element_file.remove()
+                $('#modal_documento').modal('hide')
+            })
         })
     }
 
@@ -281,48 +283,71 @@ window.onload = function() {
 
     if(etapas_menu){
         let consecutivo = document.getElementsByName("consecutivo")[0].value
-        getEtapas(url)
+        var estado_declinado = false
+        getEstados(url, 'presolicitud', consecutivo)
         .then((res) => res.json())
         .then((data) => {
-        data.data.forEach(element => {
-            getEstados(url, element.endpoint, consecutivo)
+            if(data.data.estado_id == 3){
+                estado_declinado = true
+            }
+            getEtapas(url)
             .then((res) => res.json())
-            .then((value) => {
-            let estado = ""
-            let href = ""
-            let estado_id = value.data
-            if(estado_id == null){
-                estado_id = 0
-            }else{
-                estado_id = value.data.estado_id
-            }
-            switch(estado_id) {
-                case 0:
-                href = `index.php/${element.endpoint}/index/${consecutivo}`
-                estado = ''
-                break;
-                case 1:
-                href = `index.php/${element.endpoint}/edit/${consecutivo}`
-                if(element.endpoint == 'presolicitud'){
-                    href = `index.php/${element.endpoint}/show/${consecutivo}`
-                }
-                estado = "lateral-inprogress"
-                break;
-                case 2:
-                href = `index.php/${element.endpoint}/show/${consecutivo}`
-                estado = "lateral-done"
-                break;
-                default:
-                href = `index.php/${element.endpoint}/show/${consecutivo}`
-                estado = "lateral-cancel"
-            }
-            document.getElementById(element.endpoint).href = href
-            if(estado != ''){
-                document.getElementById(element.endpoint).classList.add(estado)
-            }
+            .then((data) => {
+                data.data.forEach(element => {
+                    getEstados(url, element.endpoint, consecutivo)
+                    .then((res) => res.json())
+                    .then((value) => {
+                        let estado = ""
+                        let href = ""
+                        let estado_id = value.data
+                        
+                        if(estado_id == null){
+                            estado_id = 0
+                        }else{
+                            estado_id = value.data.estado_id
+                        }
+                        
+                        switch(estado_id) {
+                            case 0:
+                                href = `index.php/${element.endpoint}/index/${consecutivo}`
+                                if(estado_declinado){
+                                    estado = "lateral-cancel"
+                                }else{
+                                    estado = ''
+                                }
+                                break;
+                            case 1:
+                                href = `index.php/${element.endpoint}/edit/${consecutivo}`
+                                if(element.endpoint == 'presolicitud'){
+                                    href = `index.php/${element.endpoint}/show/${consecutivo}`
+                                }
+                                if(estado_declinado){
+                                    estado = "lateral-cancel"
+                                }else{
+                                    estado = "lateral-inprogress"
+                                }
+                                break;
+                            case 2:
+                                href = `index.php/${element.endpoint}/show/${consecutivo}`
+                                if(estado_declinado){
+                                    estado = "lateral-cancel"
+                                }else{
+                                    estado = "lateral-done"
+                                }
+                                break;
+                            default:
+                                href = `index.php/${element.endpoint}/show/${consecutivo}`
+                                estado = "lateral-cancel"
+                        }
+                        document.getElementById(element.endpoint).href = href
+                        if(estado != ''){
+                            document.getElementById(element.endpoint).classList.add(estado)
+                        }
+                    })
+                    .catch((error) => console.log(error))
+                });
             })
             .catch((error) => console.log(error))
-        });
         })
         .catch((error) => console.log(error))
     }
@@ -334,24 +359,25 @@ window.onload = function() {
         .then((res) => res.json())
         .then((data) => {
             data.data.forEach(element => {
-            getEstados(url, element.endpoint, consecutivo)
-            .then((res) => res.json())
-            .then((value) => {
-                let estado_id = value.data
-                if(estado_id == null){
-                estado_id = 0
-                }else{
-                estado_id = value.data.estado_id
-                }
-                if(estado_id == 1){
-                document.getElementById(element.endpoint+'_checkbox').checked = false
-                }else if(estado_id == 2){
-                document.getElementById(element.endpoint+'_checkbox').checked = true
-                }else{
-                document.getElementById(element.endpoint+'_checkbox').disabled = true
-                }
-            })
-            .catch((error) => console.log(error))
+                getEstados(url, element.endpoint, consecutivo)
+                .then((res) => res.json())
+                .then((value) => {
+                    let estado_id = value.data
+                    
+                    if(estado_id == null){
+                        estado_id = 0
+                    }else{
+                        estado_id = value.data.estado_id
+                    }
+                    if(estado_id == 1){
+                        document.getElementById(element.endpoint+'_checkbox').checked = false
+                    }else if(estado_id == 2){
+                        document.getElementById(element.endpoint+'_checkbox').checked = true
+                    }else{
+                        document.getElementById(element.endpoint+'_checkbox').disabled = true
+                    }
+                })
+                .catch((error) => console.log(error))
             })
             $('#cambio_estado').modal('show')
         })
@@ -390,6 +416,17 @@ window.onload = function() {
             .catch((error) => console.log(error))
             }
         }
+        })
+    }
+
+    if(declinar){
+        let consecutivo = document.getElementsByName("consecutivo")[0].value
+        declinar.addEventListener('click', function(event){
+            declinarProceso(url, consecutivo)
+            .then((res) => res.json())
+            .then((data) => {
+                location.reload();
+            })
         })
     }
 

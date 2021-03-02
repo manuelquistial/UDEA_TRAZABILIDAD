@@ -30,13 +30,17 @@ class MailController extends Mailable
     {
         $this->index = $data_email->etapa_id;
 
-        $this->email = array(
-            'gestor' => $data_email->gestor,
-            'consecutivo' => $data_email->consecutivo, 
-            'nombre_proyecto' => $data_email->nombre_proyecto,
-            'tipo_transaccion' => $data_email->tipo_transaccion
-        );
-
+        if($data_email->etapa_id != 'decano'){
+            $this->email = array(
+                'gestor' => $data_email->gestor,
+                'consecutivo' => $data_email->consecutivo, 
+                'nombre_proyecto' => $data_email->nombre_proyecto,
+                'tipo_transaccion' => $data_email->tipo_transaccion
+            );
+        }else{
+            $this->email['email'] = $data_email->correo;
+        }
+        
         if(isset($data_email->nombre_apellido)){
             $this->email['nombre_apellido'] = $data_email->nombre_apellido;
         }
@@ -44,14 +48,6 @@ class MailController extends Mailable
         if(isset($data_email->sap)){
             $this->email['sap'] = $data_email->sap;
         }
-
-        /*}else{
-            $this->index = $data_email->index;
-            $this->consecutivo = $data_email->consecutivo;
-            $this->codigo_sigep = $data_email->codigo_sigep;
-            $this->codigo_sap = $data_email->codigo_sap;
-            $this->solped = $data_email->solped;
-        }*/
     }
 
     /**
@@ -79,6 +75,8 @@ class MailController extends Mailable
             $correo = $this->subject($subject)->markdown('emails.reservaView', $this->email);
         }else if($this->index == 8){
             $correo = $this->subject($subject)->markdown('emails.pagoView', $this->email);
+        }else if($this->index == 'decano'){
+            $correo = $this->subject($subject)->markdown('emails.decanoView', $this->email);
         }
 
         return $correo;//->from(\Config::get('mail.username'));

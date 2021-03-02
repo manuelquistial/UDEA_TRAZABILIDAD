@@ -11,28 +11,30 @@
         <label for="saldo">{{ Lang::get('strings.reserva.saldo') }}</label>
         @if(\App::environment() == 'production')
             <?php $fmt = numfmt_create('de_DE', NumberFormatter::CURRENCY)?>
-            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva)  ? str_replace(' €','',numfmt_format_currency($fmt, $reserva->reserva ,"EUR")) : '' }}" disabled>
+            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva)  ? str_replace(' €','',numfmt_format_currency($fmt, $reserva->reserva ,"EUR")) : 0 }}" disabled>
         @else
-            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva) ? $reserva->reserva : '' }}" disabled>
+            <input type="text" class="form-control" name="saldo" value="{{ isset($reserva->reserva) ? $reserva->reserva : 0 }}" disabled>
         @endif
     </div>
 
-    @switch($route)
-        @case("index")
-            <form action="{{ route('save_reserva') }}" method="post" enctype="multipart/form-data"> 
-            {!! csrf_field() !!}
-            @break
-        @case("edit")
-            <form action="{{ route('update_reserva') }}" method="post" enctype="multipart/form-data"> 
-            {!! csrf_field() !!}
-            @break
-        @default
-            @break
-    @endswitch  
+    @if($estado != 3)
+        @switch($route)
+            @case("index")
+                <form action="{{ route('save_reserva') }}" method="post" enctype="multipart/form-data"> 
+                {!! csrf_field() !!}
+                @break
+            @case("edit")
+                <form action="{{ route('update_reserva') }}" method="post" enctype="multipart/form-data"> 
+                {!! csrf_field() !!}
+                @break
+            @default
+                @break
+        @endswitch  
+    @endif
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="num_oficio">{{ Lang::get('strings.reserva.num_oficio') }}</label>
-            <input type="number" class="form-control" name="num_oficio" value="{{ $etapas ? old('num_oficio') : $data->num_oficio}}">
+            <input type="text" class="form-control" name="num_oficio" value="{{ $etapas ? old('num_oficio') : $data->num_oficio}}">
             @if ($errors->has('num_oficio'))
                 <span class="text-danger">
                     <strong><small>{{ $errors->first('num_oficio') }}</small></strong>
@@ -75,16 +77,18 @@
                 @endforeach
             </div>
         @endif
-        @switch($route)
-            @case("index")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
-                @break
-            @case("edit")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
-                @break
-            @default
-                @break
-        @endswitch
+        @if($estado != 3)
+            @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                    @break
+                @case("edit")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                    @break
+                @default
+                    @break
+            @endswitch
+        @endif
     </form>
 </div>
 @stop

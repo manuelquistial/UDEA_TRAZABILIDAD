@@ -27,6 +27,7 @@ class Solicitud extends Model
      */
     protected $fillable = [
         'id', 'consecutivo', 'encargado_id', 'centro_costos_id',
-        'codigo_sigep_id', 'fecha_conveniencia', 'estado_id', 'fecha_estado', 'concepto'
+        'codigo_sigep_id', 'fecha_conveniencia', 'estado_id', 'fecha_estado', 'concepto',
+        'nombre_tercero', 'identificacion_tercero'
     ];
 }

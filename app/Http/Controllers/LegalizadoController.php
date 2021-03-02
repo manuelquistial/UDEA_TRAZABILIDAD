@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use App\Legalizado;
 use App\ActualEtapaEstado;
 use App\Aprobado;
+use App\Presolicitud;
+use App\Usuario;
 use Auth;
 
 class LegalizadoController extends Controller
@@ -30,10 +32,10 @@ class LegalizadoController extends Controller
     {
         $data = Legalizado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_legalizado', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_legalizado', $consecutivo);
             }
         }
@@ -41,6 +43,9 @@ class LegalizadoController extends Controller
         $route = "index";
         $etapas = true;
         $etapa_id = $this->etapa_id;
+        $reserva = null;
+        $egreso = null;
+
         
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
@@ -50,8 +55,45 @@ class LegalizadoController extends Controller
         $crp = Aprobado::where('consecutivo', $consecutivo)
             ->select('crp')
             ->first();
+            
+        if(isset($crp->crp)){
 
-        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','crp'));
+            $egreso = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 2)
+                        ->select(DB::raw('sum(m.Valor) egreso'))
+                        ->get();
+
+            $egreso = json_decode($egreso)[0];
+
+            $reserva = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 3)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+            $reserva = json_decode($reserva)[0];
+        }
+
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id','transaccion_id')->first();
+        $tipo_transaccion = $proyecto->transaccion_id;
+        if(($tipo_transaccion == 1) || ($tipo_transaccion == 3) || ($tipo_transaccion == 18) || ($tipo_transaccion == 25)){
+            $tipo_transaccion = 1;
+        }else{
+            $tipo_transaccion = 0;
+        }
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','crp','usuario_nombre','estado','egreso','reserva','data','tipo_transaccion'));
     }
 
     /**
@@ -96,8 +138,9 @@ class LegalizadoController extends Controller
      */
     public function store(Request $request)
     {
-        info($request);
-        $this->validator($request->all())->validate();
+        $data = $request->all();
+        $data['valor_reintegro'] = $this->replaceDots($data['valor_reintegro']);
+        $this->validator($data)->validate();
 
         $legalizado = $this->create($request->all());
         $legalizado->save();
@@ -117,11 +160,11 @@ class LegalizadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($consecutivo)
     {
         $data = Legalizado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_legalizado', $consecutivo);
             }
@@ -130,6 +173,8 @@ class LegalizadoController extends Controller
         $route = "show";
         $etapas = false;
         $etapa_id = $this->etapa_id;
+        $reserva = null;
+        $egreso = null;
         
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
@@ -139,8 +184,45 @@ class LegalizadoController extends Controller
         $crp = Aprobado::where('consecutivo', $consecutivo)
             ->select('crp')
             ->first();
+            
+        if(isset($crp->crp)){
 
-        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','crp'));
+            $egreso = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 2)
+                        ->select(DB::raw('sum(m.Valor) egreso'))
+                        ->get();
+
+            $egreso = json_decode($egreso)[0];
+
+            $reserva = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 3)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+            $reserva = json_decode($reserva)[0];
+        }
+
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id','transaccion_id')->first();
+        $tipo_transaccion = $proyecto->transaccion_id;
+        if(($tipo_transaccion == 1) || ($tipo_transaccion == 3) || ($tipo_transaccion == 18) || ($tipo_transaccion == 25)){
+            $tipo_transaccion = 1;
+        }else{
+            $tipo_transaccion = 0;
+        }
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','crp','usuario_nombre','estado','egreso','reserva','tipo_transaccion'));
     }
 
     /**
@@ -153,8 +235,8 @@ class LegalizadoController extends Controller
     {
         $data = Legalizado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_legalizado', $consecutivo);
             }
         }
@@ -162,13 +244,56 @@ class LegalizadoController extends Controller
         $route = "edit";
         $etapas = false;
         $etapa_id = $this->etapa_id;
+        $reserva = null;
+        $egreso = null;
         
         $consultas = new MainController;
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
 
-        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+            
+        if(isset($crp->crp)){
+
+            $egreso = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 2)
+                        ->select(DB::raw('sum(m.Valor) egreso'))
+                        ->get();
+
+            $egreso = json_decode($egreso)[0];
+
+            $reserva = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 3)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+            $reserva = json_decode($reserva)[0];
+        }
+
+        $$proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id','transaccion_id')->first();
+        $tipo_transaccion = $proyecto->transaccion_id;
+        if(($tipo_transaccion == 1) || ($tipo_transaccion == 3) || ($tipo_transaccion == 18) || ($tipo_transaccion == 25)){
+            $tipo_transaccion = 1;
+        }else{
+            $tipo_transaccion = 0;
+        }
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/legalizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','usuario_nombre','estado','crp','egreso','reserva','tipo_transaccion'));
     }
 
     /**
@@ -180,9 +305,9 @@ class LegalizadoController extends Controller
      */
     public function update(Request $request)
     {
-        $this->validator($request->all())->validate();
-
         $data = $request->except('_token');
+        $data['valor_reintegro'] = $this->replaceDots($data['valor_reintegro']);
+        $this->validator($data)->validate();
 
         Legalizado::where('consecutivo', $request->consecutivo)
                     ->update($data);
@@ -240,5 +365,9 @@ class LegalizadoController extends Controller
 
     public function startEndSpaces($str){
         return trim($str, $this->espacio);
+    }
+
+    public function replaceDots($value){
+        return preg_replace('/\./m', '', $value);
     }
 }

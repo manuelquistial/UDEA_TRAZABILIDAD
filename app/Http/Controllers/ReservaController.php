@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Reserva;
 use App\Aprobado;
+use App\Presolicitud;
+use App\Usuario;
+use App\ActualEtapaEstado;
 use Auth;
 
 class ReservaController extends Controller
@@ -16,7 +19,7 @@ class ReservaController extends Controller
     public $en_proceso = 1;
     public $espacio = " ";
     public $directorio = "reserva/";
-    public $path = "//public/"; 
+    public $path = "//public/reserva/"; 
 
     public function __construct()
     {
@@ -32,10 +35,10 @@ class ReservaController extends Controller
     {
         $data = Reserva::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_reserva', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_reserva', $consecutivo);
             }
         }
@@ -70,7 +73,11 @@ class ReservaController extends Controller
             $reserva = json_decode($reserva)[0];
         }
 
-        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','files','crp','reserva'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','files','crp','reserva','usuario_nombre','estado'));
     }
 
     /**
@@ -121,6 +128,9 @@ class ReservaController extends Controller
         $reserva = $this->create($request->all());
         $reserva->save();
 
+        $upload_files = new DocumentosController;
+        $upload_files->uploadFile($request, $this->path.$request->consecutivo);
+
         return redirect()->route('edit_reserva', $request->consecutivo)->with('status', true);
     }
 
@@ -134,7 +144,7 @@ class ReservaController extends Controller
     {
         $data = Reserva::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_reserva', $consecutivo);
             }
@@ -150,12 +160,31 @@ class ReservaController extends Controller
                         ->data;
 
         $crp = Aprobado::where('consecutivo', $consecutivo)
-                    ->select('crp')
-                    ->first();
+            ->select('crp')
+            ->first();
+            
+        if(isset($crp->crp)){
+
+            $reserva = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 3)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+            $reserva = json_decode($reserva)[0];
+        }
 
         $files = Storage::disk('public')->files($this->directorio . $consecutivo);
 
-        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','files'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','files','usuario_nombre','estado','reserva','crp'));
     }
 
     /**
@@ -168,8 +197,8 @@ class ReservaController extends Controller
     {
         $data = Reserva::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_reserva', $consecutivo);
             }
         }
@@ -183,9 +212,32 @@ class ReservaController extends Controller
                         ->getData()
                         ->data;
 
-        $files = Storage::disk('public')->files($this->directorio . '/' . $consecutivo);
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+            
+        if(isset($crp->crp)){
 
-        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','files'));
+            $reserva = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 3)
+                        ->select(DB::raw('sum(m.Valor) reserva'))
+                        ->get();
+
+            $reserva = json_decode($reserva)[0];
+        }
+
+        $files = Storage::disk('public')->files($this->directorio . $consecutivo);
+
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/reservaView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','files','usuario_nombre','estado','crp','reserva'));
     }
 
     /**
@@ -199,8 +251,8 @@ class ReservaController extends Controller
     {
         $this->validator($request->all())->validate();
 
-        $upload_files = new MainController;
-        $upload_files->uploadFile($request, $this->path.$this->directorio);
+        $upload_files = new DocumentosController;
+        $upload_files->uploadFile($request, $this->path.$request->consecutivo);
 
         $data = $request->except('_token','anexos');
 

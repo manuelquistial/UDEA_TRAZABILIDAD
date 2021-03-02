@@ -32,6 +32,7 @@ Route::POST('presolicitud/update', 'PresolicitudController@update')->name('updat
 
 Route::middleware(['etapa:3'])->middleware(['role:Administrador'])->group(function () {
     Route::GET('transacciones/correos', 'CorreosController@index')->name('correos');
+    Route::POST('transacciones/correos/enviar', 'CorreosController@correoDecano');
 });
 
 Route::middleware(['role:Administrador'])->group(function () {
@@ -139,6 +140,7 @@ Route::middleware(['tipo_transaccion'])->group(function () {
     Route::POST('legalizado/update', 'LegalizadoController@update')->name('update_legalizado');
 
     Route::GET('etapas', 'MainController@etapas')->name('etapas');
+    Route::POST('declinar', 'MainController@declinarProceso');
 
     Route::GET('transacciones/gestores', 'TransaccionesController@showConsultaGestores')->name('consulta_gestores');
     Route::GET('transacciones/gestores/show/{id}', 'TransaccionesController@show')->name('show_gestores');

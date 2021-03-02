@@ -41,10 +41,10 @@ class SolicitudController extends Controller
     {
         $data = Solicitud::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_solicitud', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_solicitud', $consecutivo);
             }
         }
@@ -60,10 +60,12 @@ class SolicitudController extends Controller
                         ->getData()
                         ->data;
 
-        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id')->first();
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id','usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
         $centro_costos = CentroCostos::get();
 
-        return view('etapas/solicitudView', compact('route','etapa_id','etapas','etapa_estado','consecutivo','centro_costos','proyecto','files'));
+        return view('etapas/solicitudView', compact('route','etapa_id','etapas','etapa_estado','consecutivo','centro_costos','proyecto','files','usuario_nombre','estado'));
     }
 
     /**
@@ -81,6 +83,8 @@ class SolicitudController extends Controller
             'codigo_sigep_id' => $this->startEndSpaces($data['codigo_sigep_id']),
             'fecha_conveniencia' => $this->returnNull($data['fecha_conveniencia']),
             'concepto' => $this->startEndSpaces($data['concepto']),
+            'nombre_tercero' => $this->startEndSpaces($data['nombre_tercero']),
+            'identificacion_tercero' => $this->returnNull($this->startEndSpaces($data['identificacion_tercero'])),
             'estado_id' => $this->en_proceso,
             'fecha_estado' => date("Y-m-d H:i:s")
         ]);
@@ -101,6 +105,8 @@ class SolicitudController extends Controller
             'centro_costos_id' => 'required|integer',
             'codigo_sigep_id' => 'required|integer',
             'concepto' => 'required|string',
+            'nombre_tercero' => 'string|nullable',
+            'identificacion_tercero'  => 'integer|nullable',
             'anexos*' => 'mimes:pdf'
         ]);
     }
@@ -139,9 +145,10 @@ class SolicitudController extends Controller
      */
     public function show($consecutivo)
     {
+        
         $data = Solicitud::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_solicitud', $consecutivo);
             }
@@ -163,12 +170,14 @@ class SolicitudController extends Controller
             $data->fecha_conveniencia = date("Y-m-d", strtotime($data->fecha_conveniencia));
         }
 
-        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id')->first();
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id','usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
         $centro_costos = CentroCostos::get();
 
         $files = Storage::disk('public')->files($this->directorio . $consecutivo);
 
-        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto','files'));
+        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto','files','usuario_nombre','estado'));
     }
 
     /**
@@ -181,8 +190,8 @@ class SolicitudController extends Controller
     {
         $data = Solicitud::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_solicitud', $consecutivo);
             }
         }
@@ -201,12 +210,14 @@ class SolicitudController extends Controller
         if($data->fecha_conveniencia){
             $data->fecha_conveniencia = date("Y-m-d", strtotime($data->fecha_conveniencia));
         }
-        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id')->first();
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('proyecto_id','usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
         $centro_costos = CentroCostos::get();
 
         $files = Storage::disk('public')->files($this->directorio . $consecutivo);
         
-        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto','files'));
+        return view('etapas/solicitudView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','centro_costos','proyecto','files','usuario_nombre','estado'));
     }
 
     /**
@@ -310,7 +321,7 @@ class SolicitudController extends Controller
 
         $proyecto_id = $request->proyecto;
 
-        $query = DB::connection('mysql_sigep')
+        $pp_inicial = DB::connection('mysql_sigep')
                 ->table('proyectos as p')
                 ->join('movimientos as m', 'm.Proyecto','=','p.codigo')
                 ->join('rubros as r', 'r.codigo','=','m.Rubro')

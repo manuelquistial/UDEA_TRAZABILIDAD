@@ -2,18 +2,20 @@
 
 @section('content')
 <div class="card-body">
-    @switch($route)
-        @case("index")
-            <form action="{{ route('save_solicitud') }}" method="post" enctype="multipart/form-data"> 
-            {!! csrf_field() !!}
-            @break
-        @case("edit")
-            <form action="{{ route('update_solicitud') }}" method="post" enctype="multipart/form-data"> 
-            {!! csrf_field() !!}
-            @break
-        @default
-            @break
-    @endswitch
+    @if($estado != 3)
+        @switch($route)
+            @case("index")
+                <form action="{{ route('save_solicitud') }}" method="post" enctype="multipart/form-data"> 
+                {!! csrf_field() !!}
+                @break
+            @case("edit")
+                <form action="{{ route('update_solicitud') }}" method="post" enctype="multipart/form-data"> 
+                {!! csrf_field() !!}
+                @break
+            @default
+                @break
+        @endswitch
+    @endif
         <input type="hidden" name="consecutivo", value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="centro_costos_id">{{ Lang::get('strings.solicitud.centro_costos') }}</label>
@@ -63,6 +65,26 @@
                 </span>
             @endif
         </div>
+        <div class="form-row" style="margin: 1rem 0rem;">
+            <div class="form-group col-md-6" style="margin: 0px; padding-left: 0px;">
+                <label for="nombre_tercero">{{ Lang::get('strings.aprobado.nombre_tercero') }}</label>
+                <input type="text" class="form-control" name="nombre_tercero" value="{{ $etapas  ? old('nombre_tercero') : ($data->nombre_tercero == NULL ? old('nombre_tercero') : $data->nombre_tercero) }}">
+                @if ($errors->has('nombre_tercero'))
+                    <span class="text-danger">
+                        <strong><small>{{ $errors->first('nombre_tercero') }}</small></strong>
+                    </span>
+                @endif
+            </div>
+            <div class="form-group col-md-6" style="margin: 0px; padding-right: 0px;">
+                <label for="identificacion_tercero">{{ Lang::get('strings.aprobado.identificacion_tercero') }}</label>
+                <input type="number" class="form-control" name="identificacion_tercero" value="{{ $etapas  ? old('identificacion_tercero') : ($data->identificacion_tercero == NULL ? old('identificacion_tercero') : $data->identificacion_tercero) }}">
+                @if ($errors->has('identificacion_tercero'))
+                    <span class="text-danger">
+                        <strong><small>{{ $errors->first('identificacion_tercero') }}</small></strong>
+                    </span>
+                @endif
+            </div>
+        </div>
         @if($route != "show")
             <div class="form-group">
                 <label for="anexos">{{ Lang::get('strings.general.anexos') }}</label>
@@ -90,16 +112,18 @@
                 @endforeach
             </div>
         @endif
-        @switch($route)
-            @case("index")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
-                @break
-            @case("edit")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
-                @break
-            @default
-                @break
-        @endswitch
+        @if($estado != 3)
+            @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                    @break
+                @case("edit")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                    @break
+                @default
+                    @break
+            @endswitch
+        @endif
     </form>
 </div>
 

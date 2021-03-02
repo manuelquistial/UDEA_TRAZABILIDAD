@@ -11,6 +11,7 @@ use App\Tramite;
 use App\ActualEtapaEstado;
 use App\TiposTransaccion;
 use App\Cargos;
+use App\Usuario;
 use Auth;
 
 class TramiteController extends Controller
@@ -21,6 +22,7 @@ class TramiteController extends Controller
     public $espacio = " ";
     public $cargo_sigep_id = 3;
     public $cargo_responsable_id = 4;
+    public $sap = 2; 
 
     public function __construct()
     {
@@ -36,10 +38,10 @@ class TramiteController extends Controller
     {
         $data = Tramite::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_tramite', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_tramite', $consecutivo);
             }
         }
@@ -52,8 +54,17 @@ class TramiteController extends Controller
         $etapa_estado = $consultas->etapas()
                         ->getData()
                         ->data;
+        
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','transaccion_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+        $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('cargo_id')->first();
+        $cargo = Auth::user()->hasOneCargo($this->sap);
+        if(($tipoTransaccion['cargo_id'] == 2) && !$cargo){
+            $route = 'show';
+        }
 
-        return view('etapas/tramiteView', compact('route', 'etapa_id','etapas','consecutivo','etapa_estado'));
+        return view('etapas/tramiteView', compact('route', 'etapa_id','etapas','consecutivo','etapa_estado','usuario_nombre','estado'));
     }
 
     /**
@@ -122,7 +133,7 @@ class TramiteController extends Controller
     {
         $data = Tramite::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_tramite', $consecutivo);
             }
@@ -141,7 +152,11 @@ class TramiteController extends Controller
             $data->fecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
         }
 
-        return view('etapas/tramiteView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/tramiteView', compact('route','data','etapa_id','etapas','consecutivo','etapa_estado','usuario_nombre','estado'));
     }
 
     /**
@@ -154,8 +169,8 @@ class TramiteController extends Controller
     {
         $data = Tramite::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_tramite', $consecutivo);
             }
         }
@@ -173,7 +188,17 @@ class TramiteController extends Controller
             $data->ffecha_sap = date("Y-m-d", strtotime($data->fecha_sap));
         }
 
-        return view('etapas/tramiteView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','transaccion_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('cargo_id')->first();
+        $cargo = Auth::user()->hasOneCargo($this->sap);
+        if(($tipoTransaccion['cargo_id'] == 2) && !$cargo){
+            $route = 'show';
+        }
+
+        return view('etapas/tramiteView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**

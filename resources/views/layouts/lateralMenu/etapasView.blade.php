@@ -25,12 +25,13 @@
                             </button>
                         </div>
                     @endif
-                <div class="col-6 conf-header">
-                    <h5 id="title-etapa">{{ $etapa_estado[$etapa_id-1]->etapa }}</h5>
-                </div>
-                <div class="col-6 text-right conf-header">
-                    <a class="actual-cambio-estado" id="cambio-estado">{{ Lang::get('strings.general.consecutivo') }}: {{ $consecutivo }}</a>
-                </div>
+                    <div class="col-6 conf-header">
+                        <h5 id="title-etapa">{{ $etapa_estado[$etapa_id-1]->etapa }}</h5>
+                    </div>
+                    <div class="col-6 text-right conf-header">
+                        <a class="actual-cambio-estado" id="cambio-estado">{{ Lang::get('strings.general.consecutivo') }}: {{ $consecutivo }}</a>
+                        <h6 style="margin: 0px;font-size: 12px;">{{ $usuario_nombre->nombre_apellido }}</h6>
+                    </div>
                 @else
                     @if(session('status'))
                         <div class="status alert alert-success fade show" id="status" role="alert">

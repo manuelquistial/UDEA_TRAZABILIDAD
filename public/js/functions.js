@@ -14,13 +14,12 @@ async function getFinancieroProyecto(url, proyecto_id){
   return response
 }
 
-async function enviarCorreos(){
-  let route = `${url}/${endpoint}/estado`
+async function enviarCorreos(url, data){
+  let route = `${url}/transacciones/correos/enviar`
   const response = await fetch(route, {
-    method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
     body: JSON.stringify({
-      consecutivo: consecutivo,
-      estado_id: estado
+      data: data 
     }),
     headers: {
       'Content-Type': 'application/json',
@@ -225,6 +224,21 @@ async function deleteDocumento(url, file_path){
   return response
 }
 
+async function declinarProceso(url, consecutivo){
+  let route = `${url}/declinar`
+  const response = await fetch(route, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    body: JSON.stringify({
+      consecutivo: consecutivo
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token
+    }
+  })
+  return response
+}
+
 function tildesEspacios(word){
   let word_short = word.toLowerCase()
   word_short.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -248,5 +262,6 @@ export{
   getProyectos,
   enviarCorreos,
   getFinancieroProyecto,
-  deleteDocumento
+  deleteDocumento,
+  declinarProceso
 }

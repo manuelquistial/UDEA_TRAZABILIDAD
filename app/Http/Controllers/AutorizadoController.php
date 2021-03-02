@@ -35,10 +35,10 @@ class AutorizadoController extends Controller
     {
         $data = Autorizado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_autorizado', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_autorizado', $consecutivo);
             }
         }
@@ -52,7 +52,11 @@ class AutorizadoController extends Controller
                         ->getData()
                         ->data;
 
-        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','usuario_nombre','estado'));
     }
 
     /**
@@ -96,7 +100,6 @@ class AutorizadoController extends Controller
      */
     public function store(Request $request)
     {
-
         if($this->returnNull($request->descripcion_pendiente) == null & $this->returnNull($request->codigo_sigep) == null){
             return redirect()->route('autorizado', $request->consecutivo)->with('empty', true);
         }
@@ -135,7 +138,7 @@ class AutorizadoController extends Controller
     {
         $data = Autorizado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_autorizado', $consecutivo);
             }
@@ -149,7 +152,11 @@ class AutorizadoController extends Controller
                         ->getData()
                         ->data;
 
-        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**
@@ -162,8 +169,8 @@ class AutorizadoController extends Controller
     {
         $data = Autorizado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_autorizado', $consecutivo);
             }
         }
@@ -177,7 +184,11 @@ class AutorizadoController extends Controller
                         ->getData()
                         ->data;
 
-        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/autorizadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**
@@ -241,15 +252,15 @@ class AutorizadoController extends Controller
                         ]);
                         
         if($request->estado_id == $this->confirmado){
-            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','usuario_id')->first();
             $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
 
             /*$usuario_sap = new Cargos();
             $usuario_sap = $usuario_sap->usuarioByCargo($this->cargo_sap_id)->first();*/
-            $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
+            $usuario = Usuario::where('cedula',$proyecto->usuario_id)->select('email')->first();
 
             $data = (object)[];
-            $data->email = $encargado->email;
+            $data->email = $usuario->email;
             $data->consecutivo = $request->consecutivo;
             $data->etapa_id = $this->etapa_id;
             $data->nombre_proyecto = $proyecto->nombre_proyecto;

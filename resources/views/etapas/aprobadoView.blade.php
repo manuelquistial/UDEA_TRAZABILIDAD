@@ -46,18 +46,20 @@
             @endif
         </div>
     </div>
-    @switch($route)
-        @case("index")
-            <form action="{{ route('save_aprobado') }}" method="post"> 
-            {!! csrf_field() !!}
-            @break
-        @case("edit")
-            <form action="{{ route('update_aprobado') }}" method="post"> 
-            {!! csrf_field() !!}
-            @break
-        @default
-            @break
-    @endswitch 
+    @if($estado != 3)
+        @switch($route)
+            @case("index")
+                <form action="{{ route('save_aprobado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @case("edit")
+                <form action="{{ route('update_aprobado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @default
+                @break
+        @endswitch 
+    @endif
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="crp">{{ Lang::get('strings.general.crp') }}</label>
@@ -111,16 +113,18 @@
                 @endif
             </div>
         </div>
-        @switch($route)
-            @case("index")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
-                @break
-            @case("edit")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
-                @break
-            @default
-                @break
-        @endswitch
+        @if($estado != 3)
+            @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                    @break
+                @case("edit")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                    @break
+                @default
+                    @break
+            @endswitch
+        @endif
     </form>
 </div>
 @stop

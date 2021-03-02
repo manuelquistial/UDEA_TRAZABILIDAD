@@ -12,7 +12,7 @@ class CargosSeeder extends Seeder
      */
     public function run()
     {
-        /*$role = new Cargos();
+        $role = new Cargos();
         $role->cargo = "Decano";
         $role->cargo_id = "1";
         $role->habilitador = True;
@@ -28,7 +28,7 @@ class CargosSeeder extends Seeder
         $role->cargo = "Contabilidad";
         $role->cargo_id = "3";
         $role->habilitador = True;
-        $role->save();*/
+        $role->save();
 
         $role = new Cargos();
         $role->cargo = "Responsable de Proyecto";

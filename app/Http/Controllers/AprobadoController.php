@@ -11,6 +11,9 @@ use App\ActualEtapaEstado;
 use App\Presolicitud;
 use App\TiposTransaccion;
 use App\Usuario;
+use App\Reserva;
+use App\Pago;
+use App\Legalizado;
 use Auth;
 
 class AprobadoController extends Controller
@@ -34,10 +37,10 @@ class AprobadoController extends Controller
     {
         $data = Aprobado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_aprobado', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_aprobado', $consecutivo);
             }
         }
@@ -51,9 +54,11 @@ class AprobadoController extends Controller
                         ->getData()
                         ->data;
 
-        $data = Aprobado::where('consecutivo', $consecutivo)->first();
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
 
-        return view('etapas/aprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
+        return view('etapas/aprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**
@@ -138,7 +143,7 @@ class AprobadoController extends Controller
     {
         $data = Aprobado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_aprobado', $consecutivo);
             }
@@ -153,7 +158,11 @@ class AprobadoController extends Controller
                         ->getData()
                         ->data;
 
-        return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**
@@ -166,8 +175,8 @@ class AprobadoController extends Controller
     {
         $data = Aprobado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_aprobado', $consecutivo);
             }
         }
@@ -181,7 +190,11 @@ class AprobadoController extends Controller
                         ->getData()
                         ->data;
 
-        return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/aprobadoView', compact('route','etapa_id','etapas','consecutivo','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**
@@ -304,22 +317,65 @@ class AprobadoController extends Controller
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
 
+        $reserva = Reserva::where('consecutivo', $request->consecutivo)->first();
+
+        if($reserva == NULL){
+            $reserva = Reserva::create([
+                'encargado_id' => Auth::user()->cedula,
+                'consecutivo' => $request->consecutivo,
+                'noun_oficio' => NULL,
+                'fecha_cancelacion' => NULL,
+                'estado_id' => $this->en_proceso,
+                'fecha_estado' => date("Y-m-d H:i:s")
+            ]);
+            $reserva->save();
+        }
+
+        $pago = Pago::where('consecutivo', $request->consecutivo)->first();
+
+        if($pago == NULL){
+            $pago = Pago::create([
+                'encargado_id' => Auth::user()->cedula,
+                'consecutivo' => $request->consecutivo,
+                'estado_id' => $this->en_proceso,
+                'fecha_estado' => date("Y-m-d H:i:s")
+            ]);
+            $pago->save();
+        }
+
+        $legalizado = Legalizado::where('consecutivo', $request->consecutivo)->first();
+
+        if($legalizado == NULL){
+            $legalizado = Legalizado::create([
+                'encargado_id' => Auth::user()->cedula,
+                'consecutivo' => $request->consecutivo,
+                'valor_reintegro' => NULL,
+                'consecutivo_reingreso' => NULL,
+                'estado_id' => $this->en_proceso,
+                'fecha_estado' => date("Y-m-d H:i:s")
+            ]);
+            $legalizado->save();
+        }
+
         if($request->estado_id == $this->confirmado){
-            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
-            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','usuario_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion','cargo_id')->first();
             
-            $data = (object)[];
-            $data->nombre_proyecto = $proyecto->nombre_proyecto;
-            $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
-            $data->consecutivo = $request->consecutivo;
-            $data->etapa_id = $this->etapa_id;
-            $data->gestor = false;
+            if($tipoTransaccion->cargo_id == 2){
+                $data = (object)[];
+                $data->nombre_proyecto = $proyecto->nombre_proyecto;
+                $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
+                $data->consecutivo = $request->consecutivo;
+                $data->etapa_id = $this->etapa_id;
+                $data->gestor = false;
+                $data->sap = false;
 
-            $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
+                $usuario = Usuario::where('cedula',$proyecto->usuario_id)->select('email')->first();
 
-            $data->email = $encargado->email;
-            $email_controller = new CorreosController;
-            $email_controller->email($data);
+                $data->email = $usuario->email;
+                $email_controller = new CorreosController;
+                $email_controller->email($data);
+            }
         
         }
                         

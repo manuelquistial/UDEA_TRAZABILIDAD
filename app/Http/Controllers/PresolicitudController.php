@@ -38,6 +38,7 @@ class PresolicitudController extends Controller
         $route = "index";
         $etapa_id = 0;
         $files = 0;
+        $estado = '';
 
         $tipoTransaccion = $this->tiposTransaccionWithUsuario();
 
@@ -55,7 +56,7 @@ class PresolicitudController extends Controller
             $apoyo_economico = null;
         }
 
-        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','tipoTransaccion','proyecto','files','apoyo_economico'));
+        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','tipoTransaccion','proyecto','files','apoyo_economico','estado'));
         //return response()->json([''=>$proyecto]);
     }
 
@@ -113,7 +114,6 @@ class PresolicitudController extends Controller
      */
     public function store(Request $request)
     {
-
         $data = $request->all();
 
         $data['valor'] = $this->replaceDots($data['valor']);
@@ -125,7 +125,6 @@ class PresolicitudController extends Controller
                 ->where('a.tipo_transaccion_id', $request['transaccion_id'])
                 ->select('b.cedula', 'b.email', 'c.tipo_transaccion', 'b.nombre_apellido')
                 ->first();
-
 
         $data['encargado_id'] = $encargado_id->cedula;
 
@@ -157,7 +156,6 @@ class PresolicitudController extends Controller
         $encargado_id->nombre_proyecto = $nombre_proyecto;
 
         $email_gestor = $encargado_id->email;
-
 
         $email_controller = new CorreosController;
         $encargado_id->gestor = false;
@@ -192,6 +190,8 @@ class PresolicitudController extends Controller
                         ->data;
 
         $data = Presolicitud::where('consecutivo', $consecutivo)->first();
+        $estado = $data->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$data->usuario_id)->select('nombre_apellido')->first();
 
         if($data->fecha_inicial){
             $data->fecha_inicial = date("Y-m-d", strtotime($data->fecha_inicial));
@@ -211,7 +211,7 @@ class PresolicitudController extends Controller
 
         $files = Storage::disk('public')->files($this->directorio . $consecutivo);
 
-        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto','files'));
+        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto','files','usuario_nombre','estado'));
     }
 
     /**
@@ -232,6 +232,8 @@ class PresolicitudController extends Controller
                         ->data;
 
         $data = Presolicitud::where('consecutivo', $consecutivo)->first();
+        $estado = $data->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$data->usuario_id)->select('nombre_apellido')->first();
 
         if($data->fecha_inicial){
             $data->fecha_inicial = date("Y-m-d", strtotime($data->fecha_inicial));
@@ -256,7 +258,7 @@ class PresolicitudController extends Controller
             $apoyo_economico = $apoyo_economico[0];
         }
 
-        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto','files','apoyo_economico'));
+        return view('etapas/presolicitudView', compact('route','etapa_id','etapas','consecutivo','data','etapa_estado','tipoTransaccion','proyecto','files','apoyo_economico','usuario_nombre','estado'));
     }
 
     /**

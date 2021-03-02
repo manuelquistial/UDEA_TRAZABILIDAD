@@ -7,10 +7,15 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Pago;
 use App\Aprobado;
+use App\Presolicitud;
+use App\Usuario;
+use App\TiposTransaccion;
+use App\ActualEtapaEstado;
 
 class PagoController extends Controller
 {
     public $etapa_id = 8;
+    public $confirmado = 2;
     public $en_proceso = 1;
 
     public function __construct()
@@ -27,14 +32,15 @@ class PagoController extends Controller
     {
         $data = Pago::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_pago', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_pago', $consecutivo);
             }
         }
 
+        $route = 'index';
         $etapa_id = $this->etapa_id;
         $egreso = null;
         
@@ -62,7 +68,10 @@ class PagoController extends Controller
             $egreso = json_decode($egreso)[0];
         }
 
-        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado','crp','egreso'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id')->first();
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/pagoView', compact('route','etapa_id','consecutivo','etapa_estado','crp','egreso','usuario_nombre'));
     }
 
     /**
@@ -105,12 +114,13 @@ class PagoController extends Controller
     {
         $data = Pago::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_pago', $consecutivo);
             }
         }
 
+        $route = 'show';
         $etapa_id = $this->etapa_id;
         
         $consultas = new MainController;
@@ -121,8 +131,26 @@ class PagoController extends Controller
         $crp = Aprobado::where('consecutivo', $consecutivo)
             ->select('crp')
             ->first();
+                        
+        if(isset($crp->crp)){
 
-        return view('etapas/pagoView', compact('etapa_id','consecutivo','etapa_estado','data','crp'));
+            $egreso = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 2)
+                        ->select(DB::raw('sum(m.Valor) egreso'))
+                        ->get();
+
+            $egreso = json_decode($egreso)[0];
+        }
+
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id')->first();
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/pagoView', compact('route','etapa_id','consecutivo','etapa_estado','data','crp','usuario_nombre','egreso'));
     }
 
     /**
@@ -135,12 +163,44 @@ class PagoController extends Controller
     {
         $data = Pago::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_pago', $consecutivo);
             }
         }
+
+        $route = 'edit';
+        $etapa_id = $this->etapa_id;
+        $egreso = null;
         
+        $consultas = new MainController;
+        $etapa_estado = $consultas->etapas()
+                        ->getData()
+                        ->data;
+
+        $crp = Aprobado::where('consecutivo', $consecutivo)
+            ->select('crp')
+            ->first();
+            
+        if(isset($crp->crp)){
+
+            $egreso = DB::connection('mysql_sigep')
+                        ->table('documentos_soporte as ds')
+                        ->join('movimientos as m', 'm.codigo_operacion','=','ds.codigo_operacion')
+                        ->where('m.habilitado', 1) 
+                        ->where('ds.tipo_documento', 33) // 33 CRP
+                        ->where('ds.numero_documento', $crp->crp)
+                        ->where('m.Tipo', 2)
+                        ->select(DB::raw('sum(m.Valor) egreso'))
+                        ->get();
+
+            $egreso = json_decode($egreso)[0];
+        }
+        
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id')->first();
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/pagoView', compact('route','etapa_id','consecutivo','etapa_estado','crp','usuario_nombre','egreso'));
     }
 
     /**
@@ -188,7 +248,26 @@ class PagoController extends Controller
                         'estado_id' => $request->estado_id,
                         'fecha_estado' => date("Y-m-d H:i:s")
                         ]);
-                        
+
+        if($request->estado_id == $this->confirmado){
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','usuario_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion','cargo_id')->first();
+            
+            $data = (object)[];
+            $data->nombre_proyecto = $proyecto->nombre_proyecto;
+            $data->tipo_transaccion = $tipoTransaccion->tipo_transaccion;
+            $data->consecutivo = $request->consecutivo;
+            $data->etapa_id = $this->etapa_id;
+            $data->gestor = false;
+            $data->sap = false;
+
+            $usuario = Usuario::where('cedula',$proyecto->usuario_id)->select('email')->first();
+
+            $data->email = $usuario->email;
+            $email_controller = new CorreosController;
+            $email_controller->email($data);
+        }
+
         return response()->json(['data'=>true]);
     }
 

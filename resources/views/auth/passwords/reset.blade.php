@@ -4,7 +4,7 @@
 <div class="col-5">  
     <div class="info-body">
         <div class="modal-header">
-            <h5 class="titulo-header">{{ Lang::get('strings.login.cambiar_password') }}</h5>
+            <h5 class="titulo-header">{{ Lang::get('strings.login.change_password') }}</h5>
         </div>
 
         <div class="card-body">

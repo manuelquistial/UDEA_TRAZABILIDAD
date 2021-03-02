@@ -7,13 +7,13 @@ return [
         'declinar' => 'Declinar'
     ],
     'menu_superior' => [
-        'titulo' => 'Trazabilidad de Solicitudes de Trámites Administrativos',
+        'titulo' => 'Sistema de Información de Trámites Administrativos',
         'opciones' => [
             'perfil' => 'Perfil',
             'configuracion' => 'Configuración',
             'cerrar_sesion' => 'Cerrar sesión'
         ],
-        'transaccion' => 'Consulta de Tramites',
+        'transaccion' => 'Consulta de Trámites',
         'consulta_usuario' => 'Consulta de Usuarios',
         'consulta_gestores' => 'Consulta de Gestores',
         'correos' => 'Correos',
@@ -206,13 +206,14 @@ return [
     'legalizado' => [
         'crp' => 'No. de CRP o No. de comprobante',
         'valor' => 'Valor del egreso',
+        'valor_legalizar' => 'Valor por legalizar',
         'valor_reintegro' => 'Valor de reintegro',
-        'consecutivo_reingreso' => 'Consecutivo de reingreso'
+        'consecutivo_reingreso' => 'Consecutivo de reintegro'
     ],
     'etapas' => [
         'presolicitud' => 'Presolicitud',
         'solicitud' => 'Solicitud',
-        'tramite' => 'Tramite',
+        'tramite' => 'Trámite',
         'autorizado' => 'Autorizado Ordenador',
         'preaprobado' => 'Preaprobado Presupuesto',
         'aprobado' => 'Aprobado Presupuesto',

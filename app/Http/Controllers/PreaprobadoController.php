@@ -10,6 +10,7 @@ use App\ActualEtapaEstado;
 use App\Presolicitud;
 use App\TiposTransaccion;
 use App\Usuario;
+use App\Cargos;
 use Auth;
 
 class PreaprobadoController extends Controller
@@ -19,7 +20,9 @@ class PreaprobadoController extends Controller
     public $confirmado = 2;
     public $espacio = " ";
     public $administrador = "Administrador";
-    public $sap = 3; 
+    public $cargo_sigep_id = 3;
+    public $cargo_responsable_id = 4;
+    public $cargo_sap_id = 2; 
 
     public function __construct()
     {
@@ -35,10 +38,10 @@ class PreaprobadoController extends Controller
     {
         $data = Preaprobado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_preaprobado', $consecutivo);
-            }else if($estado['estado_id'] == 2){
+            }else if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_preaprobado', $consecutivo);
             }
         }
@@ -51,10 +54,17 @@ class PreaprobadoController extends Controller
                         ->getData()
                         ->data;
 
-        /*$role = Auth::user()->hasOneRole($this->administrador);
-        $sap = Auth::user()->hasOneEtpa($this->sap);*/
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','transaccion_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
 
-        return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado'));
+        $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('cargo_id')->first();
+        $cargo = Auth::user()->hasOneCargo($this->cargo_sap_id);
+        if(($tipoTransaccion['cargo_id'] == 2) && !$cargo){
+            $route = 'show';
+        }
+
+        return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','usuario_nombre','estado'));
     }
 
     /**
@@ -123,7 +133,7 @@ class PreaprobadoController extends Controller
     {
         $data = Preaprobado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
+            $estado = $data->estado_id;
             if($estado['estado_id'] == 1){
                 return redirect()->route('edit_preaprobado', $consecutivo);
             }
@@ -138,7 +148,11 @@ class PreaprobadoController extends Controller
                         ->getData()
                         ->data;
 
-        return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**
@@ -151,8 +165,8 @@ class PreaprobadoController extends Controller
     {
         $data = Preaprobado::where('consecutivo', $consecutivo)->first();
         if($data){
-            $estado = $data->select('estado_id')->first();
-            if($estado['estado_id'] == 2){
+            $estado = $data->estado_id;
+            if(($estado == 2) || ($estado == 3)){
                 return redirect()->route('show_preaprobado', $consecutivo);
             }
         }
@@ -170,7 +184,17 @@ class PreaprobadoController extends Controller
             $data->fecha_cdp = date("Y-m-d", strtotime($data->fecha_cdp));
         }
 
-        return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data'));
+        $proyecto = Presolicitud::where('consecutivo', $consecutivo)->select('usuario_id','transaccion_id','estado_id')->first();
+        $estado = $proyecto->estado_id;
+        $usuario_nombre = Usuario::where('cedula',$proyecto->usuario_id)->select('nombre_apellido')->first();
+
+        $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('cargo_id')->first();
+        $cargo = Auth::user()->hasOneCargo($this->cargo_sap_id);
+        if(($tipoTransaccion['cargo_id'] == 2) && !$cargo){
+            $route = 'show';
+        }
+
+        return view('etapas/preaprobadoView', compact('route','etapa_id','consecutivo','etapas','etapa_estado','data','usuario_nombre','estado'));
     }
 
     /**
@@ -227,8 +251,8 @@ class PreaprobadoController extends Controller
                         ]);
                         
         if($request->estado_id == $this->confirmado){
-            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','encargado_id')->first();
-            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion')->first();
+            $proyecto = Presolicitud::where('consecutivo', $request->consecutivo)->select('nombre_proyecto','transaccion_id','usuario_id')->first();
+            $tipoTransaccion = TiposTransaccion::where('id', $proyecto->transaccion_id)->select('tipo_transaccion','cargo_id')->first();
             
             $data = (object)[];
             $data->nombre_proyecto = $proyecto->nombre_proyecto;
@@ -236,12 +260,41 @@ class PreaprobadoController extends Controller
             $data->consecutivo = $request->consecutivo;
             $data->etapa_id = $this->etapa_id;
             $data->gestor = false;
+            $data->sap = false;
 
             $email_controller = new CorreosController;
-            $encargado = Usuario::where('cedula',$proyecto->encargado_id)->select('email')->first();
+            $usuario = Usuario::where('cedula',$proyecto->usuario_id)->select('email')->first();
 
-            $data->email = $encargado->email;
+            if($tipoTransaccion->cargo_id == $this->cargo_sap_id){
+                $data->sap = true;
+            }
+
+            $data->email = $usuario->email;
             $email_controller->email($data);
+
+            $data->gestor = true;
+            $usuario_cargos = new Cargos();
+            $usuario_sigep = $usuario_cargos->usuarioByCargo($this->cargo_sigep_id)->first();
+            $usuario_responsable = $usuario_cargos->usuarioByCargo($this->cargo_responsable_id)->select('email')->get();
+            $usuario_sap = $usuario_cargos->usuarioByCargo($this->cargo_sap_id)->first();
+            $data->tipo_transaccion = $tipoTransaccion['tipo_transaccion'];
+            
+            if(isset($usuario_sigep['email'])){
+                $data->email = $usuario_sigep['email'];
+                $email_controller->email($data);
+            }
+
+            if(isset($usuario_responsable)){
+                foreach ($usuario_responsable as &$value) {
+                    $data->email = $value['email'];
+                    $email_controller->email($data);
+                }
+            }
+
+            if(isset($usuario_sap['email'])){
+                $data->email = $usuario_sap['email'];
+                $email_controller->email($data);
+            }
         
         }
 

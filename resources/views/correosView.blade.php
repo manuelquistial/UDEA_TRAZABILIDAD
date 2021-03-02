@@ -25,7 +25,13 @@
             <tbody id="items_tabla">
                 @foreach ($correos as $correo)
                     <tr>
-                        <td><input type="checkbox" class="form-check-input checkbox_table" name="correo[]" id="correo"></td>
+                        <td>
+                            @if($correo->enviado == '0')
+                                <input type="checkbox" class="form-check-input checkbox_table" name="correo[]" id="correo" data-id={{ $correo->id }} data-consecutivo="{{ $correo->consecutivo }}" data-etapa="{{ $correo->etapa }}" data-codigo="{{ $correo->codigo }}">
+                            @else
+                                <input type="checkbox" class="form-check-input checkbox_table" name="correo[]" id="correo" disabled>
+                            @endif
+                              </td>
                         <td>{{ $correo->consecutivo }}</td>
                         <td>
                             @if($correo->codigo == 0)
@@ -49,7 +55,7 @@
                             @endif
                         </td>
                         <td>
-                            @if($correo->fecha_envio != '0')
+                            @if($correo->fecha_envio == 0)
                                 -
                             @else
                                 {{ $correo->fecha_envio }}

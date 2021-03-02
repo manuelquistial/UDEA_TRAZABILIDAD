@@ -2,18 +2,20 @@
 
 @section('content')
 <div class="card-body">
-    @switch($route)
-        @case("index")
-            <form action="{{ route('save_preaprobado') }}" method="post"> 
-            {!! csrf_field() !!}
-            @break
-        @case("edit")
-            <form action="{{ route('update_preaprobado') }}" method="post"> 
-            {!! csrf_field() !!}
-            @break
-        @default
-            @break
-    @endswitch  
+    @if($estado != 3)
+        @switch($route)
+            @case("index")
+                <form action="{{ route('save_preaprobado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @case("edit")
+                <form action="{{ route('update_preaprobado') }}" method="post"> 
+                {!! csrf_field() !!}
+                @break
+            @default
+                @break
+        @endswitch  
+    @endif
         <input type="hidden" name="consecutivo" value="{{ $consecutivo }}">
         <div class="form-group">
             <label for="cdp">{{ Lang::get('strings.preaprobado.cdp') }}</label>
@@ -33,16 +35,18 @@
                 </span>
             @endif
         </div>
-        @switch($route)
-            @case("index")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
-                @break
-            @case("edit")
-                <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
-                @break
-            @default
-                @break
-        @endswitch
+        @if($estado != 3)
+            @switch($route)
+                @case("index")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.guardar') }}</button></div>
+                    @break
+                @case("edit")
+                    <div class="float-left"><button type="submit" class="btn btn-primary">{{ Lang::get('strings.general.actualizar') }}</button></div>
+                    @break
+                @default
+                    @break
+            @endswitch
+        @endif
     </form>
 </div>
 @stop

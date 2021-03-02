@@ -15,10 +15,12 @@ use App\Aprobado;
 use App\Reserva;
 use App\Pago;
 use App\Legalizado;
-use App\ConsecutivoEtapaEstado;
+use App\ActualEtapaEstado;
 
 class MainController extends Controller
 {
+    public $estado_id = 3;
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -54,4 +56,61 @@ class MainController extends Controller
 
         return response()->json(['data'=>$etapas]);
     }
+
+    public function declinarProceso(Request $request){
+
+        $fecha_estado = date("Y-m-d H:i:s");
+        
+        ActualEtapaEstado::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                     ]);
+
+        Presolicitud::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+
+        Solicitud::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+
+        Tramite::where('consecutivo', $request->consecutivo)
+                ->update(['estado_id' => $this->estado_id,
+                        'fecha_estado' => $fecha_estado
+                        ]);
+
+        Autorizado::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+        
+        Preaprobado::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+
+        Aprobado::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+
+        Reserva::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+
+        Pago::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+
+        Legalizado::where('consecutivo', $request->consecutivo)
+            ->update(['estado_id' => $this->estado_id,
+                    'fecha_estado' => $fecha_estado
+                    ]);
+
+        return response()->json(['data'=>true]);
+    }              
 }
