@@ -59,7 +59,6 @@
             <div class="row justify-content-center" id="content">
                 @yield('etapasView')
                 @yield('configuracionView')
-                @yield('tipoTransaccionView')
                 @yield('general')
             </div>
         </div>

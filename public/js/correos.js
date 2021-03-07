@@ -7,6 +7,29 @@ import {
     let selected_correos = document.getElementById('items_tabla');
     let enviar_correos = document.getElementById('enviar_correos')
     let url = document.getElementsByTagName('base')[0].href
+    let paginacion = document.getElementById('paginacion');
+
+    if(paginacion){
+        paginacion.style.display = "block"
+        let ul = paginacion.children[0];
+        if(paginacion.children.length != 0){
+            ul.className = "pagination justify-content-center"
+            for(const element in ul.children){
+                let li = ul.children[element]
+                if(li.tagName == "LI"){
+                    if(li.className == ""){
+                        li.className = "page-item"
+                    }else{
+                        if(li.className == "active"){
+                            li.id = "active"
+                        }
+                        li.className = "page-item" + " " + li.className
+                    }
+                    li.children[0].className = "page-link"
+                }
+            }
+        }
+    }
 
     correos.addEventListener("click", function(event){
         let checkboxes = selected_correos.querySelectorAll(`input[type=checkbox]`);

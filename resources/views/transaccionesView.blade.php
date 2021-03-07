@@ -25,9 +25,7 @@
             <thead>
                 <tr>
                     <th>{{ Lang::get('strings.general.consecutivo') }}</th>
-                    @if(!$consulta)
-                        <th>{{ Lang::get('strings.configuracion.tipo_transaccion') }}</th>
-                    @endif
+                    <th>{{ Lang::get('strings.configuracion.tipo_transaccion') }}</th>
                     <th>{{ Lang::get('strings.configuracion.etapa') }}</th>
                     <th>{{ Lang::get('strings.general.estado') }}</th>
                 </tr>
@@ -50,11 +48,9 @@
                         @endif
                     @endif
                     </td>
-                    @if(!$consulta)
-                        <td>{{ $transaccion->tipo_transaccion }}</a></td>
-                    @endif
-                    <td>{{ $transaccion->etapa }}</a></td>
-                    <td>{{ $transaccion->estado }}</a></td>
+                    <td>{{ $transaccion->tipo_transaccion }}</td>
+                    <td>{{ $transaccion->etapa }}</td>
+                    <td>{{ $transaccion->estado }}</td>
                 </tr>
                 @endforeach
             </tbody>

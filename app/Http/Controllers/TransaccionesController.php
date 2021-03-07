@@ -9,7 +9,8 @@ use Auth;
 
 class TransaccionesController extends Controller
 {
-    public $numeroDatos = 4;
+    public $numeroDatos = 5;
+    public $cargo_sap_id = 2;
 
     public function __construct()
     {
@@ -47,25 +48,33 @@ class TransaccionesController extends Controller
     public function showConsultaGestores()
     {
         $consulta = true;
-        $tipoTransaccion;
+        $transacciones = NULL;
 
         //SIGEP
         if(Auth::user()->hasOneCargo(2) | Auth::user()->hasOneRole("Administrador")){
-            $tipoTransaccion = TiposTransaccion::get();
-        }else{
-            $tipoTransaccion = Auth::user()->tiposTransaccion;
-        }
-
-        $transacciones = DB::table('tr_presolicitud AS a')
+            $transacciones = DB::table('tr_presolicitud AS a')
                 ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
                 ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
                 ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
-                ->where('a.transaccion_id', '=' ,$tipoTransaccion->first()->id)
-                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id')
+                ->join('tr_tipostransaccion AS e', 'a.transaccion_id', '=', 'e.id')
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id', 'e.tipo_transaccion')
                 ->orderBy('b.fecha_estado', 'desc')
                 ->paginate($this->numeroDatos);
-        
-        return view('transaccionesView', compact('consulta','tipoTransaccion','transacciones'));
+        }else{
+            $gestor_id = Auth::user()->id;
+            $transacciones = DB::table('tr_presolicitud AS a')
+                ->join('tr_actual_etapa_estado AS b', 'b.consecutivo', '=', 'a.consecutivo')
+                ->join('tr_etapas AS c', 'c.etapa_id', '=', 'b.etapa_id')
+                ->join('tr_estados AS d', 'd.estado_id', '=', 'b.estado_id')
+                ->join('tr_tipostransaccion AS e', 'a.transaccion_id', '=', 'e.id')
+                ->join('tr_usuarios_tipostransaccion AS f', 'a.transaccion_id', '=', 'f.tipo_transaccion_id')
+                ->where('f.usuario_id', '=', $gestor_id)
+                ->select('a.consecutivo', 'c.etapa', 'd.estado', 'c.endpoint', 'd.estado_id', 'e.tipo_transaccion')
+                ->orderBy('b.fecha_estado', 'desc')
+                ->paginate($this->numeroDatos);
+        }
+
+        return view('transaccionesView', compact('consulta','transacciones'));
         //return response()->json(['data'=>$transacciones]);
     }
 
@@ -102,7 +111,7 @@ class TransaccionesController extends Controller
         $tipoTransaccion;
 
         //SIGEP
-        if(Auth::user()->hasOneCargo(2) | Auth::user()->hasOneRole("Administrador")){
+        if(Auth::user()->hasOneCargo($this->cargo_sap_id) | Auth::user()->hasOneRole("Administrador")){
             $tipoTransaccion = TiposTransaccion::get();
         }else{
             $tipoTransaccion = Auth::user()->tiposTransaccion;
